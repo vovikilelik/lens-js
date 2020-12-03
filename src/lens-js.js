@@ -20,6 +20,26 @@ function Mapper(getter, setter) {
 	this.setter = setter;
 }
 
+const getStrictCallback = (callback) => (e) => {
+	const { current } = e;
+	current && callback(e);
+}
+
+const getArray = (lens) => {
+	const raw = lens.get();
+	return Object.keys(raw).map(k => lens.go(k));
+}
+
+const getFactory = ({ getter, setter }) => (factory) => (key, parent) => {
+	const lens = factory(key, parent);
+	
+	return new Lens(
+		() => getter(lens.get()),
+		(value) => lens.set(setter(value, lens.get())),
+		parent
+	);
+}
+
 const compareKeys = (prevKeys, nextKeys) => {
 	return (prevKeys.length === nextKeys.length)
 		&& prevKeys.some((p, i) => p === nextKeys[i]);

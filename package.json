@@ -1,15 +1,27 @@
 {
-	"name": "lens-js",
-	"version": "1.0.0",
-	"keywords": [
-		"util",
-		"functional",
-		"server",
-		"client",
-		"browser"
-	],
-	"author": "svinokot",
-	"contributors": [
-	],
-	"dependencies": {}
+  "name": "lens-js",
+  "version": "1.0.0",
+  "keywords": [
+    "util",
+    "functional",
+    "server",
+    "client",
+    "browser"
+  ],
+  "author": "svinokot",
+  "contributors": [],
+  "dependencies": {},
+  "description": "Application state-manager",
+  "main": "lens-js.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://Svinokot@git.vovikilelik.com/Clu/lens-js.git"
+  },
+  "license": "GPL-3.0-or-later"
 }
