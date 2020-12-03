@@ -89,7 +89,7 @@ const result = rootLens.get();
 	basket: { apple: { color: 'green' } } }
 */
 ```
-Про массивы тоже не забыли
+Про массивы тоже не забыли...
 ```js
 const arrayLens = rootLens.go('anArray');
 
