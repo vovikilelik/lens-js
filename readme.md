@@ -88,8 +88,10 @@ a === b // true
 	basket: { apple: { color: 'green' } }
 }
 */
+
 rootLens.go('undefinedData').set('really?');
 const result = rootLens.get();
+
 /* after
 {
 	undefinedData: 'really?',
