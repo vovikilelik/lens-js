@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+	<head>
+		<title>TODO supply a title</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script src="../src/lens-utils.js"></script>
+		<script src="../src/lens-js.js"></script>
+	</head>
+	<body>
+		<div>TODO write content</div>
+		<script>
+			
+			/* Creation */
+			
+			// init store
+			const store = {data: {}};
+			
+			// init lens
+			const lens = new Lens(
+				() => store.data,
+				(value, effect) => {
+					const prev = store.data;
+					store.data = value;
+					effect(value, prev);
+				}
+			);
+			
+			/* Getting nodes*/
+			
+			// objects
+			const lensa = lens.go('x').go('a');
+			const lensb = lens.go('x').go('b');
+			
+			/* Catching changes */
+			
+			// default
+			lens.attach(e => { console.log('root changed', e) });
+
+			// strict (only on current node)
+			lensa.attach(getStrictCallback(e => { console.log('lensa changed', e) }));
+			lensb.attach(getStrictCallback(e => { console.log('lensb changed', e) }));
+
+			/* Factory and mapping values */
+			const factory = getFactory(
+				new Mapper(
+					v => 'will be getted',
+					(v, prev) => 'will be setted'
+				)
+			);
+
+			const mapped = lens.go('mapped', factory);
+
+			/* Operation */
+
+			// objects
+			const value = lensa.get();
+			lensa.set('new value');
+			
+			// arrays
+			lens.go('array').go(0).set({ id: 'item0' });
+			
+			/* result */
+			console.log('@', lens.get());
+			
+		</script>
+	</body>
+</html>
