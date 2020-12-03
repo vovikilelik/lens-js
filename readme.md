@@ -93,9 +93,9 @@ const result = rootLens.get();
 ```js
 const arrayLens = rootLens.go('anArray');
 
-arrayLens.get(0).set('X');
-arrayLens.get(1).set('Y');
-arrayLens.get(2).set('stop here!');
+arrayLens.go(0).set('X');
+arrayLens.go(1).set('Y');
+arrayLens.go(2).set('stop here!');
 ```
 К сожалению, линза не отличает типы объектов, с которыми она работает. Потому работа с массивами перекладывается на программиста. Однако есть утилита `getArray(lens)`, несколько упрощающая работу с массивами. Вот несколько примеров:
 ```js
