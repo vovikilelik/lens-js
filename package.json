@@ -1,6 +1,6 @@
 {
-  "name": "lens-js",
-  "version": "1.0.0",
+  "name": "@vovikilelik/lens-js",
+  "version": "1.0.1",
   "keywords": [
     "util",
     "functional",
@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "http://Svinokot@git.vovikilelik.com/Clu/lens-js.git"
+    "url": "http://git.vovikilelik.com/Clu/lens-js.git"
   },
   "license": "GPL-3.0-or-later"
 }
