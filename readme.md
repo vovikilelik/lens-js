@@ -198,7 +198,7 @@ const stringToDateFactory = getFactory(new Mapper(
 const colorLens = rootLens.go('color', stringToDateFactory);
 colorLens.set('#FFFFFF');
 
-const appState = rootLens.get(); // { color: 16777215}
+const appState = rootLens.get(); // { color: 16777215 }
 const color = colorLens.get(); // '#FFFFFF'
 ```
 Удачки!
