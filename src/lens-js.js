@@ -20,16 +20,32 @@ function Mapper(getter, setter) {
 	this.setter = setter;
 }
 
+/**
+ * Creating callback, which will be called only if current node would be changed
+ * @param {Function} callback
+ * @returns {Function}
+ */
 const getStrictCallback = (callback) => (e) => {
 	const { current } = e;
 	current && callback(e);
 }
 
+/**
+ * Getting array of Lens from any node
+ * @param {Lens} lens
+ * @returns {Array<Lens>}
+ */
 const getArray = (lens) => {
 	const raw = lens.get();
 	return Object.keys(raw).map(k => lens.go(k));
 }
 
+/**
+ * Create mappable fatory
+ * @param {Function} getter
+ * @param {Function} setter
+ * @returns {Function}
+ */
 const getFactory = ({ getter, setter }) => (factory) => (key, parent) => {
 	const lens = factory(key, parent);
 	
@@ -111,7 +127,18 @@ const coreFactory = (key, parent) => {
 	);
 }
 
+/**
+ * Lens node
+ * @type Lens
+ */
 class Lens {
+	
+	/**
+	 * Constructor
+	 * @param {Function} getter
+	 * @param {Function} setter
+	 * @returns {Lens}
+	 */
 	constructor(getter, setter) {
 		this.parent = parent;
 
@@ -126,6 +153,12 @@ class Lens {
 		return this.parent;
 	}
 
+	/**
+	 * Move to next node
+	 * @param {string} key Name of node
+	 * @param {Function} factory Node creator (coreFactory as default)
+	 * @returns {Lens.go@arr;children}
+	 */
 	go(key, factory) {
 		const current = this.children[key];
 		if (current && (!factory || factory === this.factory)) {
@@ -141,10 +174,31 @@ class Lens {
 		}
 	}
 
+	/**
+	 * Getting data assigned with current node
+	 * @returns {object}
+	 */
 	get() {
 		return this.getter();
 	}
 
+	/**
+	 * Setting data to store relatives current node
+	 * @param {object} value
+	 * @returns {undefined}
+	 */
+	set(value) {
+		const prev = this.get();
+		this.setter(value, () => this.effect(value, prev));
+	}
+
+	/**
+	 * Triggering event cascade
+	 * @param {object} value 
+	 * @param {object} prev
+	 * @param {NodeDiff[]} diffs Cascade model
+	 * @returns {undefined}
+	 */
 	effect(value, prev, diffs = getDiffs(prev, value, [], [])) {
 		this.attachments.forEach((callback) => callback(new AttachEvent(diffs.find(({path}) => !path || !path.length), diffs)));
 
@@ -158,16 +212,21 @@ class Lens {
 		});
 	}
 
-	set(value) {
-		const prev = this.get();
-		this.setter(value, () => this.effect(value, prev));
-	}
-
+	/**
+	 * Add change listener
+	 * @param {Function(AttachEvent e)} callback
+	 * @returns {undefined}
+	 */
 	attach(callback) {
 		const exists = this.attachments.find((c) => c === callback);
 		!exists && this.attachments.push(callback);
 	}
 
+	/**
+	 * Remove change listener
+	 * @param {Function} callback
+	 * @returns {undefined}
+	 */
 	detach(callback) {
 		this.attachments = this.attachments.filter((c) => c !== callback);
 	}
