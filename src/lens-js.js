@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-function AtachEvent(current, diffs) {
+function AttachEvent(current, diffs) {
 	this.current = current;
 	this.diffs = diffs;
 }
@@ -146,7 +146,7 @@ class Lens {
 	}
 
 	effect(value, prev, diffs = getDiffs(prev, value, [], [])) {
-		this.attachments.forEach((callback) => callback(new AtachEvent(diffs.find(({path}) => !path || !path.length), diffs)));
+		this.attachments.forEach((callback) => callback(new AttachEvent(diffs.find(({path}) => !path || !path.length), diffs)));
 
 		Object.keys(this.children).forEach((key) => {
 			
