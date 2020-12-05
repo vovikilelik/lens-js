@@ -1,6 +1,6 @@
 {
   "name": "@vovikilelik/lens-js",
-  "version": "1.0.8",
+  "version": "1.0.13",
   "keywords": [
     "util",
     "functional",
@@ -13,12 +13,13 @@
   "contributors": [],
   "dependencies": {},
   "description": "Application state-manager",
-  "main": "lens-js.js",
+  "main": "index.js",
   "directories": {
     "test": "test"
   },
   "files": [
-    "src/lens-js.js"
+    "src/lens-js.js",
+	"index.js"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
