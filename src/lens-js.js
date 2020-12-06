@@ -56,12 +56,12 @@ const getFactory = ({ getter, setter }) => (factory) => (key, parent) => {
 	);
 }
 
-const compareKeys = (prevKeys, nextKeys) => {
+const _compareKeys = (prevKeys, nextKeys) => {
 	return (prevKeys.length === nextKeys.length)
 		&& prevKeys.some((p, i) => p === nextKeys[i]);
 }
 
-const getDiffs = (prev, next, path = [], diffs = []) => {
+const _getDiffs = (prev, next, path = [], diffs = []) => {
 	const prevType = typeof prev;
 	const nextType = typeof next;
 	
@@ -76,13 +76,13 @@ const getDiffs = (prev, next, path = [], diffs = []) => {
 			const prevKeys = Object.keys(prev);
 			const nextKeys = Object.keys(next);
 			
-			if (!compareKeys(prevKeys, nextKeys)) {
+			if (!_compareKeys(prevKeys, nextKeys)) {
 				diffs.push(new NodeDiff(path, prev, next));
 				return diffs;
 			}
 
 			prevKeys.forEach(key => {
-				getDiffs(prev[key], next[key], [...path, key], diffs);
+				_getDiffs(prev[key], next[key], [...path, key], diffs);
 			});
 			
 			return diffs;
@@ -95,13 +95,13 @@ const getDiffs = (prev, next, path = [], diffs = []) => {
 	}
 }
 
-const shiftDiffs = (key, diffs) => {
+const _shiftDiffs = (key, diffs) => {
 	return diffs
 		.filter(({path}) => path[0] === key)
 		.map(({path, ...diff}) => ({...diff, path: path.slice(1)}));
 }
 
-const makeObjectOrArray = (key, value, prev) => {
+const _makeObjectOrArray = (key, value, prev) => {
 	switch (typeof key) {
 		case 'number':
 			const result = prev ? [...prev] : [];
@@ -113,7 +113,7 @@ const makeObjectOrArray = (key, value, prev) => {
 	}
 }
 
-const coreFactory = (key, parent) => {
+const _coreFactory = (key, parent) => {
 	return new Lens(
 		() => {
 			const value = parent.get();
@@ -121,13 +121,13 @@ const coreFactory = (key, parent) => {
 		},
 		(value) => {
 			const prev = parent.get();
-			parent.set(makeObjectOrArray(key, value, prev));
+			parent.set(_makeObjectOrArray(key, value, prev));
 		},
 		parent
 	);
 }
 
-const isPathEntry = (diffs, key) => diffs.some(({ path }) => path && path[0] === key)
+const _isPathEntry = (diffs, key) => diffs.some(({ path }) => path && path[0] === key)
 
 /**
  * Lens node
@@ -164,14 +164,14 @@ class Lens {
 		this._fire(diffs);
 
 		Object.keys(this.children).forEach((key) => {
-			if (!isPathEntry(diffs, key)) return;
+			if (!_isPathEntry(diffs, key)) return;
 			
-			this.children[key]._cascade(shiftDiffs(key, diffs));
+			this.children[key]._cascade(_shiftDiffs(key, diffs));
 		});
 	}
 
 	_effect(value, prev) {
-		const diffs = getDiffs(prev, value, [], []);
+		const diffs = _getDiffs(prev, value, [], []);
 		diffs.length && (this._cascade(diffs));
 	}
 
@@ -179,14 +179,14 @@ class Lens {
 	 * Move to next node
 	 * @param {string} key Name of node
 	 * @param {Function} factory Node creator (coreFactory as default)
-	 * @returns {Lens.go@arr;children}
+	 * @returns {Lens}
 	 */
 	go(key, factory) {
 		const current = this.children[key];
 		if (current && (!factory || factory === this.factory)) {
 			return current;
 		} else {
-			const core = factory ? factory(coreFactory) : coreFactory;
+			const core = factory ? factory(_coreFactory) : _coreFactory;
 			const node = core(key, this);
 			
 			this.children[key] = node;

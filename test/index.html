@@ -24,15 +24,19 @@ and open the template in the editor.
 				}
 			);
 
-			const two = lens.go('one').go('two');
+			const one = lens.go('one');
+			const two = one.go('two');
+			const test = two.go('test');
 
-			lens.attach(e => console.log('root', e.current));
+			lens.attach(e => console.log('root', e.current, e.diffs));
+			one.attach(e => console.log('one', e.current, e.diffs));
 			two.attach(e => console.log('two', e.current, e.diffs));
+			test.attach(e => console.log('test', e.current, e.diffs));
 			
 
-			lens.set({ test: 'root' });
-			two.set({ test: 'two' });
-			two.set({ test: 'two2' });
+			two.set({ test: '0' });
+			console.log('---');
+			two.set({ test: '1' });
 		</script>
 	</body>
 </html>
