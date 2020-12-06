@@ -206,7 +206,7 @@ const appleLens = rootLens.go('basket').go('apple');
 appleLens.attach(console.log);
 
 // change data
-rootLens.go('basket').go('apple').attach(console.log);
+appleLens.set({ color: 'red' });
 ```
 Это происходит потому, что на самом деле изменился только корень линзы.
 
