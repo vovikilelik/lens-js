@@ -42,8 +42,7 @@ const getArray = (lens) => {
 
 /**
  * Create mappable fatory
- * @param {Function} getter
- * @param {Function} setter
+ * @param {Mapper} mapper
  * @returns {Function}
  */
 const getFactory = ({ getter, setter }) => (factory) => (key, parent) => {
