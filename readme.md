@@ -28,7 +28,7 @@
 const store = {lens: {}}; // your store
 
 const lens = new Lens(
-	() => store.data, // getter
+	() => store.lens, // getter
 	(value, effect) => { // setter
 		store.lens = value;
 		
@@ -167,14 +167,19 @@ function Fruit(lens) {
 	})
 }
 ```
-```
- catch       catch       catch      {X}
-   |           |           |         |
-(root) --> (basket) --> (apple) --> ...
-```
+У событийной модели есть две особенности:
 
-> Стоит отметить, что такое событие будет вызываться каждый раз когда
-> происходят изменения в целой ветке, от корня до узла. Такое поведение
+- Линза будет вызывать все события по пути, **от корня до места изменения**
+```js
+// store = { lens: { basket: { apple: { color: 'red' } } } }
+rootLens.go('basket').go('apple').set({color: 'green'});
+```
+```
+ catch       catch       catch         0
+   |           |           |           |
+(root) --> (basket) --> (apple) --> (color)
+```
+> Такое поведение
 > нужно, если есть необходимость перехватывать изменения в
 > компонентах-родителях. Для того, чтобы отловить изменение только на
 > текущем узле, следует проверить свойство `current.path`, которое
@@ -187,10 +192,23 @@ const callback = getStrictCallback((current, diffs) => { /* ... */ });
 lens.attach(callback);
 ```
 ```
-  {X}         {X}        catch      {X}
+   0           0         catch       0
    |           |           |         |
 (root) --> (basket) --> (apple) --> ...
 ```
+
+- Путь до изменившегося узла расчитывается от существующих данных. Например, следующий пример **не вызовет** событие:
+```js
+// store = { lens: {} }
+
+// get lens and attach event
+const appleLens = rootLens.go('basket').go('apple');
+appleLens.attach(console.log);
+
+// change data
+rootLens.go('basket').go('apple').attach(console.log);
+```
+Это происходит потому, что на самом деле изменился только корень линзы.
 
 ### Композитное состояние
 Структура линз поддерживает возможность монтирования любых своих производных. Это полезно, если нужно объединить в одну структуру несколько компонентов их разных архитектур, в т. ч. и на линзах. Для этого нужно вызвать функцию `.go()`, со вторым аргументом (агрегатором) `.go(name, factory)`:
