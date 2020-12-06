@@ -151,8 +151,28 @@ class Lens {
 		this.children = [];
 	}
 
-	getParent() {
+	_getParent() {
 		return this.parent;
+	}
+
+	_fire(diffs) {
+		const currentDiff = diffs.find(({ path }) => !path || !path.length);
+		this.attachments.forEach((callback) => callback(new AttachEvent(currentDiff, diffs)));
+	}
+
+	_cascade(diffs) {
+		this._fire(diffs);
+
+		Object.keys(this.children).forEach((key) => {
+			if (!isPathEntry(diffs, key)) return;
+			
+			this.children[key]._cascade(shiftDiffs(key, diffs));
+		});
+	}
+
+	_effect(value, prev) {
+		const diffs = getDiffs(prev, value, [], []);
+		diffs.length && (this._cascade(diffs));
 	}
 
 	/**
@@ -191,27 +211,7 @@ class Lens {
 	 */
 	set(value) {
 		const prev = this.get();
-		this.setter(value, () => this.effect(value, prev));
-	}
-
-	fire(diffs) {
-		const currentDiff = diffs.find(({ path }) => !path || !path.length);
-		this.attachments.forEach((callback) => callback(new AttachEvent(currentDiff, diffs)));
-	}
-
-	cascade(diffs) {
-		this.fire(diffs);
-
-		Object.keys(this.children).forEach((key) => {
-			if (!isPathEntry(diffs, key)) return;
-			
-			this.children[key].cascade(shiftDiffs(key, diffs));
-		});
-	}
-
-	effect(value, prev) {
-		const diffs = getDiffs(prev, value, [], []);
-		diffs.length && (this.cascade(diffs));
+		this.setter(value, () => this._effect(value, prev));
 	}
 
 	/**
