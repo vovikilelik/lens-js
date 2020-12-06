@@ -30,11 +30,10 @@ const store = {lens: {}}; // your store
 const lens = new Lens(
 	() => store.data, // getter
 	(value, effect) => { // setter
-		const prev = store.lens;
 		store.lens = value;
 		
 		// app render trigger
-		effect(value, prev);
+		effect();
 	}
 );
 ```
