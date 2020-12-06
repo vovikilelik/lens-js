@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+	<head>
+		<title>TODO supply a title</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script src="../src/lens-js.js"></script>
+	</head>
+	<body>
+		<div>TODO write content</div>
+		<script>
+			const store = { lens: {} };
+
+			const lens = new Lens(
+				() => store.lens,
+				(value, effect) => {
+					store.lens = value;
+					effect();
+				}
+			);
+
+			const two = lens.go('one').go('two');
+
+			lens.attach(e => console.log('root', e.current));
+			two.attach(e => console.log('two', e.current, e.diffs));
+			
+
+			lens.set({ test: 'root' });
+			two.set({ test: 'two' });
+			two.set({ test: 'two2' });
+		</script>
+	</body>
+</html>

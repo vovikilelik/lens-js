@@ -127,6 +127,8 @@ const coreFactory = (key, parent) => {
 	);
 }
 
+const isPathEntry = (diffs, key) => diffs.some(({ path }) => path && path[0] === key)
+
 /**
  * Lens node
  * @type Lens
@@ -192,6 +194,21 @@ class Lens {
 		this.setter(value, () => this.effect(value, prev));
 	}
 
+	fire(diffs) {
+		const currentDiff = diffs.find(({ path }) => !path || !path.length);
+		this.attachments.forEach((callback) => callback(new AttachEvent(currentDiff, diffs)));
+	}
+
+	cascade(diffs) {
+		this.fire(diffs);
+
+		Object.keys(this.children).forEach((key) => {
+			if (!isPathEntry(diffs, key)) return;
+			
+			this.children[key].cascade(shiftDiffs(key, diffs));
+		});
+	}
+
 	/**
 	 * Triggering event cascade
 	 * @param {object} value 
@@ -199,17 +216,9 @@ class Lens {
 	 * @param {NodeDiff[]} diffs Cascade model
 	 * @returns {undefined}
 	 */
-	effect(value, prev, diffs = getDiffs(prev, value, [], [])) {
-		this.attachments.forEach((callback) => callback(new AttachEvent(diffs.find(({path}) => !path || !path.length), diffs)));
-
-		Object.keys(this.children).forEach((key) => {
-			
-			if (!diffs.some(({path}) => path && path[0] === key)) {
-				return;
-			}
-			
-			this.children[key].effect(value && value[key], prev && prev[key], shiftDiffs(key, diffs));
-		});
+	effect(value, prev) {
+		const diffs = getDiffs(prev, value, [], []);
+		diffs.length && (this.cascade(diffs));
 	}
 
 	/**
