@@ -209,13 +209,6 @@ class Lens {
 		});
 	}
 
-	/**
-	 * Triggering event cascade
-	 * @param {object} value 
-	 * @param {object} prev
-	 * @param {NodeDiff[]} diffs Cascade model
-	 * @returns {undefined}
-	 */
 	effect(value, prev) {
 		const diffs = getDiffs(prev, value, [], []);
 		diffs.length && (this.cascade(diffs));
