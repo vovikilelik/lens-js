@@ -9,11 +9,12 @@ and open the template in the editor.
 		<title>TODO supply a title</title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<script src="../src/lens-js.js"></script>
 	</head>
 	<body>
 		<div>TODO write content</div>
-		<script>
+		<script type="module">
+			import { Lens } from '../src/lens-js.js';
+			
 			const store = { lens: {} };
 
 			const lens = new Lens(
@@ -37,6 +38,6 @@ and open the template in the editor.
 			two.set({ test: '0' });
 			console.log('---');
 			two.set({ test: '1' });
-		</script>
+		</script>	
 	</body>
 </html>

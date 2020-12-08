@@ -4,18 +4,13 @@
  * and open the template in the editor.
  */
 
-function AttachEvent(current, diffs) {
-	this.current = current;
-	this.diffs = diffs;
-}
-
-function NodeDiff(path, prev, value) {
-	this.path = path;
-	this.prev = prev;
-	this.value = value;
-}
-
-function Mapper(getter, setter) {
+/**
+ * Read-write mapper
+ * @param {Function} getter
+ * @param {Function} setter
+ * @returns {Mapper}
+ */
+export function Mapper(getter, setter) {
 	this.getter = getter;
 	this.setter = setter;
 }
@@ -25,7 +20,7 @@ function Mapper(getter, setter) {
  * @param {Function} callback
  * @returns {Function}
  */
-const getStrictCallback = (callback) => (e) => {
+export const getStrictCallback = (callback) => (e) => {
 	const { current } = e;
 	current && callback(e);
 }
@@ -35,7 +30,7 @@ const getStrictCallback = (callback) => (e) => {
  * @param {Lens} lens
  * @returns {Array<Lens>}
  */
-const getArray = (lens) => {
+export const getArray = (lens) => {
 	const raw = lens.get();
 	return Object.keys(raw).map(k => lens.go(k));
 }
@@ -45,7 +40,7 @@ const getArray = (lens) => {
  * @param {Mapper} mapper
  * @returns {Function}
  */
-const getFactory = ({ getter, setter }) => (factory) => (key, parent) => {
+export const getFactory = ({ getter, setter }) => (factory) => (key, parent) => {
 	const lens = factory(key, parent);
 	
 	return new Lens(
@@ -53,6 +48,17 @@ const getFactory = ({ getter, setter }) => (factory) => (key, parent) => {
 		(value) => lens.set(setter(value, lens.get())),
 		parent
 	);
+}
+
+function AttachEvent(current, diffs) {
+	this.current = current;
+	this.diffs = diffs;
+}
+
+function NodeDiff(path, prev, value) {
+	this.path = path;
+	this.prev = prev;
+	this.value = value;
 }
 
 const _compareKeys = (prevKeys, nextKeys) => {
@@ -132,7 +138,7 @@ const _isPathEntry = (diffs, key) => diffs.some(({ path }) => path && path[0] ==
  * Lens node
  * @type Lens
  */
-class Lens {
+export class Lens {
 	
 	/**
 	 * Constructor

@@ -20,11 +20,20 @@
 # Подключение
 - Подключите скрипт
 ```html
-<script src="lens-js.js"></script>
+<script type="module" src="lens-js.js"></script>
+
+// or
+
+<script type="module">
+	import { Lens } from './lens-js.js';
+
+	/* your code here */
+</script>
 ```
 
 - Всё! Можно пользоваться =)
 ```js
+
 const store = {lens: {}}; // your store
 
 const lens = new Lens(
