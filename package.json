@@ -1,6 +1,6 @@
 {
   "name": "@vovikilelik/lens-js",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "keywords": [
     "util",
     "functional",
@@ -16,9 +16,11 @@
   "directories": {
     "test": "test"
   },
+  "main": "index.js",
   "files": [
     "src/lens-js.js",
-	"src/lens-utils.js"
+    "src/lens-utils.js",
+    "index.js"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
