@@ -14,8 +14,9 @@ and open the template in the editor.
 		<div>TODO write content</div>
 		<script type="module">
 			import { Lens } from '../src/lens-js.js';
+                        import { getConsistsCallback } from '../src/lens-utils.js';
 			
-			const store = { lens: {} };
+			const store = { lens: { m: { x: 1, y: 1} } };
 
 			const lens = new Lens(
 				() => store.lens,
@@ -25,19 +26,15 @@ and open the template in the editor.
 				}
 			);
 
-			const one = lens.go('one');
-			const two = one.go('two');
-			const test = two.go('test');
-
 			lens.attach(e => console.log('root', e.current, e.diffs));
-			one.attach(e => console.log('one', e.current, e.diffs));
-			two.attach(e => console.log('two', e.current, e.diffs));
-			test.attach(e => console.log('test', e.current, e.diffs));
+			lens.go('m').attach(getConsistsCallback(e => console.log('m', e.current, e.diffs)));
+			lens.go('m').go('x').attach(e => console.log('x', e.current, e.diffs));
+			lens.go('m').go('y').attach(e => console.log('y', e.current, e.diffs));
 			
 
-			two.set({ test: '0' });
+			lens.go('m').set({ x: 2, y: 2 });
 			console.log('---');
-			two.set({ test: '1' });
+//			lens.go(m).set({ test: '1' });
 		</script>	
 	</body>
 </html>

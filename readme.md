@@ -91,7 +91,7 @@ a === b // true
 ```js
 /* before
 {
-	basket: { apple: { color: 'green' } }
+    basket: { apple: { color: 'green' } }
 }
 */
 
@@ -100,8 +100,9 @@ const result = rootLens.get();
 
 /* after
 {
-	undefinedData: 'really?',
-	basket: { apple: { color: 'green' } }
+	
+    basket: { apple: { color: 'green' } },
+    undefinedData: 'really?'
 }
 */
 ```
@@ -182,7 +183,7 @@ function Fruit(lens) {
 rootLens.go('basket').go('apple').set({color: 'green'});
 ```
 ```
- catch       catch       catch         0
+ catch       catch       catch       catch
    |           |           |           |
 (root) --> (basket) --> (apple) --> (color)
 ```
@@ -197,11 +198,32 @@ rootLens.go('basket').go('apple').set({color: 'green'});
 ```js
 const callback = getStrictCallback((current, diffs) => { /* ... */ });
 lens.attach(callback);
+
+   0           0           0         catch
+   |           |           |           |
+(root) --> (basket) --> (apple) --> (color)
 ```
+
+```js
+const deep = 1;
+const callback = getConsistsCallback((current, diffs) => { /* ... */ }, deep /* 1 by default*/);
+lens.attach(callback);
+
+   0           0         catch         0
+   |           |           |           |
+(root) --> (basket) --> (apple) --> (color)
+                           |____deep___|
 ```
-   0           0         catch       0
-   |           |           |         |
-(root) --> (basket) --> (apple) --> ...
+
+```js
+const deep = 2;
+const callback = getConsistsCallback((current, diffs) => { /* ... */ }, deep);
+lens.attach(callback);
+
+   0         catch         0           0
+   |           |           |           |
+(root) --> (basket) --> (apple) --> (color)
+              |__________deep__________|
 ```
 
 - Путь до изменившегося узла расчитывается от существующих данных. Например, следующий пример **не вызовет** событие:

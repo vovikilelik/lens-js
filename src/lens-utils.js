@@ -28,6 +28,17 @@ export const getStrictCallback = (callback) => (e) => {
 }
 
 /**
+ * Creating callback, which will be called only if parent current node would be changed
+ * @param {Function} callback
+ * @param {number} deep
+ * @returns {Function}
+ */
+export const getConsistsCallback = (callback, deep = 1) => (e) => {
+	const { diffs } = e;
+	diffs.find(({ path }) => path.length === deep) && callback(e);
+}
+
+/**
  * Getting array of Lens from any node
  * @param {Lens} lens
  * @returns {Array<Lens>}
