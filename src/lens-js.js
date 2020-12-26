@@ -4,12 +4,12 @@
  * and open the template in the editor.
  */
 
-function AttachEvent(current, diffs) {
+export function AttachEvent(current, diffs) {
 	this.current = current;
 	this.diffs = diffs;
 }
 
-function NodeDiff(path, prev, value) {
+export function NodeDiff(path, prev, value) {
 	this.path = path;
 	this.prev = prev;
 	this.value = value;
@@ -17,7 +17,7 @@ function NodeDiff(path, prev, value) {
 
 const _compareKeys = (prevKeys, nextKeys) => {
 	return (prevKeys.length === nextKeys.length)
-		&& prevKeys.some((p, i) => p === nextKeys[i]);
+		&& !prevKeys.some((p, i) => p !== nextKeys[i]);
 }
 
 const _getDiffs = (prev, next, path = [], diffs = []) => {
@@ -98,9 +98,10 @@ export class Lens {
 	 * Constructor
 	 * @param {Function} getter
 	 * @param {Function} setter
+         * @param {Lens} parent
 	 * @returns {Lens}
 	 */
-	constructor(getter, setter) {
+	constructor(getter, setter, parent) {
 		this.parent = parent;
 
 		this.getter = getter;

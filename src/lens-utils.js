@@ -1,3 +1,5 @@
+import {Lens} from './lens-js.js';
+
 /* 
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -45,7 +47,10 @@ export const getFactory = ({ getter, setter }) => (factory) => (key, parent) => 
 	
 	return new Lens(
 		() => getter(lens.get()),
-		(value) => lens.set(setter(value, lens.get())),
+		(value, effect) => {
+                    lens.set(setter(value, lens.get()));
+                    effect();
+                },
 		parent
 	);
 }
