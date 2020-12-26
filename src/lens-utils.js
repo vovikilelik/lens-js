@@ -30,12 +30,13 @@ export const getStrictCallback = (callback) => (e) => {
 /**
  * Creating callback, which will be called only if parent current node would be changed
  * @param {Function} callback
- * @param {number} deep
+ * @param {number} a high node index
+ * @param {number} b less node index
  * @returns {Function}
  */
-export const getConsistsCallback = (callback, deep = 1) => (e) => {
+export const getConsistsCallback = (callback, a = 1, b = a) => (e) => {
 	const { diffs } = e;
-	diffs.find(({ path }) => path.length === deep) && callback(e);
+	diffs.find(({ path }) => path && b <= path.length && path.length <= a) && callback(e);
 }
 
 /**

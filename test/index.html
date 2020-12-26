@@ -16,7 +16,7 @@ and open the template in the editor.
 			import { Lens } from '../src/lens-js.js';
                         import { getConsistsCallback } from '../src/lens-utils.js';
 			
-			const store = { lens: { m: { x: 1, y: 1} } };
+			const store = { lens: { m: { x: 1, y: 1, z: { c: 1 }} } };
 
 			const lens = new Lens(
 				() => store.lens,
@@ -26,13 +26,14 @@ and open the template in the editor.
 				}
 			);
 
-			lens.attach(e => console.log('root', e.current, e.diffs));
-			lens.go('m').attach(getConsistsCallback(e => console.log('m', e.current, e.diffs)));
-			lens.go('m').go('x').attach(e => console.log('x', e.current, e.diffs));
-			lens.go('m').go('y').attach(e => console.log('y', e.current, e.diffs));
+//			lens.attach(e => console.log('root', e.current, e.diffs));
+			lens.go('m').attach(getConsistsCallback(e => console.log('m', e.current, e.diffs), 2));
+//			lens.go('m').go('x').attach(e => console.log('x', e.current, e.diffs));
+//			lens.go('m').go('y').attach(e => console.log('y', e.current, e.diffs));
 			
 
-			lens.go('m').set({ x: 2, y: 2 });
+			lens.go('m').set({ x: 2, y: 2, z: { c: 2 } });
+                        lens.go('m').go('z').set({ c: 3 });
 			console.log('---');
 //			lens.go(m).set({ test: '1' });
 		</script>	
