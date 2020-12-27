@@ -54,7 +54,7 @@ export const getArray = (lens) => {
  * @param {Mapper} mapper
  * @returns {Function}
  */
-export const getFactory = ({ getter, setter }) => (factory) => (key, parent) => {
+export const getMapper = ({ getter, setter }) => (factory) => (key, parent) => {
 	const lens = factory(key, parent);
 	
 	return new Lens(

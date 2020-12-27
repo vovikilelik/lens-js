@@ -257,12 +257,12 @@ const myLens = rootLens.go('myLens', factory);
 
 Такой способ позволяет создавать функциональное состояние, объединяющее несколько подходов к его организации. Кстати, для удобства есть утилита `getFactory`, позволяющая создавать маппер на чтение и запись. Это полезно, если нужно преобразовать данные перед установкой в основное состояние.
 ```js
-const colorFactory = getFactory(new Mapper(
+const colorMapper = getMapper(new Mapper(
 	v => `#${v.toString(16)}`, // when will call .get()
 	(v, prev) => parseInt(v.substring(1), 16); // when will call .set(value)
 ));
 
-const colorLens = rootLens.go('color', colorFactory);
+const colorLens = rootLens.go('color', colorMapper);
 colorLens.set('#FFFFFF');
 
 const appState = rootLens.get(); // { color: 16777215 }
