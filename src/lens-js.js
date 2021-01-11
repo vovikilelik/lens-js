@@ -143,14 +143,14 @@ export class Lens {
 	 */
 	go(key, factory) {
 		const current = this.children[key];
-		if (current && (!factory || factory === this.factory)) {
+		if (current && (!factory || factory === current._factory)) {
 			return current;
 		} else {
 			const core = factory ? factory(_coreFactory) : _coreFactory;
 			const node = core(key, this);
 			
+			node._factory = factory;
 			this.children[key] = node;
-			this.factory = factory;
 			
 			return node;
 		}
