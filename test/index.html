@@ -40,9 +40,11 @@ and open the template in the editor.
 			const f = getMapper(v => v, v => v);
 			
 			const x = lens.go('any', f);
-			const y = lens.go('any', f);
+			const y = lens.go('any');
 			
-			console.log(x == y);
+			console.log(x === y);
+			
+			console.log(x);
 		</script>	
 	</body>
 </html>

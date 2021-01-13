@@ -39,6 +39,9 @@ export const getConsistsCallback = (callback, a = 1, b = a) => (e) => {
 	diffs.find(({ path }) => path && b <= path.length && path.length <= a) && callback(e);
 }
 
+const isNumber = (key) => !isNaN(key);
+const getIndexOrName = (key) => isNumber(key) ? +key : key;
+
 /**
  * Getting array of Lens from any node
  * @param {Lens} lens
@@ -46,7 +49,12 @@ export const getConsistsCallback = (callback, a = 1, b = a) => (e) => {
  */
 export const getArray = (lens) => {
 	const raw = lens.get();
-	return Object.keys(raw).map(k => lens.go(k));
+
+	const isArray = !raw || Array.isArray(raw);
+	return Object.keys(raw).map(k => {
+		const key = isArray ? getIndexOrName(k) : k;
+		return lens.go(key);
+	});
 }
 
 /**
