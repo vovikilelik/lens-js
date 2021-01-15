@@ -1,6 +1,6 @@
 {
   "name": "@vovikilelik/lens-js",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "keywords": [
     "util",
     "functional",
@@ -13,7 +13,7 @@
   "author": "svinokot",
   "contributors": [],
   "dependencies": {},
-  "description": "Application state-manager",
+  "description": "Application state manager",
   "directories": {
     "test": "test"
   },
@@ -26,6 +26,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "homepage": "http://git.vovikilelik.com/Clu/lens-js/wiki",
   "repository": {
     "type": "git",
     "url": "http://git.vovikilelik.com/Clu/lens-js.git"
