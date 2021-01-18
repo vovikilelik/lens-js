@@ -39,12 +39,39 @@ and open the template in the editor.
 
 			const f = getMapper(v => v, v => v);
 			
-			const x = lens.go('any', f);
+			class XLens extends Lens {
+				constructor(...args) {
+					super(...args);
+				}
+				
+				get qwe() {
+					return this.go('qwe').get();
+				}
+				
+				set qwe(v) {
+					this.go('qwe').set(v);
+				}
+			}
+			
+			const xf = (core) => (key, p) => {
+				const l = core(key, p);
+				return new XLens(() => l.get(), (v) => l.set(v));
+			}
+			
+			console.log('----go----');
+			
+			const x = lens.go('any', xf);
 			const y = lens.go('any');
 			
 			console.log(x === y);
 			
 			console.log(x);
+			console.log(x.go('n'));
+			
+			x.qwe = '123';
+			x.go('n').qwe = '321';
+			
+			console.log(x.get());
 		</script>	
 	</body>
 </html>

@@ -72,18 +72,25 @@ const _makeObjectOrArray = (key, value, prev) => {
 	}
 }
 
+const getPrototype = (object) => {
+	return object.prototype || object.__proto__;
+}
+
 const _coreFactory = (key, parent) => {
-	return new Lens(
-		() => {
-			const value = parent.get();
-			return value && value[key];
-		},
-		(value) => {
+	const prototype = getPrototype(parent);
+	const constructor = (prototype && prototype.constructor) || Lens;
+	
+	const getter = () => {
+		const value = parent.get();
+		return value && value[key];
+	};
+	
+	const setter = (value) => {
 			const prev = parent.get();
 			parent.set(_makeObjectOrArray(key, value, prev));
-		},
-		parent
-	);
+	};
+	
+	return new constructor(getter, setter, parent);
 }
 
 const _isPathEntry = (diffs, key) => diffs.some(({ path }) => path && path[0] === key)
