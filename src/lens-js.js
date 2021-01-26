@@ -105,7 +105,7 @@ export class Lens {
 	 * Constructor
 	 * @param {Function} getter
 	 * @param {Function} setter
-         * @param {Lens} parent
+     * @param {Lens} parent
 	 * @returns {Lens}
 	 */
 	constructor(getter, setter, parent) {
@@ -175,7 +175,7 @@ export class Lens {
 		const prev = this.get();
 		this.setter(value, (() => {
 			this._effect(value, prev);
-			callback && callback(value, prev);
+			callback && callback();
 		}));
 	}
 
