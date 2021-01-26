@@ -85,9 +85,9 @@ const _coreFactory = (key, parent) => {
 		return value && value[key];
 	};
 	
-	const setter = (value) => {
-			const prev = parent.get();
-			parent.set(_makeObjectOrArray(key, value, prev));
+	const setter = (value, effect) => {
+		const prev = parent.get();
+		parent.set(_makeObjectOrArray(key, value, prev), effect);
 	};
 	
 	return new constructor(getter, setter, parent);
@@ -171,32 +171,46 @@ export class Lens {
 		return this.getter();
 	}
 
+	_rootSet(value, callback) {
+		const prev = this.get();
+		this.setter(value, (() => {
+			this._effect(value, prev);
+			callback && callback(value, prev);
+		}));
+	}
+
 	/**
 	 * Setting data to store relatives current node
 	 * @param {object} value
+	 * @param {Function} callback
 	 * @returns {undefined}
 	 */
-	set(value) {
-		const prev = this.get();
-		this.setter(value, () => this._effect(value, prev));
+	set(value, callback) {
+		this.parent ? this.setter(value, callback) : this._rootSet(value, callback);
 	}
 
 	/**
 	 * Add change listener
 	 * @param {Function(AttachEvent e)} callback
-	 * @returns {undefined}
+	 * @returns {boolean}
 	 */
 	attach(callback) {
 		const exists = this.attachments.find((c) => c === callback);
 		!exists && this.attachments.push(callback);
+		
+		return !exists;
 	}
 
 	/**
 	 * Remove change listener
 	 * @param {Function} callback
-	 * @returns {undefined}
+	 * @returns {boolean}
 	 */
 	detach(callback) {
-		this.attachments = this.attachments.filter((c) => c !== callback);
+		const filtered = this.attachments.filter((c) => c !== callback);
+		const changed = this.attachments.length === filtered.length;
+		this.attachments = filtered;
+		
+		return changed;
 	}
 }

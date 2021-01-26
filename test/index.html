@@ -21,21 +21,14 @@ and open the template in the editor.
 			const lens = new Lens(
 				() => store.lens,
 				(value, effect) => {
+					console.log('lens setter');
 					store.lens = value;
 					effect();
 				}
 			);
 
-//			lens.attach(e => console.log('root', e.current, e.diffs));
-			lens.go('m').attach(getConsistsCallback(e => console.log('m', e.current, e.diffs), 2));
-//			lens.go('m').go('x').attach(e => console.log('x', e.current, e.diffs));
-//			lens.go('m').go('y').attach(e => console.log('y', e.current, e.diffs));
-			
-
-			lens.go('m').set({ x: 2, y: 2, z: { c: 2 } });
-                        lens.go('m').go('z').set({ c: 3 });
-			console.log('---');
-//			lens.go(m).set({ test: '1' });
+			lens.attach(e => console.log('root', e.current, e.diffs));
+			lens.go('m').attach(e => console.log('m', e.current, e.diffs));
 
 			const f = getMapper(v => v, v => v);
 			
@@ -49,13 +42,16 @@ and open the template in the editor.
 				}
 				
 				set qwe(v) {
-					this.go('qwe').set(v);
+					this.go('qwe').set(v, () => console.log('XLens set'));
 				}
 			}
 			
 			const xf = (core) => (key, p) => {
 				const l = core(key, p);
-				return new XLens(() => l.get(), (v) => l.set(v));
+				return new XLens(() => l.get(), (v, e) => {
+					console.log('XLens setter');
+					l.set(v, e);
+				});
 			}
 			
 			console.log('----go----');
@@ -63,15 +59,12 @@ and open the template in the editor.
 			const x = lens.go('any', xf);
 			const y = lens.go('any');
 			
-			console.log(x === y);
-			
-			console.log(x);
-			console.log(x.go('n'));
+			x.attach(e => console.log('x', e.current, e.diffs));
 			
 			x.qwe = '123';
-			x.go('n').qwe = '321';
 			
 			console.log(x.get());
+			console.log(lens.get());
 		</script>	
 	</body>
 </html>

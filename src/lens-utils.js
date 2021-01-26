@@ -67,10 +67,7 @@ export const getMapper = ({ getter, setter }) => (factory) => (key, parent) => {
 	
 	return new Lens(
 		() => getter(lens.get()),
-		(value, effect) => {
-                    lens.set(setter(value, lens.get()));
-                    effect();
-                },
+		(value, effect) => lens.set(setter(value, lens.get()), effect),
 		parent
 	);
 }
