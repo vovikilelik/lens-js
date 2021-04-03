@@ -85,9 +85,9 @@ const _coreFactory = (key, parent) => {
 		return value && value[key];
 	};
 	
-	const setter = (value, effect) => {
+	const setter = (value, callback) => {
 		const prev = parent.get();
-		parent.set(_makeObjectOrArray(key, value, prev), effect);
+		parent.set(_makeObjectOrArray(key, value, prev), callback);
 	};
 	
 	return new constructor(getter, setter, parent);
@@ -109,31 +109,29 @@ export class Lens {
 	 * @returns {Lens}
 	 */
 	constructor(getter, setter, parent) {
-		this.parent = parent;
+		this._parent = parent;
 
-		this.getter = getter;
-		this.setter = setter;
+		this._getter = getter;
+		this._setter = setter;
 
-		this.attachments = [];
-		this.children = [];
-	}
-
-	_getParent() {
-		return this.parent;
+		this._attachments = [];
+		this._children = [];
 	}
 
 	_fire(diffs) {
 		const currentDiff = diffs.find(({ path }) => !path || !path.length);
-		this.attachments.forEach((callback) => callback(new AttachEvent(currentDiff, diffs)));
+		this._attachments.forEach((callback) => callback(new AttachEvent(currentDiff, diffs)));
 	}
 
 	_cascade(diffs) {
+		console.log('--cascade', getPrototype(this).constructor);
 		this._fire(diffs);
 
-		Object.keys(this.children).forEach((key) => {
+		Object.keys(this._children).forEach((key) => {
+			console.log('--cascade', key, diffs, _isPathEntry(diffs, key));
 			if (!_isPathEntry(diffs, key)) return;
 			
-			this.children[key]._cascade(_shiftDiffs(key, diffs));
+			this._children[key]._cascade(_shiftDiffs(key, diffs));
 		});
 	}
 
@@ -149,7 +147,7 @@ export class Lens {
 	 * @returns {Lens}
 	 */
 	go(key, factory) {
-		const current = this.children[key];
+		const current = this._children[key];
 		if (current && (!factory || factory === current._factory)) {
 			return current;
 		} else {
@@ -157,7 +155,7 @@ export class Lens {
 			const node = core(key, this);
 			
 			node._factory = factory;
-			this.children[key] = node;
+			this._children[key] = node;
 			
 			return node;
 		}
@@ -168,15 +166,15 @@ export class Lens {
 	 * @returns {object}
 	 */
 	get() {
-		return this.getter();
+		return this._getter();
 	}
 
 	_rootSet(value, callback) {
+		console.log('--trace ROOT', value);
 		const prev = this.get();
-		this.setter(value, (() => {
-			this._effect(value, prev);
-			callback && callback();
-		}));
+		this._setter(value);
+		this._effect(value, prev);
+		callback && callback();
 	}
 
 	/**
@@ -186,7 +184,8 @@ export class Lens {
 	 * @returns {undefined}
 	 */
 	set(value, callback) {
-		this.parent ? this.setter(value, callback) : this._rootSet(value, callback);
+		console.log('--trace', value);
+		this._parent ? this._setter(value, callback) : this._rootSet(value, callback);
 	}
 
 	/**
@@ -195,8 +194,8 @@ export class Lens {
 	 * @returns {boolean}
 	 */
 	attach(callback) {
-		const exists = this.attachments.find((c) => c === callback);
-		!exists && this.attachments.push(callback);
+		const exists = this._attachments.find((c) => c === callback);
+		!exists && this._attachments.push(callback);
 		
 		return !exists;
 	}
@@ -207,9 +206,9 @@ export class Lens {
 	 * @returns {boolean}
 	 */
 	detach(callback) {
-		const filtered = this.attachments.filter((c) => c !== callback);
-		const changed = this.attachments.length === filtered.length;
-		this.attachments = filtered;
+		const filtered = this._attachments.filter((c) => c !== callback);
+		const changed = this._attachments.length === filtered.length;
+		this._attachments = filtered;
 		
 		return changed;
 	}

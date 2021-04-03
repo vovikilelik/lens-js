@@ -7,17 +7,6 @@ import {Lens} from './lens-js.js';
  */
 
 /**
- * Read-write mapper
- * @param {Function} getter
- * @param {Function} setter
- * @returns {Mapper}
- */
-export function Mapper(getter, setter) {
-	this.getter = getter;
-	this.setter = setter;
-}
-
-/**
  * Creating callback, which will be called only if current node would be changed
  * @param {Function} callback
  * @returns {Function}
@@ -59,15 +48,16 @@ export const getArray = (lens) => {
 
 /**
  * Create mappable fatory
- * @param {Mapper} mapper
+ * @param {Function} getter
+ * @param {Function} setter
  * @returns {Function}
  */
-export const getMapper = ({ getter, setter }) => (factory) => (key, parent) => {
+export const getMapper = (getter, setter) => (factory) => (key, parent) => {
 	const lens = factory(key, parent);
 	
 	return new Lens(
 		() => getter(lens.get()),
 		(value, effect) => lens.set(setter(value, lens.get()), effect),
-		parent
+		lens
 	);
 }

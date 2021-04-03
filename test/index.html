@@ -20,17 +20,19 @@ and open the template in the editor.
 
 			const lens = new Lens(
 				() => store.lens,
-				(value, effect) => {
+				(value) => {
 					console.log('lens setter');
 					store.lens = value;
-					effect();
 				}
 			);
 
-			lens.attach(e => console.log('root', e.current, e.diffs));
+			lens.attach(e => console.log('@root', e.current, e.diffs));
 			lens.go('m').attach(e => console.log('m', e.current, e.diffs));
 
-			const f = getMapper(v => v, v => v);
+			const f = getMapper(
+				v => v,
+				v => (v + 1)
+			);
 			
 			class XLens extends Lens {
 				constructor(...args) {
@@ -48,10 +50,14 @@ and open the template in the editor.
 			
 			const xf = (core) => (key, p) => {
 				const l = core(key, p);
-				return new XLens(() => l.get(), (v, e) => {
-					console.log('XLens setter');
-					l.set(v, e);
-				});
+				return new XLens(
+					() => l.get(),
+					(v, e) => {
+						console.log('XLens setter');
+						l.set(v, e);
+					},
+					l
+				);
 			}
 			
 			console.log('----go----');
@@ -59,9 +65,18 @@ and open the template in the editor.
 			const x = lens.go('any', xf);
 			const y = lens.go('any');
 			
-			x.attach(e => console.log('x', e.current, e.diffs));
+			const z = lens.go('mapper', f);
+			
+			x.attach(e => console.log('@x', e.current, e.diffs));
+			x.go('qwe').attach(e => console.log('@qwe', e.current, e.diffs));
 			
 			x.qwe = '123';
+			x.qwe = '1234';
+			
+			z.attach(e => console.log('@z', e.current, e.diffs));
+			
+			z.set('one');
+			z.set('two');
 			
 			console.log(x.get());
 			console.log(lens.get());
