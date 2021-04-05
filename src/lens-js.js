@@ -124,11 +124,9 @@ export class Lens {
 	}
 
 	_cascade(diffs) {
-		console.log('--cascade', getPrototype(this).constructor);
 		this._fire(diffs);
 
 		Object.keys(this._children).forEach((key) => {
-			console.log('--cascade', key, diffs, _isPathEntry(diffs, key));
 			if (!_isPathEntry(diffs, key)) return;
 			
 			this._children[key]._cascade(_shiftDiffs(key, diffs));
@@ -170,10 +168,16 @@ export class Lens {
 	}
 
 	_rootSet(value, callback) {
-		console.log('--trace ROOT', value);
 		const prev = this.get();
+		
 		this._setter(value);
-		this._effect(value, prev);
+		
+		const current = this.get();
+		
+		if (prev !== current) {
+			this._effect(current, prev);
+		}
+
 		callback && callback();
 	}
 
@@ -184,7 +188,6 @@ export class Lens {
 	 * @returns {undefined}
 	 */
 	set(value, callback) {
-		console.log('--trace', value);
 		this._parent ? this._setter(value, callback) : this._rootSet(value, callback);
 	}
 
