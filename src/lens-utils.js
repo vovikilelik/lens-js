@@ -29,9 +29,9 @@ export const getConsistsCallback = (callback, a = 1, b = a) => (e) => {
 };
 
 /**
- * Throttling function
- * @param {type} defaultTimeout
- * @returns {Throttling}
+ * Debounce function
+ * @param {Number} defaultTimeout
+ * @returns {Debounce}
  */
 export function Debounce(defaultTimeout) {
     let sync = 0;
@@ -50,7 +50,7 @@ export function Debounce(defaultTimeout) {
  * @returns {Function}
  */
 export const getDebounceCallback = (callback, timeout = 0) => {
-	const debounce = new Debounce(timeout)
+	const debounce = new Debounce(timeout);
 	
 	return (e) => {
 		debounce.run(() => callback(e));
