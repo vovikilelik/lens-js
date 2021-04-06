@@ -129,7 +129,8 @@ export class Lens {
 		Object.keys(this._children).forEach((key) => {
 			if (!_isPathEntry(diffs, key)) return;
 			
-			this._children[key]._cascade(_shiftDiffs(key, diffs));
+			const child = this._children[key];
+			child._cascade && child._cascade(_shiftDiffs(key, diffs));
 		});
 	}
 

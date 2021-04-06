@@ -14,7 +14,7 @@ import {Lens} from './lens-js.js';
 export const getStrictCallback = (callback) => (e) => {
 	const { current } = e;
 	current && callback(e);
-}
+};
 
 /**
  * Creating callback, which will be called only if parent current node would be changed
@@ -26,7 +26,31 @@ export const getStrictCallback = (callback) => (e) => {
 export const getConsistsCallback = (callback, a = 1, b = a) => (e) => {
 	const { diffs } = e;
 	diffs.find(({ path }) => path && b <= path.length && path.length <= a) && callback(e);
+};
+
+function Throttling(defaultTimeout) {
+    let sync = 0;
+    this.run = (func, timeout = defaultTimeout) => {
+        const stamp = ++sync;
+        setTimeout(() => {
+            (sync === stamp) && func();
+        }, timeout);
+    };
 }
+
+/**
+ * Creating callback with throttling
+ * @param {Function} callback
+ * @param {Number} timeout
+ * @returns {Function}
+ */
+export const getDebounceCallback = (callback, timeout = 0) => {
+	const throttling = new Throttling(timeout)
+	
+	return (e) => {
+		throttling.run(() => callback(e));
+	};
+};
 
 const isNumber = (key) => !isNaN(key);
 const getIndexOrName = (key) => isNumber(key) ? +key : key;
@@ -44,7 +68,7 @@ export const getArray = (lens) => {
 		const key = isArray ? getIndexOrName(k) : k;
 		return lens.go(key);
 	});
-}
+};
 
 /**
  * Create mappable fatory
@@ -60,4 +84,4 @@ export const getMapper = (getter, setter) => (factory) => (key, parent) => {
 		(value, effect) => lens.set(setter(value, lens.get()), effect),
 		lens
 	);
-}
+};

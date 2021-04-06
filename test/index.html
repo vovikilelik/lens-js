@@ -14,7 +14,7 @@ and open the template in the editor.
 		<div>TODO write content</div>
 		<script type="module">
 			import { Lens } from '../src/lens-js.js';
-            import { getConsistsCallback, getMapper } from '../src/lens-utils.js';
+            import { getConsistsCallback, getDebounceCallback, getMapper } from '../src/lens-utils.js';
 			
 			const store = { lens: { m: { x: 1, y: 1, z: { c: 1 }} } };
 
@@ -26,7 +26,7 @@ and open the template in the editor.
 				}
 			);
 
-			lens.attach(e => console.log('@root', e.current, e.diffs));
+//			lens.attach(e => console.log('@root', e.current, e.diffs));
 			lens.go('m').attach(e => console.log('m', e.current, e.diffs));
 
 			const f = getMapper(
@@ -60,12 +60,18 @@ and open the template in the editor.
 				);
 			}
 			
+			const xm = (core) => (key, p) => {
+				return { random: 'object' };
+			}
+			
 			console.log('----go----');
 			
 			const x = lens.go('any', xf);
 			const y = lens.go('any');
 			
 			const z = lens.go('mapper', f);
+			
+			const r = lens.go('random', xm);
 			
 			x.attach(e => console.log('@x', e.current, e.diffs));
 			x.go('qwe').attach(e => console.log('@qwe', e.current, e.diffs));
@@ -80,6 +86,16 @@ and open the template in the editor.
 			
 			console.log(x.get());
 			console.log(lens.get());
+			
+			console.log(r);
+			
+			let dcc = 0;
+			lens.attach(getDebounceCallback(() => {
+				console.log('dcc', dcc++, lens.go('debounce').get());
+			}));
+			for (let i = 0; i < 1000; i++) {
+				lens.go('debounce').set(i);
+			}
 		</script>	
 	</body>
 </html>
