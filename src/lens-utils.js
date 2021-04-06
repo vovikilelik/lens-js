@@ -28,7 +28,12 @@ export const getConsistsCallback = (callback, a = 1, b = a) => (e) => {
 	diffs.find(({ path }) => path && b <= path.length && path.length <= a) && callback(e);
 };
 
-function Throttling(defaultTimeout) {
+/**
+ * Throttling function
+ * @param {type} defaultTimeout
+ * @returns {Throttling}
+ */
+export function Debounce(defaultTimeout) {
     let sync = 0;
     this.run = (func, timeout = defaultTimeout) => {
         const stamp = ++sync;
@@ -45,10 +50,10 @@ function Throttling(defaultTimeout) {
  * @returns {Function}
  */
 export const getDebounceCallback = (callback, timeout = 0) => {
-	const throttling = new Throttling(timeout)
+	const debounce = new Debounce(timeout)
 	
 	return (e) => {
-		throttling.run(() => callback(e));
+		debounce.run(() => callback(e));
 	};
 };
 
