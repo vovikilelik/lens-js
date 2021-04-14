@@ -95,6 +95,8 @@ const _coreFactory = (key, parent) => {
 
 const _isPathEntry = (diffs, key) => diffs.some(({ path }) => path && path[0] === key)
 
+const _getRootVersion = (parent) => (parent && parent.getVersion) ? parent.getVersion() : 0;
+
 /**
  * Lens node
  * @type Lens
@@ -116,6 +118,12 @@ export class Lens {
 
 		this._attachments = [];
 		this._children = [];
+		
+		this._version = 0;
+	}
+
+	getVersion() {
+		return _getRootVersion(this._parent) + this._version;
 	}
 
 	_fire(diffs) {
@@ -189,6 +197,7 @@ export class Lens {
 	 * @returns {undefined}
 	 */
 	set(value, callback) {
+		this._version++;
 		this._parent ? this._setter(value, callback) : this._rootSet(value, callback);
 	}
 

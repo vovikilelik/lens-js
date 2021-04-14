@@ -26,7 +26,7 @@ and open the template in the editor.
 				}
 			);
 
-//			lens.attach(e => console.log('@root', e.current, e.diffs));
+/*			lens.attach(e => console.log('@root', e.current, e.diffs));
 			lens.go('m').attach(e => console.log('m', e.current, e.diffs));
 
 			const f = getMapper(
@@ -95,7 +95,18 @@ and open the template in the editor.
 			}));
 			for (let i = 0; i < 1000; i++) {
 				lens.go('debounce').set(i);
-			}
+			}*/
+			
+			const a = lens.go('a').go('n');
+			const b = lens.go('b').go('n');
+			
+			a.set(1);
+			b.set(1);
+			
+			console.log(lens.getVersion());
+			console.log('a', a.getVersion());
+			console.log('b', b.getVersion());
+			console.log(lens);
 		</script>	
 	</body>
 </html>
