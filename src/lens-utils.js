@@ -17,6 +17,26 @@ export const getStrictCallback = (callback) => (e) => {
 };
 
 /**
+ * Creating callback, which will be called if current node and subtree would be changed or creating
+ * @param {type} callback
+ * @returns {Function}
+ */
+export const getTreeCallback = (callback) => (e) => {
+	const { current, diffs } = e;
+	(current || diffs.length === 0) && callback(e);
+};
+
+/**
+ * Creating callback, which will be triggered on path from root to changed node
+ * @param {type} callback
+ * @returns {Function}
+ */
+export const getPathCallback = (callback) => (e) => {
+	const { current, diffs } = e;
+	(current || diffs.length > 0) && callback(e);
+};
+
+/**
  * Creating callback, which will be called only if parent current node would be changed
  * @param {Function} callback
  * @param {number} a high node index

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+	<head>
+		<title>TODO supply a title</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	</head>
+	<body>
+		<div>TODO write content</div>
+		<script type="module">
+			import { Lens } from '../src/lens-js.js';
+            import { getConsistsCallback, getDebounceCallback, getMapper } from '../src/lens-utils.js';
+			
+			const store = { lens: { m: { x: 1, y: 1, z: { c: 1 }} } };
+
+			const lens = new Lens(
+				() => store.lens,
+				(value) => { store.lens = value; }
+			);
+
+			lens.attach(e => console.log('@root', e.current, e.diffs));
+			
+			const m = lens.go('m');
+			m.attach(e => console.log('@m', e.current, e.diffs));
+			m.go('x').attach(e => console.log('@x', e.current, e.diffs, m.go('x').get()));
+			
+			const unknown = m.go('unknown');
+			unknown.attach(e => console.log('@unknown', e.current, e.diffs, unknown.get()));
+			
+			const foo = unknown.go('foo');
+			foo.attach(e => console.log('@foo', e.current, e.diffs, foo.get()));
+			
+			const hidden = lens.go('m').go('hidden');
+			hidden.attach(e => console.log('@hidden', e.current, e.diffs, hidden.get()));
+			
+//			m.set({ unknown: { foo: 0 }, x: 1 });
+			unknown.set({ foo: 0 });
+//			foo.set(1);
+			
+		</script>	
+	</body>
+</html>

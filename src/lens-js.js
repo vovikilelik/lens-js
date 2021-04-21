@@ -126,12 +126,29 @@ export class Lens {
 		return _getRootVersion(this._parent) + this._version;
 	}
 
-	_fire(diffs) {
-		const currentDiff = diffs.find(({ path }) => !path || !path.length);
+	_fire(diffs, currentDiff) {
 		this._attachments.forEach((callback) => callback(new AttachEvent(currentDiff, diffs)));
 	}
 
+	_notify(value, currentDiff) {
+		this._fire([], currentDiff);
+		
+		if (!value || (typeof value !== 'object')) return;
+		
+		Object.keys(this._children).forEach((key) => {
+			const child = this._children[key];
+			(value[key] !== undefined) && child._notify && child._notify(value[key]);
+		});
+	}
+	
 	_cascade(diffs) {
+		const currentDiff = diffs.find(({ path }) => !path || !path.length);
+
+		if (currentDiff) {
+			this._notify(currentDiff.value, currentDiff);
+			return;
+		}
+		
 		this._fire(diffs);
 
 		Object.keys(this._children).forEach((key) => {
