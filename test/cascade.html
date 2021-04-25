@@ -16,17 +16,19 @@ and open the template in the editor.
 			import { Lens } from '../src/lens-js.js';
             import { getConsistsCallback, getDebounceCallback, getMapper } from '../src/lens-utils.js';
 			
-			const store = { lens: { m: { x: 1, y: 1, z: { c: 1 }} } };
+//			const store = { lens: { m: { x: 1, y: 1, z: { c: 1 }} } };
+			const store = { lens: { one: {} } };
 
 			const lens = new Lens(
 				() => store.lens,
 				(value) => { store.lens = value; }
 			);
 
-			lens.attach(e => console.log('@root', e.current, e.diffs));
+			/*lens.attach(e => console.log('@root', e.current, e.diffs));
 			
 			const m = lens.go('m');
 			m.attach(e => console.log('@m', e.current, e.diffs));
+
 			m.go('x').attach(e => console.log('@x', e.current, e.diffs, m.go('x').get()));
 			
 			const unknown = m.go('unknown');
@@ -38,9 +40,17 @@ and open the template in the editor.
 			const hidden = lens.go('m').go('hidden');
 			hidden.attach(e => console.log('@hidden', e.current, e.diffs, hidden.get()));
 			
-//			m.set({ unknown: { foo: 0 }, x: 1 });
+			m.set({ unknown: { foo: 0 }, x: 1 });
 			unknown.set({ foo: 0 });
-//			foo.set(1);
+			foo.set(1);*/
+			
+			const one = lens.go('one');
+			one.attach(console.log);
+			
+			const foo = lens.go('one').go('foo');
+			foo.attach(console.log);
+
+			foo.set('one');
 			
 		</script>	
 	</body>
