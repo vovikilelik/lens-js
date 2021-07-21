@@ -14,19 +14,19 @@ and open the template in the editor.
 		<div>TODO write content</div>
 		<script type="module">
 			import { Lens } from '../src/lens-js.js';
-            import { getConsistsCallback, getDebounceCallback, getMapper } from '../src/lens-utils.js';
+            import { getConsistsCallback, getDebounceCallback, getAsyncCallback, getStrictCallback, getMapper } from '../src/lens-utils.js';
 			
 			const store = { lens: { m: { x: 1, y: 1, z: { c: 1 }} } };
 
 			const lens = new Lens(
 				() => store.lens,
 				(value) => {
-					console.log('lens setter');
+//					console.log('lens setter');
 					store.lens = value;
 				}
 			);
 
-			lens.attach(e => console.log('@root', e.current, e.diffs));
+//			lens.attach(e => console.log('@root', e.current, e.diffs));
 			lens.go('m').attach(e => console.log('m', e.current, e.diffs));
 
 			const f = getMapper(
@@ -89,12 +89,28 @@ and open the template in the editor.
 			
 			console.log(r);
 			
+			// debounce
 			let dcc = 0;
-			lens.attach(getDebounceCallback(() => {
+			lens.attach(getStrictCallback(getDebounceCallback(() => {
 				console.log('dcc', dcc++, lens.go('debounce').get());
-			}));
+			})));
 			for (let i = 0; i < 1000; i++) {
 				lens.go('debounce').set(i);
+			}
+			
+			// async
+			let acc = 0;
+			let accx = 0;
+			lens.attach(getAsyncCallback(
+			(e) => new Promise((resolve) => setTimeout(() => resolve(accx++), 2000 * Math.random())),
+			(r) => {
+				console.log('acc', r, acc++, lens.go('async').get());
+			}));
+			for (let i = 0; i < 10; i++) {
+				setTimeout(() => {
+					lens.go('async').set(i);
+					console.log('@', i);
+				}, 2000 * Math.random());
 			}
 			
 			const a = lens.go('a').go('n');

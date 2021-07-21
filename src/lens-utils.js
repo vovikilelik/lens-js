@@ -58,7 +58,7 @@ export function Debounce(defaultTimeout) {
     this.run = (func, timeout = defaultTimeout) => {
         const stamp = ++sync;
         setTimeout(() => {
-            (sync === stamp) && func();
+            (sync === stamp) && func(stamp, () => sync);
         }, timeout);
     };
 }
@@ -73,8 +73,22 @@ export const getDebounceCallback = (callback, timeout = 0) => {
 	const debounce = new Debounce(timeout);
 	
 	return (e) => {
-		debounce.run(() => callback(e));
+		debounce.run((...args) => callback(e, ...args));
 	};
+};
+
+/**
+ * Creating callback whitch will call result if request finished last
+ * @param {Promise} Promise request
+ * @param {Function} resolve callback for Promise.then()
+ * @param {Number} timeout
+ * @returns {Function}
+ */
+export const getAsyncCallback = (request, resolve, timeout = 0) => {
+	return getDebounceCallback(
+		(e, stamp, sync) => request(e).then(r => stamp === sync() && resolve(r, e, stamp, sync)),
+		timeout
+	);
 };
 
 const isNumber = (key) => !isNaN(key);

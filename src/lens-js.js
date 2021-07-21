@@ -18,7 +18,7 @@ export function NodeDiff(path, prev, value) {
 const _compareKeys = (prevKeys, nextKeys) => {
 	return (prevKeys.length === nextKeys.length)
 		&& !prevKeys.some((p, i) => p !== nextKeys[i]);
-}
+};
 
 const _getDiffs = (prev, next, path = [], diffs = []) => {
 	const prevType = typeof prev;
@@ -52,13 +52,13 @@ const _getDiffs = (prev, next, path = [], diffs = []) => {
 			
 			return diffs;
 	}
-}
+};
 
 const _shiftDiffs = (key, diffs) => {
 	return diffs
 		.filter(({path}) => path[0] === key)
 		.map(({path, ...diff}) => ({...diff, path: path.slice(1)}));
-}
+};
 
 const _makeObjectOrArray = (key, value, prev) => {
 	switch (typeof key) {
@@ -70,11 +70,11 @@ const _makeObjectOrArray = (key, value, prev) => {
 		default:
 			return { ...prev, [key]: value };
 	}
-}
+};
 
 const getPrototype = (object) => {
 	return object.prototype || object.__proto__;
-}
+};
 
 const _coreFactory = (key, parent) => {
 	const prototype = getPrototype(parent);
@@ -91,7 +91,7 @@ const _coreFactory = (key, parent) => {
 	};
 	
 	return new constructor(getter, setter, parent);
-}
+};
 
 const _isPathEntry = (diffs, key) => diffs.some(({ path }) => path && path[0] === key)
 
@@ -193,7 +193,7 @@ export class Lens {
 		return this._getter();
 	}
 
-	_rootSet(value, callback) {
+	_initCascade(value, callback) {
 		const prev = this.get();
 		
 		this._setter(value);
@@ -215,7 +215,7 @@ export class Lens {
 	 */
 	set(value, callback) {
 		this._version++;
-		this._parent ? this._setter(value, callback) : this._rootSet(value, callback);
+		this._parent ? this._setter(value, callback) : this._initCascade(value, callback);
 	}
 
 	/**
