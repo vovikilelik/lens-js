@@ -93,7 +93,7 @@ const _coreFactory = (key, parent) => {
 	return new constructor(getter, setter, parent);
 };
 
-const _isPathEntry = (diffs, key) => diffs.some(({ path }) => path && path[0] === key)
+const _isPathEntry = (diffs, key) => diffs.some(({ path }) => path && path[0] === key);
 
 const _getRootVersion = (parent) => (parent && parent.getVersion) ? parent.getVersion() : 0;
 
