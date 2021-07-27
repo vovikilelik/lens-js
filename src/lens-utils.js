@@ -1,4 +1,4 @@
-import {Lens} from './lens-js.js';
+import { Lens } from './lens-js.js';
 
 /* 
  * Lens Utils
@@ -122,5 +122,23 @@ export const getMapper = (getter, setter) => (factory) => (key, parent) => {
 		() => getter(lens.get()),
 		(value, effect) => lens.set(setter(value, lens.get()), effect),
 		lens
+	);
+};
+
+const _getPrototype = (object) => {
+	return object.prototype || object.__proto__;
+};
+
+export const getDerivedInstance = (parent) => {
+	const prototype = _getPrototype(parent);
+	return (prototype && prototype.constructor) || Lens;
+};
+
+export const createLens = (initData) => {
+	const store = { lens: { ...initData } };
+	
+	return new Lens(
+		() => store.lens,
+		(value) => store.lens = value
 	);
 };

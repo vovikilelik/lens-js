@@ -72,14 +72,7 @@ const _makeObjectOrArray = (key, value, prev) => {
 	}
 };
 
-const getPrototype = (object) => {
-	return object.prototype || object.__proto__;
-};
-
-const _coreFactory = (key, parent) => {
-	const prototype = getPrototype(parent);
-	const constructor = (prototype && prototype.constructor) || Lens;
-	
+const _coreFactory = (key, parent, instance = Lens) => {
 	const getter = () => {
 		const value = parent.get();
 		return value && value[key];
@@ -90,7 +83,11 @@ const _coreFactory = (key, parent) => {
 		parent.set(_makeObjectOrArray(key, value, prev), callback);
 	};
 	
-	return new constructor(getter, setter, parent);
+	return new instance(getter, setter, parent);
+};
+
+export const getCoreFactory = (instance = Lens) => (key, parent) => {
+	return _coreFactory(key, parent, instance);
 };
 
 const _isPathEntry = (diffs, key) => diffs.some(({ path }) => path && path[0] === key);
@@ -164,6 +161,10 @@ export class Lens {
 		diffs.length && (this._cascade(diffs));
 	}
 
+	getFactory() {
+		return getCoreFactory(Lens);
+	}
+
 	/**
 	 * Move to next node
 	 * @param {string} key Name of node
@@ -175,7 +176,10 @@ export class Lens {
 		if (current && (!factory || factory === current._factory)) {
 			return current;
 		} else {
-			const core = factory ? factory(_coreFactory) : _coreFactory;
+			const core = factory
+				? factory(_coreFactory)
+				: this.getFactory();
+
 			const node = core(key, this);
 			
 			node._factory = factory;

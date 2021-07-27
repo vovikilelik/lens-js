@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+	<head>
+		<title>TODO supply a title</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	</head>
+	<body>
+		<div>TODO write content</div>
+		<script type="module">
+			import { Lens, getCoreFactory } from '../src/lens-js.js';
+            import { getDerivedInstance, createLens } from '../src/lens-utils.js';
+			
+			const store = { lens: { m: { x: 1, y: 1, z: { c: 1 }} } };
+
+			const lens = createLens();
+
+			class XLens extends Lens {
+				get test() {
+					return `XLens`;
+				}
+			};
+			const cxf = () => getCoreFactory(XLens);
+			
+			class YLens extends Lens {
+				get test() {
+					return `YLens`;
+				}
+				
+				getFactory() { return getCoreFactory(YLens); }
+			};
+			const cyf = () => getCoreFactory(YLens);
+			
+			console.log('----go----');
+			
+			const x = lens.go('any', cxf);
+			const y = lens.go('any', cyf);
+			
+			console.log('XLens: ', x.test, x.go('any').test);
+			console.log('YLens: ', y.test, y.go('any').test);
+		</script>	
+	</body>
+</html>
