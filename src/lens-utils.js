@@ -134,11 +134,11 @@ export const getDerivedInstance = (parent) => {
 	return (prototype && prototype.constructor) || Lens;
 };
 
-export const createLens = (initData) => {
+export const createLens = (initData, validator = v => v) => {
 	const store = { lens: { ...initData } };
 	
 	return new Lens(
 		() => store.lens,
-		(value) => store.lens = value
+		(value) => store.lens = validator(value, store.lens)
 	);
 };

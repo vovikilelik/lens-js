@@ -16,8 +16,6 @@ and open the template in the editor.
 			import { Lens, getCoreFactory } from '../src/lens-js.js';
             import { getDerivedInstance, createLens } from '../src/lens-utils.js';
 			
-			const store = { lens: { m: { x: 1, y: 1, z: { c: 1 }} } };
-
 			const lens = createLens();
 
 			class XLens extends Lens {
@@ -32,17 +30,41 @@ and open the template in the editor.
 					return `YLens`;
 				}
 				
-				getFactory() { return getCoreFactory(YLens); }
+				getFactory() { return getCoreFactory(getDerivedInstance(this)); }
 			};
 			const cyf = () => getCoreFactory(YLens);
 			
+			class ZLens extends YLens {
+				get test() {
+					return `ZLens`;
+				}
+			};
+			const czf = () => getCoreFactory(ZLens);
+			
 			console.log('----go----');
 			
-			const x = lens.go('any', cxf);
-			const y = lens.go('any', cyf);
+			const x = lens.go('x', cxf);
+			const y = lens.go('y', cyf);
+			const yz = y.go('z', czf);
+			const z = lens.go('z', czf);
 			
 			console.log('XLens: ', x.test, x.go('any').test);
 			console.log('YLens: ', y.test, y.go('any').test);
+			console.log('YZLens: ', yz.test, yz.go('any').test);
+			console.log('ZLens: ', z.test, z.go('any').test);
+			
+			lens.attach((e) => console.log('lens reaction', e));
+			
+			x.go('any').attach((e) => console.log('xlens reaction', e));
+			y.go('any').attach((e) => console.log('ylens reaction', e));
+			
+			console.log('----x----');
+			x.go('any').set('value');
+			
+			console.log('----y----');
+			y.go('any').set('value');
+			
+			console.log(lens.get());
 		</script>	
 	</body>
 </html>
