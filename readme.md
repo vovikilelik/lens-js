@@ -37,6 +37,14 @@ export const lens = new Lens(
     (value) => { store.lens = value } // setter
 );
 ```
+or
+
+```js
+import { LensUtils } from '@vovikilelik/lens-js';
+
+export lens = LensUtils.createLens({ /* default data */ });
+```
+
 For more information look [wiki](http://git.vovikilelik.com/Clu/lens-js/wiki/Base-methods-en)
 
 # Introduction
@@ -48,19 +56,12 @@ Each node of the graph of `LensJs` does not contain data, but only provides an i
 **Example:** `store.js`
 ```js
 /* Store */
-const store = {
-    lens: {
-      form: { message: 'Hello World!' }
-    }
+const defaultData = {
+    form: { message: 'Hello World!' }
 };
 
 /* Constructor of ROOT lens */
-export const lens = new Lens(
-  () => store.lens, // Getter
-  (newData) => { // Setter
-    store.lens = newData;
-  }
-);
+export const lens = LensUtils.createLens(defaultData);
 ```
 Now you can operate with `lensJs`.
 * For accsessing to root lens import `lensJs` as an singleton from your `store.js`
@@ -212,6 +213,22 @@ export const Cat = type
 ```js
 const cat = cats.go('murzik');
 const ribbon = cat.go('ribbon');
+```
+
+You can make controller like ModX
+
+```js
+class MyController extends Lens {
+    get id() { this.go('id').get(); }
+    set id(value) {
+        this.go('id').set(value, () => doRequest());
+    }
+}
+
+const factory = () => getCoreFactory(MyController);
+
+const controller = lens.go('page', factory);
+controller.id = 12345;
 ```
 
 ---
