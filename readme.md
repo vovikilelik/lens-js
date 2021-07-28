@@ -219,7 +219,10 @@ You can make controller like ModX
 
 ```js
 class MyController extends Lens {
-    get id() { this.go('id').get(); }
+    get id() {
+        return this.go('id').get();
+    }
+
     set id(value) {
         this.go('id').set(value, () => doRequest());
     }
