@@ -228,7 +228,7 @@ class MyController extends Lens {
     }
 }
 
-const factory = () => getCoreFactory(MyController);
+const factory = () => createCoreFactory(MyController);
 
 const controller = lens.go('page', factory);
 controller.id = 12345;

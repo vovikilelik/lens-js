@@ -86,7 +86,7 @@ const _coreFactory = (key, parent, instance = Lens) => {
 	return new instance(getter, setter, parent);
 };
 
-export const getCoreFactory = (instance = Lens) => (key, parent) => {
+export const createCoreFactory = (instance = Lens) => (key, parent) => {
 	return _coreFactory(key, parent, instance);
 };
 
@@ -162,7 +162,7 @@ export class Lens {
 	}
 
 	getFactory() {
-		return getCoreFactory(Lens);
+		return createCoreFactory(Lens);
 	}
 
 	/**

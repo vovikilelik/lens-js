@@ -13,7 +13,7 @@ and open the template in the editor.
 	<body>
 		<div>TODO write content</div>
 		<script type="module">
-			import { Lens, getCoreFactory } from '../src/lens-js.js';
+			import { Lens, createCoreFactory } from '../src/lens-js.js';
             import { getDerivedInstance, createLens } from '../src/lens-utils.js';
 			
 			const lens = createLens();
@@ -23,23 +23,23 @@ and open the template in the editor.
 					return `XLens`;
 				}
 			};
-			const cxf = () => getCoreFactory(XLens);
+			const cxf = () => createCoreFactory(XLens);
 			
 			class YLens extends Lens {
 				get test() {
 					return `YLens`;
 				}
 				
-				getFactory() { return getCoreFactory(getDerivedInstance(this)); }
+				getFactory() { return createCoreFactory(getDerivedInstance(this)); }
 			};
-			const cyf = () => getCoreFactory(YLens);
+			const cyf = () => createCoreFactory(YLens);
 			
 			class ZLens extends YLens {
 				get test() {
 					return `ZLens`;
 				}
 			};
-			const czf = () => getCoreFactory(ZLens);
+			const czf = () => createCoreFactory(ZLens);
 			
 			console.log('----go----');
 			
