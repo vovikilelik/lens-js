@@ -72,18 +72,18 @@ const _makeObjectOrArray = (key, value, prev) => {
 	}
 };
 
-const _coreFactory = (key, parent, instance = Lens) => {
+const _coreFactory = (key, current, instance = Lens) => {
 	const getter = () => {
-		const value = parent.get();
+		const value = current.get();
 		return value && value[key];
 	};
 	
 	const setter = (value, callback) => {
-		const prev = parent.get();
-		parent.set(_makeObjectOrArray(key, value, prev), callback);
+		const prev = current.get();
+		current.set(_makeObjectOrArray(key, value, prev), callback);
 	};
 	
-	return new instance(getter, setter, parent);
+	return new instance(getter, setter, current);
 };
 
 export const createCoreFactory = (instance = Lens) => (key, parent) => {
@@ -229,7 +229,7 @@ export class Lens {
 	 */
 	attach(callback) {
 		const exists = this._attachments.find((c) => c === callback);
-		!exists && this._attachments.push(callback);
+		!exists && callback && (this._attachments.push(callback));
 		
 		return !exists;
 	}
