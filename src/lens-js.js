@@ -230,8 +230,10 @@ export class Lens {
 	 * @returns {boolean}
 	 */
 	attach(callback) {
+		if (typeof callback !== 'function') return false;
+		
 		const exists = this._attachments.find((c) => c === callback);
-		!exists && callback && (this._attachments.push(callback));
+		!exists && (this._attachments.push(callback));
 
 		return !exists;
 	}

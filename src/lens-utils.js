@@ -115,22 +115,22 @@ export const getArray = (lens) => {
  * @param {Function} setter
  * @returns {Function}
  */
-export const getMapper = (getter, setter) => (factory) => (key, parent) => {
-	const lens = factory(key, parent);
+export const getMapper = (getter, setter) => (factory) => (key, current) => {
+	const lens = factory(key, current);
 
 	return new Lens(
 		() => getter(lens.get()),
 		(value, effect) => lens.set(setter(value, lens.get()), effect),
 		lens
-		);
+	);
 };
 
 const _getPrototype = (object) => {
 	return object.prototype || object.__proto__;
 };
 
-export const getDerivedInstance = (parent) => {
-	const prototype = _getPrototype(parent);
+export const getDerivedInstance = (current) => {
+	const prototype = _getPrototype(current);
 	return (prototype && prototype.constructor) || Lens;
 };
 
