@@ -1,33 +1,34 @@
 {
-  "name": "@vovikilelik/lens-js",
-  "version": "1.5.4",
-  "keywords": [
-    "util",
-    "functional",
-    "server",
-    "client",
-    "store",
-    "state",
-    "lens"
-  ],
-  "author": "svinokot",
-  "contributors": [],
-  "dependencies": {},
-  "description": "Application state and action manager",
-  "directories": {},
-  "main": "index.js",
-  "files": [
-    "src/lens-js.js",
-    "src/lens-utils.js",
-    "index.js"
-  ],
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "homepage": "http://git.vovikilelik.com/Clu/lens-js/wiki",
-  "repository": {
-    "type": "git",
-    "url": "http://git.vovikilelik.com/Clu/lens-js.git"
-  },
-  "license": "LGPL-3.0-or-later"
+    "name": "@vovikilelik/lens-js",
+    "version": "1.5.4",
+    "keywords": [
+        "util",
+        "functional",
+        "server",
+        "client",
+        "store",
+        "state",
+        "lens"
+    ],
+    "author": "svinokot",
+    "contributors": [
+    ],
+    "dependencies": {},
+    "description": "Application state and action manager",
+    "directories": {},
+    "main": "index.js",
+    "files": [
+        "src/lens-js.js",
+        "src/lens-utils.js",
+        "index.js"
+    ],
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "homepage": "http://git.vovikilelik.com/Clu/lens-js/wiki",
+    "repository": {
+        "type": "git",
+        "url": "http://git.vovikilelik.com/Clu/lens-js.git"
+    },
+    "license": "LGPL-3.0-or-later"
 }
