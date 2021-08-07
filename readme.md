@@ -42,7 +42,7 @@ or
 ```js
 import { LensUtils } from '@vovikilelik/lens-js';
 
-export lens = LensUtils.createLens({ /* default data */ });
+export const lens = LensUtils.createLens({ /* default data */ });
 ```
 
 For more information look [wiki](http://git.vovikilelik.com/Clu/lens-js/wiki/Base-methods-en)
