@@ -7,7 +7,7 @@
     "server",
     "client",
     "store",
-	"state",
+    "state",
     "lens"
   ],
   "author": "svinokot",

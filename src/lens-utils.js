@@ -12,7 +12,7 @@ import { Lens } from './lens-js.js';
  * @returns {Function}
  */
 export const getStrictCallback = (callback) => (e) => {
-	const { current } = e;
+	const {current} = e;
 	current && callback(e);
 };
 
@@ -22,7 +22,7 @@ export const getStrictCallback = (callback) => (e) => {
  * @returns {Function}
  */
 export const getTreeCallback = (callback) => (e) => {
-	const { current, diffs } = e;
+	const {current, diffs} = e;
 	(current || diffs.length === 0) && callback(e);
 };
 
@@ -32,7 +32,7 @@ export const getTreeCallback = (callback) => (e) => {
  * @returns {Function}
  */
 export const getPathCallback = (callback) => (e) => {
-	const { current, diffs } = e;
+	const {current, diffs} = e;
 	(current || diffs.length > 0) && callback(e);
 };
 
@@ -44,7 +44,7 @@ export const getPathCallback = (callback) => (e) => {
  * @returns {Function}
  */
 export const getConsistsCallback = (callback, a = 1, b = a) => (e) => {
-	const { diffs } = e;
+	const {diffs} = e;
 	diffs.find(({ path }) => path && b <= path.length && path.length <= a) && callback(e);
 };
 
@@ -54,13 +54,13 @@ export const getConsistsCallback = (callback, a = 1, b = a) => (e) => {
  * @returns {Debounce}
  */
 export function Debounce(defaultTimeout) {
-    let sync = 0;
-    this.run = (func, timeout = defaultTimeout) => {
-        const stamp = ++sync;
-        setTimeout(() => {
-            (sync === stamp) && func(stamp, () => sync);
-        }, timeout);
-    };
+	let sync = 0;
+	this.run = (func, timeout = defaultTimeout) => {
+		const stamp = ++sync;
+		setTimeout(() => {
+			(sync === stamp) && func(stamp, () => sync);
+		}, timeout);
+	};
 }
 
 /**
@@ -71,7 +71,7 @@ export function Debounce(defaultTimeout) {
  */
 export const getDebounceCallback = (callback, timeout = 0) => {
 	const debounce = new Debounce(timeout);
-	
+
 	return (e) => {
 		debounce.run((...args) => callback(e, ...args));
 	};
@@ -117,12 +117,12 @@ export const getArray = (lens) => {
  */
 export const getMapper = (getter, setter) => (factory) => (key, parent) => {
 	const lens = factory(key, parent);
-	
+
 	return new Lens(
 		() => getter(lens.get()),
 		(value, effect) => lens.set(setter(value, lens.get()), effect),
 		lens
-	);
+		);
 };
 
 const _getPrototype = (object) => {
@@ -135,8 +135,8 @@ export const getDerivedInstance = (parent) => {
 };
 
 export const createLens = (initData, validator = v => v) => {
-	const store = { lens: { ...initData } };
-	
+	const store = {lens: {...initData}};
+
 	return new Lens(
 		() => store.lens,
 		(value) => store.lens = validator(value, store.lens)

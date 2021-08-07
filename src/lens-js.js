@@ -23,18 +23,18 @@ const _compareKeys = (prevKeys, nextKeys) => {
 const _getDiffs = (prev, next, path = [], diffs = []) => {
 	const prevType = typeof prev;
 	const nextType = typeof next;
-	
+
 	if (prevType !== nextType) {
 		diffs.push(new NodeDiff(path, prev, next));
 		return diffs;
 	}
-	
+
 	switch (prevType) {
 		case 'object':
-			
+
 			const prevKeys = Object.keys(prev);
 			const nextKeys = Object.keys(next);
-			
+
 			if (!_compareKeys(prevKeys, nextKeys)) {
 				diffs.push(new NodeDiff(path, prev, next));
 				return diffs;
@@ -43,13 +43,13 @@ const _getDiffs = (prev, next, path = [], diffs = []) => {
 			prevKeys.forEach(key => {
 				_getDiffs(prev[key], next[key], [...path, key], diffs);
 			});
-			
+
 			return diffs;
 		default:
 			if (prev !== next) {
 				diffs.push(new NodeDiff(path, prev, next));
-			};
-			
+			}
+
 			return diffs;
 	}
 };
@@ -65,10 +65,10 @@ const _makeObjectOrArray = (key, value, prev) => {
 		case 'number':
 			const result = prev ? [...prev] : [];
 			result[key] = value;
-			
+
 			return result;
 		default:
-			return { ...prev, [key]: value };
+			return {...prev, [key]: value};
 	}
 };
 
@@ -77,12 +77,12 @@ const _coreFactory = (key, current, instance = Lens) => {
 		const value = current.get();
 		return value && value[key];
 	};
-	
+
 	const setter = (value, callback) => {
 		const prev = current.get();
 		current.set(_makeObjectOrArray(key, value, prev), callback);
 	};
-	
+
 	return new instance(getter, setter, current);
 };
 
@@ -99,12 +99,12 @@ const _getRootVersion = (parent) => (parent && parent.getVersion) ? parent.getVe
  * @type Lens
  */
 export class Lens {
-	
+
 	/**
 	 * Constructor
 	 * @param {Function} getter
 	 * @param {Function} setter
-     * @param {Lens} parent
+	 * @param {Lens} parent
 	 * @returns {Lens}
 	 */
 	constructor(getter, setter, parent) {
@@ -115,7 +115,7 @@ export class Lens {
 
 		this._attachments = [];
 		this._children = [];
-		
+
 		this._version = 0;
 	}
 
@@ -129,15 +129,16 @@ export class Lens {
 
 	_notify(value, currentDiff) {
 		this._fire([], currentDiff);
-		
-		if (!value || (typeof value !== 'object')) return;
-		
+
+		if (!value || (typeof value !== 'object'))
+			return;
+
 		Object.keys(this._children).forEach((key) => {
 			const child = this._children[key];
 			(value[key] !== undefined) && child._notify && child._notify(value[key]);
 		});
 	}
-	
+
 	_cascade(diffs) {
 		const currentDiff = diffs.find(({ path }) => !path || !path.length);
 
@@ -145,12 +146,13 @@ export class Lens {
 			this._notify(currentDiff.value, currentDiff);
 			return;
 		}
-		
+
 		this._fire(diffs);
 
 		Object.keys(this._children).forEach((key) => {
-			if (!_isPathEntry(diffs, key)) return;
-			
+			if (!_isPathEntry(diffs, key))
+				return;
+
 			const child = this._children[key];
 			child._cascade && child._cascade(_shiftDiffs(key, diffs));
 		});
@@ -181,10 +183,10 @@ export class Lens {
 				: this.getFactory();
 
 			const node = core(key, this);
-			
+
 			node._factory = factory;
 			this._children[key] = node;
-			
+
 			return node;
 		}
 	}
@@ -199,11 +201,11 @@ export class Lens {
 
 	_initCascade(value, callback) {
 		const prev = this.get();
-		
+
 		this._setter(value);
-		
+
 		const current = this.get();
-		
+
 		if (prev !== current) {
 			this._effect(current, prev);
 		}
@@ -230,7 +232,7 @@ export class Lens {
 	attach(callback) {
 		const exists = this._attachments.find((c) => c === callback);
 		!exists && callback && (this._attachments.push(callback));
-		
+
 		return !exists;
 	}
 
@@ -243,7 +245,7 @@ export class Lens {
 		const filtered = this._attachments.filter((c) => c !== callback);
 		const changed = this._attachments.length === filtered.length;
 		this._attachments = filtered;
-		
+
 		return changed;
 	}
 }
