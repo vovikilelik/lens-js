@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+	<head>
+		<title>TODO supply a title</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	</head>
+	<body>
+		<div>TODO write content</div>
+		<script type="module">
+			/*
+			 * 1. Мапинг данных
+			 * 2. Виртуализация полей
+			 * 3. Подключение новых узлов
+			 * 4. Расширение дерева новыми производными
+			 */
+			
+			import { Lens } from '../src/lens-js.js';
+            import { createLens } from '../src/lens-utils.js';
+			
+			const lens = createLens({ foo: 255, loo: {  } });
+
+			class XLens extends Lens {
+				get test() {
+					return `XLens`;
+				}
+			};
+			
+			const transform = (to, from) => (current) => {
+				return new Lens(
+					() => to(current.get()),
+					(value, ...args) => current.set(from(value), ...args),
+					current
+				);
+			};
+			
+			const t1 = transform(v => v.toString(16), v => parseInt(v, 16));
+			
+			const foo = lens.go('foo');
+			const fooChain = foo.chain(t1);
+			console.log(foo.get(), fooChain.get());
+			
+			foo.attach(console.log);
+			fooChain.attach(console.log);
+			
+			fooChain.set('AADD');
+			
+			console.log(foo.get(), fooChain.get());
+
+			foo.set(1357);
+			
+			console.log(foo.get(), fooChain.get());
+		</script>
+	</body>
+</html>

@@ -1,6 +1,6 @@
 /* 
  * Lens
- * version 1.5.x
+ * version 1.6.x
  * LGPLv3
  */
 
@@ -56,7 +56,7 @@ const _getDiffs = (prev, next, path = [], diffs = []) => {
 
 const _shiftDiffs = (key, diffs) => {
 	return diffs
-		.filter(({path}) => path[0] === key)
+		.filter(({path}) => path && path[0] === key)
 		.map(({path, ...diff}) => ({...diff, path: path.slice(1)}));
 };
 
@@ -84,10 +84,6 @@ const _coreFactory = (key, current, instance = Lens) => {
 	};
 
 	return new instance(getter, setter, current);
-};
-
-export const createCoreFactory = (instance = Lens) => (key, parent) => {
-	return _coreFactory(key, parent, instance);
 };
 
 const _isPathEntry = (diffs, key) => diffs.some(({ path }) => path && path[0] === key);
@@ -124,7 +120,8 @@ export class Lens {
 	}
 
 	_fire(diffs, currentDiff) {
-		this._attachments.forEach((callback) => callback(new AttachEvent(currentDiff, diffs)));
+		this._attachments.forEach(callback => callback(new AttachEvent(currentDiff, diffs)));
+		this._chain && this._chain._fire && this._chain._fire(diffs, currentDiff);
 	}
 
 	_notify(value, currentDiff) {
@@ -149,7 +146,7 @@ export class Lens {
 
 		this._fire(diffs);
 
-		Object.keys(this._children).forEach((key) => {
+		Object.keys(this._children).forEach(key => {
 			if (!_isPathEntry(diffs, key))
 				return;
 
@@ -163,32 +160,33 @@ export class Lens {
 		diffs.length && (this._cascade(diffs));
 	}
 
-	getFactory() {
-		return createCoreFactory(Lens);
-	}
-
 	/**
 	 * Move to next node
 	 * @param {string} key Name of node
-	 * @param {Function} factory Node creator (coreFactory as default)
+	 * @param {class} instance node prototype
 	 * @returns {Lens}
 	 */
-	go(key, factory) {
+	go(key, instance = Lens) {
 		const current = this._children[key];
-		if (current && (!factory || factory === current._factory)) {
+		if (current) {
 			return current;
 		} else {
-			const core = factory
-				? factory(_coreFactory)
-				: this.getFactory();
-
-			const node = core(key, this);
-
-			node._factory = factory;
+			const node = _coreFactory(key, this, instance);
 			this._children[key] = node;
 
 			return node;
 		}
+	}
+	
+	chain(factory) {
+		if (!factory || this._chainFactory === factory) {
+			return this._chain || this;
+		}
+
+		this._chain = factory(this);
+		this._chainFactory = factory;
+		
+		return this._chain;
 	}
 
 	/**

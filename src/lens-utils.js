@@ -2,7 +2,7 @@ import { Lens } from './lens-js.js';
 
 /* 
  * Lens Utils
- * version 1.5.x
+ * version 1.6.x
  * LGPLv3
  */
 
@@ -110,29 +110,16 @@ export const getArray = (lens) => {
 };
 
 /**
- * Create mappable fatory
- * @param {Function} getter
- * @param {Function} setter
- * @returns {Function}
+ * Create mappable ChainFactory
+ * @param {type} to getter
+ * @param {type} from setter
+ * @returns {ChainFactory} factory
  */
-export const getMapper = (getter, setter) => (factory) => (key, current) => {
-	const lens = factory(key, current);
-
-	return new Lens(
-		() => getter(lens.get()),
-		(value, effect) => lens.set(setter(value, lens.get()), effect),
-		lens
-	);
-};
-
-const _getPrototype = (object) => {
-	return object.prototype || object.__proto__;
-};
-
-export const getDerivedInstance = (current) => {
-	const prototype = _getPrototype(current);
-	return (prototype && prototype.constructor) || Lens;
-};
+export const transform = (to, from) => (current) => new Lens(
+	() => to(current.get()),
+	(value, ...args) => current.set(from(value), ...args),
+	current
+);
 
 export const createLens = (initData, validator = v => v) => {
 	const store = {lens: {...initData}};
