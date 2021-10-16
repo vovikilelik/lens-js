@@ -2,6 +2,8 @@
 * [На русском](http://git.vovikilelik.com/Clu/lens-js/wiki)
 * [English](http://git.vovikilelik.com/Clu/lens-js/wiki/Home-en)
 
+There are many magor changes bettween 1.5 and 1.6, see [changelog](http://git.vovikilelik.com/Clu/lens-js/wiki/Changelog-en)
+
 # Instalation
 
  - **Git**
@@ -10,7 +12,7 @@
 - **Npm**
 `npm i @vovikilelik/lens-js`
 
-# Using with HTML
+## Using with HTML
 ```html
 <script type="module" src="lens-js.js"></script>
 
@@ -23,31 +25,60 @@
 </script>
 ```
 
-# Using with NPM
+## Using with NPM
 ```js
 import { Lens } from '@vovikilelik/lens-js';
 ```
 
-# Store pattern
+# Introduction
+`LensJs` implement the concept of a functional programming, where the data structure has the form of a directed graph (from the root to the leaves).
+* Creation root store
 ```js
-const store = {lens: {}}; // your store
-
-export const lens = new Lens(
-    () => store.lens, // getter
-    (value) => { store.lens = value } // setter
-);
-```
-or
-
-```js
-import { LensUtils } from '@vovikilelik/lens-js';
-
 export const lens = LensUtils.createLens({ /* default data */ });
 ```
+* Getting deep structure
+```js
+const deep = lens.go('deep');
+const deeper = deep.go('deeper');
+```
+* Singleton pattern able to use for each other node
+```js
+import {lens} from 'store';
+export default lens.go('deep');
+```
+* Catching changes
+```js
+const callback = ({ current, diffs }) => console.log(current.value);
+lens.attach(callback);
+lens.set('Hello!') // console: Hello!
+```
+* Extending
+```js
+class MyLens extends Lens {
+  doRequest(addr) {
+    myFetch(addr).then(response => this.set(response));
+  }
+}
 
-For more information look [wiki](http://git.vovikilelik.com/Clu/lens-js/wiki/Base-methods-en)
+const foo = lens.go('foo', MyLens);
+foo.doRequest('https://');
+```
+* Live-transforming
+```js
+import {transform} from 'lens-utils';
 
-# Introduction
+const toHex = transform(
+  v => `#${v.toString(16)}`,
+  v => parseInt(v.substring(1), 16);
+);
+
+const hex = lens.go('color').chain(toHex);
+hex.set('#aabbcc');
+```
+
+For more information look [wiki](http://git.vovikilelik.com/Clu/lens-js/wiki/Home-en)
+
+# Example
 
 `LensJs` implement the concept of a functional programming, where the data structure has the form of a directed graph (from the root to the leaves).
 
@@ -228,9 +259,7 @@ class MyController extends Lens {
     }
 }
 
-const factory = () => createCoreFactory(MyController);
-
-const controller = lens.go('page', factory);
+const controller = lens.go('page', MyController);
 controller.id = 12345;
 ```
 
