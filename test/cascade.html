@@ -14,44 +14,32 @@ and open the template in the editor.
 		<div>TODO write content</div>
 		<script type="module">
 			import { Lens } from '../src/lens-js.js';
-            import { getConsistsCallback, getDebounceCallback, getMapper } from '../src/lens-utils.js';
+            import { getDebounceCallback, transform } from '../src/lens-utils.js';
 			
-//			const store = { lens: { m: { x: 1, y: 1, z: { c: 1 }} } };
-			const store = { lens: { one: {} } };
+			const store = { lens: { one: '' } };
 
 			const lens = new Lens(
 				() => store.lens,
 				(value) => { store.lens = value; }
 			);
 
-			/*lens.attach(e => console.log('@root', e.current, e.diffs));
-			
-			const m = lens.go('m');
-			m.attach(e => console.log('@m', e.current, e.diffs));
+			const argMapper = a => typeof a === 'function' ? `func: ${a()}` : `obj ${JSON.stringify(a)}`;
 
-			m.go('x').attach(e => console.log('@x', e.current, e.diffs, m.go('x').get()));
-			
-			const unknown = m.go('unknown');
-			unknown.attach(e => console.log('@unknown', e.current, e.diffs, unknown.get()));
-			
-			const foo = unknown.go('foo');
-			foo.attach(e => console.log('@foo', e.current, e.diffs, foo.get()));
-			
-			const hidden = lens.go('m').go('hidden');
-			hidden.attach(e => console.log('@hidden', e.current, e.diffs, hidden.get()));
-			
-			m.set({ unknown: { foo: 0 }, x: 1 });
-			unknown.set({ foo: 0 });
-			foo.set(1);*/
+			const callback = getDebounceCallback((...args) => console.log(args.map(argMapper).join('\n')));
 			
 			const one = lens.go('one');
-			one.attach(console.log);
-			
-			const foo = lens.go('one').go('foo');
-			foo.attach(console.log);
+			one.attach(callback);
 
-			foo.set('one');
+			for (let i = 0; i < 1000; i++) {
+				one.set(i);
+			}
 			
+			const foo = lens.go('chain').chain(transform(v => v, v => v));
+			
+			foo.attach(console.log);
+			
+			lens.set({ chain: '1', one: 'z' });
+			lens.set({ chain: '2' }, () => console.log(lens.get()));
 		</script>	
 	</body>
 </html>

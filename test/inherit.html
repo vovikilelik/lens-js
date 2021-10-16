@@ -13,8 +13,8 @@ and open the template in the editor.
 	<body>
 		<div>TODO write content</div>
 		<script type="module">
-			import { Lens, createCoreFactory } from '../src/lens-js.js';
-            import { getDerivedInstance, createLens } from '../src/lens-utils.js';
+			import { Lens } from '../src/lens-js.js';
+            import { createLens } from '../src/lens-utils.js';
 			
 			const lens = createLens();
 
@@ -23,47 +23,38 @@ and open the template in the editor.
 					return `XLens`;
 				}
 			};
-			const cxf = () => createCoreFactory(XLens);
-			
+
 			class YLens extends Lens {
 				get test() {
 					return `YLens`;
 				}
 				
-				getFactory() { return createCoreFactory(getDerivedInstance(this)); }
+				go(key, instance) { return  super.go(key, instance || YLens); }
 			};
-			const cyf = () => createCoreFactory(YLens);
 			
 			class ZLens extends YLens {
 				get test() {
 					return `ZLens`;
 				}
+				
+				go(key, instance) { return  super.go(key, instance || XLens); }
 			};
-			const czf = () => createCoreFactory(ZLens);
 			
 			console.log('----go----');
 			
-			const x = lens.go('x', cxf);
-			const y = lens.go('y', cyf);
-			const yz = y.go('z', czf);
-			const z = lens.go('z', czf);
+			const inherits = [XLens, undefined, YLens, undefined, ZLens, undefined];
 			
-			console.log('XLens: ', x.test, x.go('any').test);
-			console.log('YLens: ', y.test, y.go('any').test);
-			console.log('YZLens: ', yz.test, yz.go('any').test);
-			console.log('ZLens: ', z.test, z.go('any').test);
-			
-			lens.attach((e) => console.log('lens reaction', e));
-			
-			x.go('any').attach((e) => console.log('xlens reaction', e));
-			y.go('any').attach((e) => console.log('ylens reaction', e));
-			
-			console.log('----x----');
-			x.go('any').set('value');
-			
-			console.log('----y----');
-			y.go('any').set('value');
-			
+			const test = (node, inherits, index = 0) => {
+				console.log(`@ ${node.constructor.name}`, node.test);
+				
+				if (inherits.length <= index) return node;
+				
+				const x = node.go('x', inherits[index]);
+				return test(x, inherits, index + 1);
+			};
+	
+			test(lens, inherits).set('value');
+	
 			console.log(lens.get());
 		</script>	
 	</body>

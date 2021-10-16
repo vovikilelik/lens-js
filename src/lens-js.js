@@ -166,12 +166,12 @@ export class Lens {
 	 * @param {class} instance node prototype
 	 * @returns {Lens}
 	 */
-	go(key, instance = Lens) {
+	go(key, instance) {
 		const current = this._children[key];
 		if (current) {
 			return current;
 		} else {
-			const node = _coreFactory(key, this, instance);
+			const node = _coreFactory(key, this, instance || Lens);
 			this._children[key] = node;
 
 			return node;
@@ -199,9 +199,7 @@ export class Lens {
 
 	_initCascade(value, callback) {
 		const prev = this.get();
-
 		this._setter(value);
-
 		const current = this.get();
 
 		if (prev !== current) {
