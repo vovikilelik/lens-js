@@ -2,7 +2,7 @@
 * [На русском](http://git.vovikilelik.com/Clu/lens-js/wiki)
 * [English](http://git.vovikilelik.com/Clu/lens-js/wiki/Home-en)
 
-There are many magor changes bettween 1.5 and 1.6, see [changelog](http://git.vovikilelik.com/Clu/lens-js/wiki/Changelog-en)
+There are many major changes bettween 1.5 and 1.6, see [changelog](http://git.vovikilelik.com/Clu/lens-js/wiki/Changelog-en)
 
 # Instalation
 
