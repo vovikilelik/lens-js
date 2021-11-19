@@ -20,9 +20,15 @@ const _compareKeys = (prevKeys, nextKeys) => {
 		&& !prevKeys.some((p, i) => p !== nextKeys[i]);
 };
 
+const _typeof = (value) => {
+	return value === null || value === undefined
+		? 'undefined'
+		: typeof value;
+};
+
 const _getDiffs = (prev, next, path = [], diffs = []) => {
-	const prevType = typeof prev;
-	const nextType = typeof next;
+	const prevType = _typeof(prev);
+	const nextType = _typeof(next);
 
 	if (prevType !== nextType) {
 		diffs.push(new NodeDiff(path, prev, next));
