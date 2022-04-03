@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+	<head>
+		<title>TODO supply a title</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	</head>
+	<body>
+		<div>TODO write content</div>
+		<script type="module">
+			import { Lens } from '../src/lens-js.js';
+            import { createLens } from '../src/lens-utils.js';
+			
+			const data0 = {};
+			const data1 = { tree: { node: { value: 'test' } } };
+			const data2 = { tree: { node: { value: 'test2' } } };
+			const data3 = { tree: { node: { value2: 'test3' } } };
+			const data4 = { tree: undefined };
+			
+			const callback = ({ current, diffs }) => {
+				if (current) {
+				  console.log('Этап 2');
+				} else if (diffs.length > 0) {
+				  console.log('Этап 1');
+				} else {
+				  console.log('Этап 3');
+				}
+			};
+
+			const lens = createLens(data0);
+
+			lens.go('tree').go('node').attach(callback);
+			
+			lens.set(data1);
+			lens.set(data2);
+			lens.set(data3);
+			
+			lens.set(data4);
+
+			console.log(lens.get());
+		</script>	
+	</body>
+</html>

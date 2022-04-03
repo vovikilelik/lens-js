@@ -109,11 +109,16 @@ export const transform = (to, from) => (current) => new Lens(
 	current
 );
 
-export const createLens = (initData, validator = v => v) => {
-	const store = {lens: {...initData}};
-
-	return new Lens(
-		() => store.lens,
-		(value) => store.lens = validator(value, store.lens)
-	);
+export const createLens = (initData, mapper) => {
+	const store = {lens: { ...initData }};
+	
+	return mapper
+		? new Lens(
+			() => store.lens,
+			(value) => store.lens = mapper(value, store.lens)
+		)
+		: new Lens(
+			() => store.lens,
+			(value) => store.lens = value
+		);
 };

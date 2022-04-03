@@ -126,7 +126,7 @@ export class Lens {
 	}
 
 	_fire(diffs, currentDiff) {
-		this._attachments.forEach(callback => callback(new AttachEvent(currentDiff, diffs)));
+		this._attachments.forEach(callback => callback(new AttachEvent(currentDiff, diffs), this));
 		this._chain && this._chain._fire && this._chain._fire(diffs, currentDiff);
 	}
 
@@ -138,7 +138,7 @@ export class Lens {
 
 		Object.keys(this._children).forEach((key) => {
 			const child = this._children[key];
-			(value[key] !== undefined) && child._notify && child._notify(value[key]);
+			child._notify && child._notify(value[key]);
 		});
 	}
 
