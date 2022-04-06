@@ -22,8 +22,29 @@ and open the template in the editor.
 			lens.go('test').set({ foo: null, moo: undefined });
 			
 			lens.go('test').set(null);
+		
 			
-			console.log(lens.get());
+			const q1 = {
+				a: 1, b: 2, c: 3
+			};
+			
+			const q2 = {
+				...q1, b: undefined
+			};
+			
+			const q3 = {
+				a: 1, b: 2
+			};
+			
+			lens.set(q1);
+			
+			lens.attach((c) => console.log(c));
+			lens.go('b').attach((c) => console.log('b', c));
+			
+			console.log('---q2---')
+			lens.set(q2);
+			console.log('---q3---')
+			lens.set(q3);
 		</script>	
 	</body>
 </html>

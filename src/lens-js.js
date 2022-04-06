@@ -26,6 +26,10 @@ const _typeof = (value) => {
 		: typeof value;
 };
 
+const _getKeys = (data) => {
+	return Array.isArray(data) ? Object.keys(data) : Object.keys(data).sort();
+};
+
 const _getDiffs = (prev, next, path = [], diffs = []) => {
 	const prevType = _typeof(prev);
 	const nextType = _typeof(next);
@@ -38,8 +42,8 @@ const _getDiffs = (prev, next, path = [], diffs = []) => {
 	switch (prevType) {
 		case 'object':
 
-			const prevKeys = Object.keys(prev);
-			const nextKeys = Object.keys(next);
+			const prevKeys = _getKeys(prev);
+			const nextKeys = _getKeys(next);
 
 			if (!_compareKeys(prevKeys, nextKeys)) {
 				diffs.push(new NodeDiff(path, prev, next));

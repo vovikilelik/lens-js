@@ -41,6 +41,13 @@ export const lens = LensUtils.createLens({ /* default data */ });
 const deep = lens.go('deep');
 const deeper = deep.go('deeper');
 ```
+* Changing
+```js
+const catName = lens.go('cat').go('name');
+
+catName.set('Tom'); // Set value
+catName.get(); / Get value from node
+```
 * Singleton pattern able to use for each other node
 ```js
 import {lens} from 'store';
