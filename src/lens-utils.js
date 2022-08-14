@@ -109,16 +109,16 @@ export const transform = (to, from) => (current) => new Lens(
 	current
 );
 
-export const createLens = (initData, mapper) => {
-	const store = {lens: { ...initData }};
+export const createLens = (data, mapper) => {
+	const store = { data };
 	
 	return mapper
 		? new Lens(
-			() => store.lens,
-			(value) => store.lens = mapper(value, store.lens)
+			() => store.data,
+			(value) => store.data = mapper(value, store.data)
 		)
 		: new Lens(
-			() => store.lens,
-			(value) => store.lens = value
+			() => store.data,
+			(value) => store.data = value
 		);
 };
