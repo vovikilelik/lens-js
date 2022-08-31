@@ -1,55 +1,64 @@
-import { Lens } from './lens-js.js';
-
 /* 
  * Lens Utils
- * version 1.6.x
+ * version 2.0.x
  * LGPLv3
  */
+
+import { Lens } from './lens-js.js';
+import { Debounce as Pool } from './lib/debounce.js';
+
+export const Debounce = Pool;
+
+const _isStrict = diffs => diffs.some(({ path }) => !path || !path.length);
 
 /**
  * Creating callback, which will be called only if current node would be changed
  * @param {Function} callback
  * @returns {Function}
  */
-export const getStrictCallback = (callback) => (e) => {
-	const {current} = e;
-	current && callback(e);
+const change = (callback) => (...args) => {
+	const [ { current, diffs } ] = args;
+
+	const strictAndAssign = diffs.find(({ path }) => !path || path.length < 2);
+	
+	const change = (typeof current.value === 'object')
+		? current.prev === undefined && current.value !== undefined
+		: current.prev !== current.value;
+
+	if (strictAndAssign || change) {
+		return callback(...args);
+	}
+};
+
+/**
+ * Creating callback, which will be called only if current node would be replaced of new structure
+ * @param {Function} callback
+ * @returns {Function}
+ */
+const node = (callback) => (...args) => {
+	const [ { diffs } ] = args;
+	_isStrict(diffs) && callback(...args);
 };
 
 /**
  * Creating callback, which will be called if current node and subtree would be changed or creating
- * @param {type} callback
+ * @param {Function} callback
  * @returns {Function}
  */
-export const getTreeCallback = (callback) => (e) => {
-	const {current, diffs} = e;
-	(current || diffs.length === 0) && callback(e);
+const before = (callback) => (...args) => {
+	const [ { diffs } ] = args;
+	(_isStrict(diffs) || diffs.length === 0) && callback(...args);
 };
 
 /**
  * Creating callback, which will be triggered on path from root to changed node
- * @param {type} callback
+ * @param {Function} callback
  * @returns {Function}
  */
-export const getPathCallback = (callback) => (e) => {
-	const {current, diffs} = e;
-	(current || diffs.length > 0) && callback(e);
+const after = (callback) => (...args) => {
+	const [ { diffs } ] = args;
+	(_isStrict(diffs) || diffs.length > 0) && callback(...args);
 };
-
-/**
- * Debounce function
- * @param {Number} defaultTimeout
- * @returns {Debounce}
- */
-export function Debounce(defaultTimeout) {
-	let sync = 0;
-	this.run = (func, timeout = defaultTimeout) => {
-		const stamp = ++sync;
-		setTimeout(() => {
-			(sync === stamp) && func(() => stamp === sync, stamp);
-		}, timeout);
-	};
-}
 
 /**
  * Creating callback with throttling
@@ -57,27 +66,33 @@ export function Debounce(defaultTimeout) {
  * @param {Number} timeout
  * @returns {Function}
  */
-export const getDebounceCallback = (callback, timeout = 0) => {
-	const debounce = new Debounce(timeout);
+const debounce = (callback, timeout = 0) => {
+	const pool = new Pool(timeout);
 
-	return (e) => {
-		debounce.run((...args) => callback(e, ...args));
+	return (...e) => {
+		pool.run((...d) => callback(...e, ...d));
 	};
 };
 
 /**
  * Creating callback whitch will call result if request finished last
- * @param {Promise} Promise request
+ * @param {Function} Promise request
  * @param {Function} resolve callback for Promise.then()
  * @param {Number} timeout
  * @returns {Function}
  */
-export const getAsyncCallback = (request, resolve, timeout = 0) => {
-	return getDebounceCallback(
-		(e, sync, ...args) => request(e).then(r => sync() && resolve(r, e, sync, ...args)),
+const async = (request, resolve, timeout = 0) => {
+	return debounce(
+		(event, lens, sync, ...args) => request(event, lens).then(r => sync() && resolve(r, event, lens, sync, ...args)),
 		timeout
 	);
 };
+
+/**
+ * Namespace of callback factory
+ * @type type
+ */
+export const Callback = { change, node, after, before, debounce, async };
 
 const isNumber = (key) => !isNaN(key);
 const getIndexOrName = (key) => isNumber(key) ? +key : key;

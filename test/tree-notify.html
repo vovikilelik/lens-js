@@ -19,20 +19,22 @@ and open the template in the editor.
 			const data0 = {};
 			const data1 = { tree: { node: { value: 'test' } } };
 			const data2 = { tree: { node: { value: 'test2' } } };
-			const data3 = { tree: { node: { value2: 'test3' } } };
+			const data3 = { tree: { node: { value: 'test3' } } };
 			const data4 = { tree: undefined };
 			
-			const callback = ({ current, diffs }) => {
-				if (current) {
-				  console.log('Этап 2');
+			const callback = ({ diffs }) => {
+				if (diffs.some(({ path }) => !path || !path.length)) {
+				  console.log('Этап 2', diffs);
 				} else if (diffs.length > 0) {
-				  console.log('Этап 1');
+				  console.log('Этап 1', diffs);
 				} else {
-				  console.log('Этап 3');
+				  console.log('Этап 3', diffs);
 				}
 			};
 
 			const lens = createLens(data0);
+
+			lens.attach((...args) => console.log('root', ...args));
 
 			lens.go('tree').go('node').attach(callback);
 			
@@ -40,7 +42,7 @@ and open the template in the editor.
 			lens.set(data2);
 			lens.set(data3);
 			
-			lens.set(data4);
+//			lens.set(data4);
 
 			console.log(lens.get());
 		</script>	

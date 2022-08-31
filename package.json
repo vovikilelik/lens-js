@@ -1,15 +1,17 @@
 {
     "name": "@vovikilelik/lens-js",
-    "version": "1.6.5",
+    "version": "2.0.0-beta1",
     "keywords": [
         "util",
         "functional",
+		"oop",
+		"web components",
         "server",
         "client",
         "store",
         "state",
         "lens",
-		"mvc"
+		"state manager"
     ],
     "author": "svinokot",
     "contributors": [
@@ -21,11 +23,10 @@
     "files": [
         "src/lens-js.js",
         "src/lens-utils.js",
+		"lib/debounce.js",
         "index.js"
     ],
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
+    "scripts": {},
     "homepage": "http://git.vovikilelik.com/Clu/lens-js/wiki",
     "repository": {
         "type": "git",

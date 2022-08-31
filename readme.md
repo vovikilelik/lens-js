@@ -2,7 +2,7 @@
 * [На русском](http://git.vovikilelik.com/Clu/lens-js/wiki)
 * [English](http://git.vovikilelik.com/Clu/lens-js/wiki/Home-en)
 
-There are many major changes bettween 1.5 and 1.6, see [changelog](http://git.vovikilelik.com/Clu/lens-js/wiki/Changelog-en)
+There are many major changes, see [changelog](http://git.vovikilelik.com/Clu/lens-js/wiki/Changelog-en)
 
 # Instalation
 
@@ -12,7 +12,9 @@ There are many major changes bettween 1.5 and 1.6, see [changelog](http://git.vo
 - **Npm**
 `npm i @vovikilelik/lens-js`
 
-## Using with HTML
+## Imports
+
+### Web Components
 ```html
 <script type="module" src="lens-js.js"></script>
 
@@ -25,13 +27,38 @@ There are many major changes bettween 1.5 and 1.6, see [changelog](http://git.vo
 </script>
 ```
 
-## Using with NPM
+### Webpack
 ```js
 import { Lens } from '@vovikilelik/lens-js';
 ```
 
 # Introduction
 `LensJs` implement the concept of a functional programming, where the data structure has the form of a directed graph (from the root to the leaves).
+
+## Philosofy
+
+### Simple to supporting
+We believe that the structure and organization of the application state should be clear. You don't need to know the entire organization of the state to understand how it functions.
+
+### Simple to implemeting
+You don't need to write a lot of code to create a simple object. It doesn't take much to figure out how to write a simple object.
+
+### Performance
+We think performance is important too (but that's not for sure).
+
+### Compatibility
+We believe that `LensJs` can be used in conjunction with other state managers.
+
+## Main Features
+* Asynchronous change detection
+* Full control of state changies
+* Data transform on demand
+* Both scalability (out/up)
+* Object-oriented and functional programming
+* Encapsulation
+
+## Using
+
 * Creation root store
 ```js
 export const lens = LensUtils.createLens({ /* default data */ });
@@ -41,24 +68,34 @@ export const lens = LensUtils.createLens({ /* default data */ });
 const deep = lens.go('deep');
 const deeper = deep.go('deeper');
 ```
-* Changing
+
+* Reading and writing
 ```js
 const catName = lens.go('cat').go('name');
 
-catName.set('Tom'); // Set value
-catName.get(); / Get value from node
+catName.set('Tom'); // Writing
+catName.get(); // Reading
 ```
-* Singleton pattern able to use for each other node
-```js
-import {lens} from 'store';
-export default lens.go('deep');
-```
+
 * Catching changes
 ```js
-const callback = ({ current, diffs }) => console.log(current.value);
+const callback = ({ current }) => console.log(current.value);
 lens.attach(callback);
+
 lens.set('Hello!') // console: Hello!
 ```
+
+* Singleton pattern able to use for each other node
+```js
+lens.go('singleton') === lens.go('singleton'); // true
+```
+
+* Export every node as const
+```js
+export const appState = lens.go('app');
+export const authState = lens.go('auth');
+```
+
 * Extending
 ```js
 class MyLens extends Lens {
@@ -81,94 +118,12 @@ const toHex = transform(
 
 const hex = lens.go('color').chain(toHex);
 hex.set('#aabbcc');
+
+console.log(lens.get()) // { color: 11189196 } 
 ```
 
 For more information look [wiki](http://git.vovikilelik.com/Clu/lens-js/wiki/Home-en)
 
-# Example
-
-`LensJs` implement the concept of a functional programming, where the data structure has the form of a directed graph (from the root to the leaves).
-
-Each node of the graph of `LensJs` does not contain data, but only provides an interface and performs addressing in the graph. This also means that the structure of the graph depends on the structure of the data itself.
-
-**Example:** `store.js`
-```js
-/* Store */
-const defaultData = {
-    form: { message: 'Hello World!' }
-};
-
-/* Constructor of ROOT lens */
-export const lens = LensUtils.createLens(defaultData);
-```
-Now you can operate with `lensJs`.
-* For accsessing to root lens import `lensJs` as an singleton from your `store.js`
-* For getting nested fields from object you have to call method `go(fieldName)` from parent node, and if you need to more deep, you could call one again and again.
-
-```js
-import { lens } from './store.js';
-
-/* Gettin field by path "lens.form.message" */
-const message = lens.go('form').go('message');
-
-/* Getting value from field (by path "lens.form.message") */
-console.log( message.get() );
-// --> Hello World!
-
-/* Setting new value */
-message.set('Hi World!');
-
-console.log( message.get() );
-// --> Hi World!
-```
-
-You can create `Lens-components`, where as the value whould be givivng lens node.
-```js
-const messageLens = lens.go('form').go('message');
-const LensFoo = new LensFoo(messageLens);
-```
-
-Those components stay universal, look:
-```js
-const messageLens = lens.go('anotheForm').go('anotherMessage');
-const LensFoo = new LensFoo(messageLens);
-```
-
-`lensJs` involves event model, whith provide eaction on data changing.
-```js
-const onChange = e => console.log('Changed!');
-lens.attach(onChange);
-```
-
-It able to use into lens-components.
-```js
-class LensFoo {
-  constructor(lens) {
-    this._callback = this.onChange.bind(this);
-    lens.attach(this._callback);
-  }
-
-  onChange() {
-    this.render();
-  }
-
-  render() { /* doSmth */ }
-}
-```
-Every node of `lensJs` is **singleton**
-```js
-const one = lens.go('apple');
-const two = lens.go('apple');
-
-one === two // true
-```
-It means that you can export any node like this:
-
-```js
-import { lens } from './store.js';
-
-export const basket = lens.go('basket');
-```
 
 # Comparation with Redux and MobX/MST
 > Not contrast but nearly
@@ -205,7 +160,7 @@ dispatch(getHelloAction('Hello!'));
 lens.go('world').set('Hello!');
 ```
 
-## More scalability
+## Better encapsulation
 Every lens node is root of own subtree. It give passibility to make components whitch is not assign with main form.
 
 ### `Redux`:
@@ -266,6 +221,7 @@ class MyController extends Lens {
     }
 }
 
+// Example
 const controller = lens.go('page', MyController);
 controller.id = 12345;
 ```

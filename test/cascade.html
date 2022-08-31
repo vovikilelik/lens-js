@@ -14,32 +14,39 @@ and open the template in the editor.
 		<div>TODO write content</div>
 		<script type="module">
 			import { Lens } from '../src/lens-js.js';
-            import { getDebounceCallback, transform } from '../src/lens-utils.js';
+            import { createLens, Callback } from '../src/lens-utils.js';
 			
-			const store = { lens: { one: '' } };
+			const lens = createLens({});
+			
+			console.log('init', lens.get());
+			
+			const a = { one: { two: { moo: 'moo' }, two2: 'two2' }, one2: 'one2' };
 
-			const lens = new Lens(
-				() => store.lens,
-				(value) => { store.lens = value; }
-			);
+			lens.attach((...args) => console.log('root', ...args));
 
-			const argMapper = a => typeof a === 'function' ? `func: ${a()}` : `obj ${JSON.stringify(a)}`;
-
-			const callback = getDebounceCallback((...args) => console.log(args.map(argMapper).join('\n')));
+			lens.go('one').go('two').go('moo').attach((...args) => console.log('moo', ...args));
+			lens.go('one').go('two').attach((...args) => console.log('two', ...args));
+			lens.go('one').go('two2').attach((...args) => console.log('two2', ...args));
+			lens.go('one2').attach((...args) => console.log('one2', ...args));
 			
-			const one = lens.go('one');
-			one.attach(callback);
-
-			for (let i = 0; i < 1000; i++) {
-				one.set(i);
-			}
+			lens.go('one').attach(Callback.change((...args) => console.log('one: addChangeListener', ...args)));
+			lens.go('one').go('two').attach(Callback.change((...args) => console.log('two: addChangeListener', ...args)));
+			lens.go('one').go('two').go('moo').attach(Callback.change((...args) => console.log('moo: addChangeListener', ...args)));
 			
-			const foo = lens.go('chain').chain(transform(v => v, v => v));
+			lens.set(a);
 			
-			foo.attach(console.log);
+			console.log('== one2 ==');
 			
-			lens.set({ chain: '1', one: 'z' });
-			lens.set({ chain: '2' }, () => console.log(lens.get()));
+			lens.go('one2').set('one2xxxx');
+			
+			console.log('== moo ==');
+			
+//			lens.go('one').go('two').go('moo').set('moo2');
+			lens.go('one').go('two').set({ moo: 'moo', foo: 'foo' });
+			console.log('== undefined ==');
+			lens.go('one').go('two').set(undefined);
+			console.log('== moo ==');
+			lens.go('one').go('two').set({ moo: 'mooz', foo: 'foo' });
 		</script>	
 	</body>
 </html>

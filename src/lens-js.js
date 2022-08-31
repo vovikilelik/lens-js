@@ -1,15 +1,17 @@
 /* 
  * Lens
- * version 1.6.x
+ * version 2.0.x
  * LGPLv3
  */
 
-export function AttachEvent(current, diffs) {
+import { Debounce } from './lib/debounce.js';
+
+export function AttachEvent(diffs, current) {
 	this.current = current;
 	this.diffs = diffs;
 }
 
-export function NodeDiff(path, prev, value) {
+export function NodeDiff(path, value, prev) {
 	this.path = path;
 	this.prev = prev;
 	this.value = value;
@@ -35,7 +37,7 @@ const _getDiffs = (prev, next, path = [], diffs = []) => {
 	const nextType = _typeof(next);
 
 	if (prevType !== nextType) {
-		diffs.push(new NodeDiff(path, prev, next));
+		diffs.push(new NodeDiff(path, next, prev));
 		return diffs;
 	}
 
@@ -46,7 +48,7 @@ const _getDiffs = (prev, next, path = [], diffs = []) => {
 			const nextKeys = _getKeys(next);
 
 			if (!_compareKeys(prevKeys, nextKeys)) {
-				diffs.push(new NodeDiff(path, prev, next));
+				diffs.push(new NodeDiff(path, next, prev));
 				return diffs;
 			}
 
@@ -57,17 +59,17 @@ const _getDiffs = (prev, next, path = [], diffs = []) => {
 			return diffs;
 		default:
 			if (prev !== next) {
-				diffs.push(new NodeDiff(path, prev, next));
+				diffs.push(new NodeDiff(path, next, prev));
 			}
 
 			return diffs;
 	}
 };
 
-const _shiftDiffs = (key, diffs) => {
+const _trimDiffs = (key, diffs) => {
 	return diffs
-		.filter(({path}) => path && path[0] === key)
-		.map(({path, ...diff}) => ({...diff, path: path.slice(1)}));
+		.filter(({ path }) => path && path[0] === key)
+		.map(({ path, ...diff }) => ({ ...diff, path: path.slice(1) }));
 };
 
 const _makeObjectOrArray = (key, value, prev) => {
@@ -129,45 +131,38 @@ export class Lens {
 		return _getRootVersion(this._parent) + this._version;
 	}
 
+	_format() {
+		this._children = [];
+	}
+
 	_fire(diffs, currentDiff) {
-		this._attachments.forEach(callback => callback(new AttachEvent(currentDiff, diffs), this));
+		this._attachments.forEach(callback => callback(new AttachEvent(diffs, currentDiff), this));
 		this._chain && this._chain._fire && this._chain._fire(diffs, currentDiff);
 	}
 
-	_notify(value, currentDiff) {
-		this._fire([], currentDiff);
+	_cascade(diffs, value, prev) {
 
-		if (!value || (typeof value !== 'object'))
-			return;
+		// children copy before fire
+		const children = this._children;
 
-		Object.keys(this._children).forEach((key) => {
-			const child = this._children[key];
-			child._notify && child._notify(value[key]);
-		});
-	}
-
-	_cascade(diffs) {
 		const currentDiff = diffs.find(({ path }) => !path || !path.length);
+		this._fire(diffs, currentDiff || new NodeDiff([], value, prev));
 
-		if (currentDiff) {
-			this._notify(currentDiff.value, currentDiff);
+		// remove unnecessary children
+		if (typeof value !== 'object' || value === undefined || value === null) {
+			this._format();
 			return;
 		}
-
-		this._fire(diffs);
-
-		Object.keys(this._children).forEach(key => {
-			if (!_isPathEntry(diffs, key))
+		
+		const treeExists = diffs.some(({ path }) => path && path.length);
+		
+		Object.keys(children).forEach(key => {
+			if (treeExists && !_isPathEntry(diffs, key))
 				return;
 
-			const child = this._children[key];
-			child._cascade && child._cascade(_shiftDiffs(key, diffs));
+			const child = children[key];
+			child._cascade && child._cascade(_trimDiffs(key, diffs), value[key], prev && prev[key]);
 		});
-	}
-
-	_effect(value, prev) {
-		const diffs = _getDiffs(prev, value, [], []);
-		diffs.length && (this._cascade(diffs));
 	}
 
 	/**
@@ -178,6 +173,7 @@ export class Lens {
 	 */
 	go(key, instance) {
 		const current = this._children[key];
+
 		if (current) {
 			return current;
 		} else {
@@ -207,16 +203,31 @@ export class Lens {
 		return this._getter();
 	}
 
-	_initCascade(value, callback) {
-		const prev = this.get();
-		this._setter(value);
-		const current = this.get();
+	_setAndNotify(value, callback) {
+		!this._prev && (this._prev = this.get());
 
-		if (prev !== current) {
-			this._effect(current, prev);
-		}
+		this._setter(value, callback);
 
 		callback && callback();
+		
+		const notifer = () => {
+			const prev = this._prev;
+			this._prev = undefined;
+			
+			const current = this.get();
+			
+			if (prev !== current) {
+				const diffs = _getDiffs(prev, value, [], []);
+				diffs.length && this._cascade(diffs, value, prev);
+			}
+		};
+
+		if (this._debounce) {
+			this._debounce.run(notifer);
+		} else {
+			this._debounce = new Debounce();
+			notifer();
+		}
 	}
 
 	/**
@@ -227,7 +238,7 @@ export class Lens {
 	 */
 	set(value, callback) {
 		this._version++;
-		this._parent ? this._setter(value, callback) : this._initCascade(value, callback);
+		this._parent ? this._setter(value, callback) : this._setAndNotify(value, callback);
 	}
 
 	/**
@@ -238,7 +249,7 @@ export class Lens {
 	attach(callback) {
 		if (typeof callback !== 'function') return false;
 		
-		const exists = this._attachments.find((c) => c === callback);
+		const exists = this._attachments.find(c => c === callback);
 		!exists && (this._attachments.push(callback));
 
 		return !exists;
@@ -250,8 +261,9 @@ export class Lens {
 	 * @returns {boolean}
 	 */
 	detach(callback) {
-		const filtered = this._attachments.filter((c) => c !== callback);
+		const filtered = this._attachments.filter(c => c !== callback);
 		const changed = this._attachments.length === filtered.length;
+
 		this._attachments = filtered;
 
 		return changed;
