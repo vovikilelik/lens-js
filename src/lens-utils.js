@@ -37,7 +37,7 @@ const change = (callback) => (...args) => {
  */
 const node = (callback) => (...args) => {
 	const [ { diffs } ] = args;
-	_isStrict(diffs) && callback(...args);
+	return _isStrict(diffs) && callback(...args);
 };
 
 /**
@@ -47,7 +47,7 @@ const node = (callback) => (...args) => {
  */
 const before = (callback) => (...args) => {
 	const [ { diffs } ] = args;
-	(_isStrict(diffs) || diffs.length === 0) && callback(...args);
+	return (_isStrict(diffs) || diffs.length === 0) && callback(...args);
 };
 
 /**
@@ -57,7 +57,7 @@ const before = (callback) => (...args) => {
  */
 const after = (callback) => (...args) => {
 	const [ { diffs } ] = args;
-	(_isStrict(diffs) || diffs.length > 0) && callback(...args);
+	return (_isStrict(diffs) || diffs.length > 0) && callback(...args);
 };
 
 /**

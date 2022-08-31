@@ -1,6 +1,6 @@
 {
     "name": "@vovikilelik/lens-js",
-    "version": "2.0.0-beta1",
+    "version": "2.0.0-beta2",
     "keywords": [
         "util",
         "functional",
@@ -23,7 +23,7 @@
     "files": [
         "src/lens-js.js",
         "src/lens-utils.js",
-		"lib/debounce.js",
+		"src/lib/debounce.js",
         "index.js"
     ],
     "scripts": {},

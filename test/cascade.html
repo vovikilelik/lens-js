@@ -16,9 +16,9 @@ and open the template in the editor.
 			import { Lens } from '../src/lens-js.js';
             import { createLens, Callback } from '../src/lens-utils.js';
 			
-			const lens = createLens({});
+			const lens = createLens({ one: {} });
 			
-			console.log('init', lens.get());
+			/*console.log('init', lens.get());
 			
 			const a = { one: { two: { moo: 'moo' }, two2: 'two2' }, one2: 'one2' };
 
@@ -46,7 +46,23 @@ and open the template in the editor.
 			console.log('== undefined ==');
 			lens.go('one').go('two').set(undefined);
 			console.log('== moo ==');
-			lens.go('one').go('two').set({ moo: 'mooz', foo: 'foo' });
+			lens.go('one').go('two').set({ moo: 'mooz', foo: 'foo' });*/
+			
+			lens.get(); // { one: {} }
+
+			/* Объявим обработчик на существующее поле */
+			const one = lens.go('one');
+			one.attach(Callback.node(e => console.log('one', e.current)));
+
+			/* Объявим обработчик на не существующую подветвь */
+			const foo = one.go('foo');
+			foo.attach(Callback.node(e => console.log('foo', e.current)));
+			
+			console.log('set Hello...');
+			foo.set('Hello');
+			
+			console.log('set World...');
+			foo.set('World');
 		</script>	
 	</body>
 </html>
