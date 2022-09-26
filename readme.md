@@ -51,6 +51,7 @@ We believe that `LensJs` can be used in conjunction with other state managers.
 
 ## Main Features
 * Asynchronous change detection
+* State batch update
 * Full control of state changies
 * Data transform on demand
 * Both scalability (out/up)
@@ -67,14 +68,28 @@ export const lens = LensUtils.createLens({ /* default data */ });
 ```js
 const deep = lens.go('deep');
 const deeper = deep.go('deeper');
+
+// Like "lens.deep.deeper"
 ```
 
 * Reading and writing
 ```js
 const catName = lens.go('cat').go('name');
 
-catName.set('Tom'); // Writing
-catName.get(); // Reading
+catName.set('Tom'); // Writing by "lens.cat.name"
+const value = catName.get(); // Reading
+
+// Like:
+// lens.cat.name = 'Tom';
+// const value = lens.cat.name;
+```
+
+* Getting full state (if needed)
+```js
+lens.go('basket').go('apples').go('count').set(3);
+const state = lens.get();
+
+// "state" is { basket: { apples: { count: 3 } } }
 ```
 
 * Catching changes
