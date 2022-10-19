@@ -92,7 +92,7 @@ const async = (request, resolve, timeout = 0) => {
  * Namespace of callback factory
  * @type type
  */
-export const Callback = { change, node, after, before, debounce, async };
+export const Callbacks = { change, strict, after, before, debounce, async };
 
 /**
  * Getting array of Lens from any node
