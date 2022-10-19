@@ -102,14 +102,14 @@ const _isPathEntry = (diffs, key) => diffs.some(({ path }) => path && path[0] ==
 
 const _getRootVersion = (parent) => (parent && parent.getVersion) ? parent.getVersion() : 0;
 
-const _isNumber = (key) => !isNaN(key);
-const _getIndexOrName = (key) => _isNumber(key) ? +key : key;
-
 /**
  * Lens node
  * @type Lens
  */
 export class Lens {
+
+	_attachments = [];
+	_children = {};
 
 	/**
 	 * Constructor
@@ -119,27 +119,27 @@ export class Lens {
 	 * @returns {Lens}
 	 */
 	constructor(getter, setter, parent) {
-		this._parent = parent;
-
 		this._getter = getter;
 		this._setter = setter;
+		this._parent = parent;
 
-		this._attachments = [];
-		this._children = [];
+		this[Symbol.iterator] = function* () {
+			const raw = this.get();
 
-		this._version = 0;
-	}
-
-	getVersion() {
-		return _getRootVersion(this._parent) + this._version;
+			for (const key in raw) {
+				yield this.go(key);
+			}
+		};
 	}
 
 	_format() {
-		this._children = [];
+		this._children = {};
 	}
 
 	_fire(diffs, currentDiff) {
-		this._attachments.forEach(callback => callback(new AttachEvent(diffs, currentDiff), this));
+		const event = new AttachEvent(diffs, currentDiff);
+
+		this._attachments.forEach(callback => callback(event, this));
 		this._chain && this._chain._fire && this._chain._fire(diffs, currentDiff);
 	}
 
@@ -152,7 +152,7 @@ export class Lens {
 		this._fire(diffs, currentDiff || new NodeDiff([], value, prev));
 
 		// remove unnecessary children
-		if (typeof value !== 'object' || value === undefined || value === null) {
+		if (typeof value !== 'object') {
 			this._format();
 			return;
 		}
@@ -223,6 +223,8 @@ export class Lens {
 				const diffs = _getDiffs(prev, value, [], []);
 				diffs.length && this._cascade(diffs, value, prev);
 			}
+			
+			callback && callback();
 		};
 
 		if (this._debounce) {
@@ -240,7 +242,6 @@ export class Lens {
 	 * @returns {undefined}
 	 */
 	set(value, callback) {
-		this._version++;
 		this._parent ? this._setter(value, callback) : this._setAndNotify(value, callback);
 	}
 
@@ -271,14 +272,8 @@ export class Lens {
 
 		return changed;
 	}
-	
-	list() {
-		const raw = this.get();
 
-		const isArray = !raw || Array.isArray(raw);
-		return Object.keys(raw).map(k => {
-			const key = isArray ? _getIndexOrName(k) : k;
-			return this.go(key);
-		});
+	list() {
+		return Array.from(this);
 	}
 }

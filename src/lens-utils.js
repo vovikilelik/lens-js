@@ -35,7 +35,7 @@ const change = (callback) => (...args) => {
  * @param {Function} callback
  * @returns {Function}
  */
-const node = (callback) => (...args) => {
+const strict = (callback) => (...args) => {
 	const [ { diffs } ] = args;
 	return _isStrict(diffs) && callback(...args);
 };

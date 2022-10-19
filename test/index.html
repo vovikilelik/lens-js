@@ -9,13 +9,48 @@ and open the template in the editor.
 		<title>TODO supply a title</title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<style>
+			body {
+				background-color: #8680a2;
+				padding: 0;
+				margin: 0;
+				
+				background-image: url("./4.jpg");
+				background-size: cover;
+			}
+			
+			body, html {
+				width: 100%;
+				height: 100%;
+			}
+			
+			.app-background {
+				width: 100%;
+				height: 100%;
+				
+				background-image: url("./4.jpg");
+				
+				background-size: cover;
+				transition: 3s;
+			}
+			
+			.blur {
+				filter: blur(10px);
+				opacity: 0;
+			}
+		</style>
 	</head>
 	<body>
 		<script type="module">
-			const q = '';
-			
-			console.log(q.split('.'));
-			console.log('qwe'.split('.'));
-		</script>	
+			setTimeout(() => {
+				const element = document.querySelector('.app-background');
+				
+				element.style.backgroundImage = 'url("./3.jpg")';
+				element.classList.remove('blur');
+			}, 1000);
+		</script>
+		<div class="app-background blur">
+
+		</div>
 	</body>
 </html>

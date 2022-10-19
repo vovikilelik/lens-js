@@ -18,33 +18,11 @@ and open the template in the editor.
 			
 			const lens = createLens();
 
-			lens.go('test').set({ foo: null, moo: undefined });
-			lens.go('test').set({ foo: null, moo: undefined });
-			
-			lens.go('test').set(null);
-		
-			
-			const q1 = {
-				a: 1, b: 2, c: 3
-			};
-			
-			const q2 = {
-				...q1, b: undefined
-			};
-			
-			const q3 = {
-				a: 1, b: 2
-			};
-			
-			lens.set(q1);
-			
-			lens.attach((c) => console.log(c));
-			lens.go('b').attach((c) => console.log('b', c));
-			
-			console.log('---q2---')
-			lens.set(q2);
-			console.log('---q3---')
-			lens.set(q3);
+			const x1 = lens.go('moo').go('ok');
+
+			lens.set({ foo: 'ok', moo: { ok: 'ok' } });
+			lens.set({ foo: 'ok', moo: null });
+			lens.set({ foo: 'ok', moo: 'any' }, () => console.log('ok', lens._children));
 		</script>	
 	</body>
 </html>
