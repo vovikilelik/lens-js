@@ -102,6 +102,9 @@ const _isPathEntry = (diffs, key) => diffs.some(({ path }) => path && path[0] ==
 
 const _getRootVersion = (parent) => (parent && parent.getVersion) ? parent.getVersion() : 0;
 
+const _isNumber = (key) => !isNaN(key);
+const _getIndexOrName = (key) => _isNumber(key) ? +key : key;
+
 /**
  * Lens node
  * @type Lens
@@ -267,5 +270,15 @@ export class Lens {
 		this._attachments = filtered;
 
 		return changed;
+	}
+	
+	list() {
+		const raw = this.get();
+
+		const isArray = !raw || Array.isArray(raw);
+		return Object.keys(raw).map(k => {
+			const key = isArray ? _getIndexOrName(k) : k;
+			return this.go(key);
+		});
 	}
 }

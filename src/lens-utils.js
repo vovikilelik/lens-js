@@ -94,22 +94,13 @@ const async = (request, resolve, timeout = 0) => {
  */
 export const Callback = { change, node, after, before, debounce, async };
 
-const isNumber = (key) => !isNaN(key);
-const getIndexOrName = (key) => isNumber(key) ? +key : key;
-
 /**
  * Getting array of Lens from any node
  * @param {Lens} lens
  * @returns {Array<Lens>}
  */
 export const getArray = (lens) => {
-	const raw = lens.get();
-
-	const isArray = !raw || Array.isArray(raw);
-	return Object.keys(raw).map(k => {
-		const key = isArray ? getIndexOrName(k) : k;
-		return lens.go(key);
-	});
+	return lens.list();
 };
 
 /**
