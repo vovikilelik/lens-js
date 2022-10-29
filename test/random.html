@@ -16,13 +16,11 @@ and open the template in the editor.
 			import { Lens } from '../src/lens-js.js';
             import { createLens } from '../src/lens-utils.js';
 			
-			const lens = createLens();
+			const lens = createLens([ { foo: 0 } ]);
 
-			const x1 = lens.go('moo').go('ok');
+			lens.list()[0].go('foo').set(1);
 
-			lens.set({ foo: 'ok', moo: { ok: 'ok' } });
-			lens.set({ foo: 'ok', moo: null });
-			lens.set({ foo: 'ok', moo: 'any' }, () => console.log('ok', lens._children));
+			console.log(lens.get());
 		</script>	
 	</body>
 </html>

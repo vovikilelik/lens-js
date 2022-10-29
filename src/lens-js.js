@@ -73,14 +73,15 @@ const _trimDiffs = (key, diffs) => {
 };
 
 const _makeObjectOrArray = (key, value, prev) => {
-	switch (typeof key) {
-		case 'number':
-			const result = prev ? [...prev] : [];
-			result[key] = value;
+	const isArray = typeof key === 'number' || Array.isArray(prev);
+	
+	if (isArray) {
+		const result = prev ? [ ...prev ] : [];
+		result[+key] = value;
 
-			return result;
-		default:
-			return {...prev, [key]: value};
+		return result;
+	} else {
+			return { ...prev, [key]: value };
 	}
 };
 
@@ -125,9 +126,11 @@ export class Lens {
 
 		this[Symbol.iterator] = function* () {
 			const raw = this.get();
-
+			
+			const isArray = Array.isArray(raw);
+			
 			for (const key in raw) {
-				yield this.go(key);
+				yield this.go(isArray ? +key : key);
 			}
 		};
 	}
