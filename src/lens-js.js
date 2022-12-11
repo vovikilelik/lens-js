@@ -72,6 +72,28 @@ const _trimDiffs = (key, diffs) => {
 		.map(({ path, ...diff }) => ({ ...diff, path: path.slice(1) }));
 };
 
+const _pathStartsWith = (start, path) => {
+	for (let i = 0; i < start.length; i++) {
+		if (start[i] !== path[i]) {
+			return false;
+		}
+	}
+	
+	return true;
+};
+
+const _getByPath = (value, path) => {
+	for (let i = 0; i < path.length; i++) {
+		if (value === undefined || value === null) {
+			return undefined;
+		}
+		
+		value = value[path[i]];
+	}
+	
+	return value;
+};
+
 const _makeObjectOrArray = (key, value, prev) => {
 	const isArray = typeof key === 'number' || Array.isArray(prev);
 	
@@ -91,17 +113,15 @@ const _coreFactory = (key, current, instance = Lens) => {
 		return value && value[key];
 	};
 
-	const setter = (value, callback) => {
+	const setter = (value, ...args) => {
 		const prev = current.get();
-		current.set(_makeObjectOrArray(key, value, prev), callback);
+		current._set(_makeObjectOrArray(key, value, prev), ...args);
 	};
 
 	return new instance(getter, setter, current);
 };
 
 const _isPathEntry = (diffs, key) => diffs.some(({ path }) => path && path[0] === key);
-
-const _getRootVersion = (parent) => (parent && parent.getVersion) ? parent.getVersion() : 0;
 
 /**
  * Lens node
@@ -111,6 +131,8 @@ export class Lens {
 
 	_attachments = [];
 	_children = {};
+	
+	_transactions = [];
 
 	/**
 	 * Constructor
@@ -133,6 +155,14 @@ export class Lens {
 				yield this.go(isArray ? +key : key);
 			}
 		};
+	}
+
+	* children() {
+		const keys = Object.keys(this._children);
+
+		for (let key in keys) {
+			yield { key, value: this._children[key] }
+		}
 	}
 
 	_format() {
@@ -175,7 +205,7 @@ export class Lens {
 	 * Move to next node
 	 * @param {string} key Name of node
 	 * @param {class} instance node prototype
-	 * @returns {Lens}
+	 * @returns {instance}
 	 */
 	go(key, instance) {
 		const current = this._children[key];
@@ -184,6 +214,8 @@ export class Lens {
 			return current;
 		} else {
 			const node = _coreFactory(key, this, instance || Lens);
+			node._push = (transaction) => this._transaction(transaction, key);
+
 			this._children[key] = node;
 
 			return node;
@@ -196,6 +228,8 @@ export class Lens {
 		}
 
 		this._chain = factory(this);
+		this._chain._push = this._push;
+		
 		this._chainFactory = factory;
 		
 		return this._chain;
@@ -209,25 +243,38 @@ export class Lens {
 		return this._getter();
 	}
 
-	_setAndNotify(value, callback) {
-		!this._prev && (this._prev = this.get());
-
-		this._setter(value, callback);
-
-		callback && callback();
+	_notify([sender, path]) {
+		if (this._transactions[0] && this._transactions[0].sender === sender) {
+			return;
+		}
+		
+		this._transactions.push({ sender, path });
 		
 		const notifer = () => {
 			const prev = this._prev;
 			this._prev = undefined;
-			
+
 			const current = this.get();
 			
 			if (prev !== current) {
-				const diffs = _getDiffs(prev, value, [], []);
-				diffs.length && this._cascade(diffs, value, prev);
+				this._transactions.sort((a, b) => a.path.length - b.path.length);
+				const roots = this._transactions.reduce((acc, b) => {
+					if (!acc.some(a => _pathStartsWith(a.path, b.path))) {
+						acc.push(b);
+					}
+					
+					return acc;
+				}, []);
+
+				const diffs = roots.reduce((acc, root) => {
+					const locals = _getDiffs(_getByPath(prev, root.path), root.sender.get(), root.path, []);
+					return [ ...acc, ...locals];
+				}, []);
+				
+				diffs.length && this._cascade(diffs, current, prev);
 			}
 			
-			callback && callback();
+			this._transactions = [];
 		};
 
 		if (this._debounce) {
@@ -237,15 +284,34 @@ export class Lens {
 			notifer();
 		}
 	}
+	
+	_transaction([sender, path], key) {
+		this._push
+			? this._push([sender, [key].concat(path)])
+			: this._notify([sender, [key].concat(path)]);
+	}
 
+	_store(value, ...args) {
+		!this._prev && (this._prev = this.get());
+		this._setter(value, ...args);
+	}
+
+	_set(value, ...args) {
+		this.parent ? this._setter(value, ...args) : this._store(value, ...args);
+	}
+	
 	/**
 	 * Setting data to store relatives current node
-	 * @param {object} value
-	 * @param {Function} callback
+	 * @param {any} value
+	 * @param {any} args
 	 * @returns {undefined}
 	 */
-	set(value, callback) {
-		this._parent ? this._setter(value, callback) : this._setAndNotify(value, callback);
+	set(value, ...args) {
+		this._set(value, ...args);
+//		this._push([this, []]);
+		this._push
+			? this._push([this, []])
+			: this._notify([this, []]);
 	}
 
 	/**

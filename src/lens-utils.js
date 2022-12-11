@@ -109,22 +109,24 @@ export const getArray = (lens) => {
  * @param {type} from setter
  * @returns {ChainFactory} factory
  */
-export const transform = (to, from) => (current) => new Lens(
+export const transform = (to, from, instance = Lens) => (current) => new instance(
 	() => to(current.get()),
-	(value, ...args) => current.set(from(value), ...args),
+	(value, ...args) => current.set(from(value, current.get()), ...args),
 	current
 );
 
-export const createLens = (data, mapper) => {
+export const createLens = (data, instance = Lens, { onGet, onSet } = {}) => {
 	const store = { data };
 	
-	return mapper
-		? new Lens(
-			() => store.data,
-			(value) => store.data = mapper(value, store.data)
-		)
-		: new Lens(
+	if (onGet || onSet) {
+		return new instance(
+			() => onGet ? onGet(store.data) : store.data,
+			(value) => onSet ? (store.data = onSet(value, store.data)) : (store.data = value)
+		);
+	} else {
+		return new instance(
 			() => store.data,
 			(value) => store.data = value
 		);
+	}
 };

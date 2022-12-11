@@ -1,6 +1,6 @@
 {
     "name": "@vovikilelik/lens-js",
-    "version": "2.1.1",
+    "version": "2.3.0",
     "keywords": [
         "util",
         "functional",
@@ -20,11 +20,14 @@
     "description": "Application state and action manager",
     "directories": {},
     "main": "index.js",
+	"typings": "index.d.ts",
+	"types": "index.d.ts",
     "files": [
         "src/lens-js.js",
         "src/lens-utils.js",
 		"src/lib/debounce.js",
-        "index.js"
+        "index.js",
+		"index.d.ts"
     ],
     "scripts": {},
     "homepage": "http://git.vovikilelik.com/Clu/lens-js/wiki",

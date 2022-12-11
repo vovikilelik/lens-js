@@ -13,14 +13,35 @@ and open the template in the editor.
 	<body>
 		<div>TODO write content</div>
 		<script type="module">
-			import { Lens } from '../src/lens-js.js';
-            import { createLens } from '../src/lens-utils.js';
+			import { Lens, createLens } from '../src/index.js';
 			
-			const lens = createLens([ { foo: 0 } ]);
+			class XLens extends Lens {
+				
+				get test() {
+					return 'XLens';
+				}
+			}
+			
+			const data = { one: { two: { moo: 'moo' } } };
+			
+			const lens = createLens(data, XLens);
+			lens.set(data);
 
-			lens.list()[0].go('foo').set(1);
+			console.log(lens.test, lens.get());
+			
+			const two = lens.go('one').go('two');
+			
+			two.attach(e => console.log('two', e));
+			
+//			for (let i = 0; i < 1000; i++) {
+//				two.set({ xoo: 'xoo' + i });
+//			}
 
-			console.log(lens.get());
+			two.set({ xoo: 'xoo' });
+			two.go('xoo').set('xxx');
+			lens.go('any').go('yoo').set('yoo');
+			lens.go('any').set('yoo');
+
 		</script>	
 	</body>
 </html>

@@ -13,14 +13,14 @@ and open the template in the editor.
 	<body>
 		<div>TODO write content</div>
 		<script type="module">
-			import { Lens } from '../src/lens-js.js';
-            import { Callback, createLens, transform, Debounce } from '../src/lens-utils.js';
+			import { Lens } from '../src/index.js';
+            import { Callbacks, createLens, transform, Debounce } from '../src/index.js';
 
 			const lens = createLens({ one: -1 });
 
 			lens.attach((...args) => console.log('root', ...args));
 
-			const callback = Callback.debounce((...args) => console.log('one', ...args));
+			const callback = Callbacks.debounce((...args) => console.log('one', ...args));
 			
 			const one = lens.go('one');
 			one.attach(callback);
