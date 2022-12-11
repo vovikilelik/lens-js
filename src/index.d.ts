@@ -30,12 +30,12 @@ export class Lens<T, P = unknown> {
 	/* LensLike imlp */
 	public get(): T;
 	public set(value: T): void;
-	public go(key: keyof T): Lens<T[keyof T], P>;
+	public go<K extends keyof T>(key: K): Lens<T[K], P>;
 
 	/* Overloads */
 	public set(value: T, callback?: () => void): void;
-	public go<X extends Lens<T[keyof T]>, R = X>(key: keyof T, instance: Instance<R, T[keyof T]>): R;
-	public go<X extends Lens<T[keyof T]>, R = X>(key: keyof T, instance: Instance<R, T[keyof T]>, ...args: unknown[]): R;
+	public go<X extends Lens<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>): R;
+	public go<X extends Lens<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>, ...args: unknown[]): R;
 
 	/* Own */
 	public attach(callback: Callback<T>): boolean;
@@ -83,4 +83,4 @@ export interface CreateOptions<T> {
 	onSet?: (value: T, prev?: T) => T;
 }
 
-export function createLens<R extends Lens<T>, T = unknown>(key: T, instance?: Instance<R, T>, options?: CreateOptions<T>): R;
+export function createLens<X extends Lens<T>, T = unknown, R = X>(key: T, instance?: Instance<R, T>, options?: CreateOptions<T>): R;

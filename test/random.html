@@ -13,7 +13,7 @@ and open the template in the editor.
 	<body>
 		<div>TODO write content</div>
 		<script type="module">
-			import { Lens, createLens } from '../src/index.js';
+			import { Lens, createLens, Callbacks } from '../src/index.js';
 			
 			class XLens extends Lens {
 				
@@ -31,17 +31,17 @@ and open the template in the editor.
 			
 			const two = lens.go('one').go('two');
 			
-			two.attach(e => console.log('two', e));
+			two.attach(Callbacks.change(e => console.log('two', e)));
 			
-//			for (let i = 0; i < 1000; i++) {
-//				two.set({ xoo: 'xoo' + i });
-//			}
+			for (let i = 0; i < 1000; i++) {
+				two.set({ xoo: 'xoo' + i });
+			}
 
-			two.set({ xoo: 'xoo' });
-			two.go('xoo').set('xxx');
+//			two.set({ xoo: 'xoo' });
+			two.go('xoo2').set('xxx');
 			lens.go('any').go('yoo').set('yoo');
 			lens.go('any').set('yoo');
-
+//			two.set('yoo');
 		</script>	
 	</body>
 </html>

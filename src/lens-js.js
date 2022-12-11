@@ -308,7 +308,6 @@ export class Lens {
 	 */
 	set(value, ...args) {
 		this._set(value, ...args);
-//		this._push([this, []]);
 		this._push
 			? this._push([this, []])
 			: this._notify([this, []]);
