@@ -20,7 +20,7 @@ export type ChainFactory<A extends Lens<any>, B extends Lens<any> = A> = (curren
 
 type Instance<R, T> = new (...args: ConstructorProps<T>) => R;
 
-type ConstructorProps<T, P = unknown> = [getter: Getter<T>, setter: Setter<T>, parent?: P];
+type ConstructorProps<T, P = unknown> = [getter: Getter<T>, setter: Setter<T>, parent?: P, ...args: unknown[]];
 
 type ArrayType<T, R = unknown> = T extends (infer E)[] ? E : R;
 
