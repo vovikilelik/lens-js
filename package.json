@@ -23,6 +23,8 @@
 	"typings": "index.d.ts",
 	"types": "index.d.ts",
     "files": [
+		"src/index.d.ts",
+		"src/index.js",
         "src/lens-js.js",
         "src/lens-utils.js",
 		"src/lib/debounce.js",
