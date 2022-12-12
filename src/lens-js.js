@@ -68,7 +68,7 @@ const _getDiffs = (prev, next, path = [], diffs = []) => {
 
 const _trimDiffs = (key, diffs) => {
 	return diffs
-		.filter(({ path }) => path && path[0] === key)
+		.filter(({ path }) => path && path[0] == key /* string or int */)
 		.map(({ path, ...diff }) => ({ ...diff, path: path.slice(1) }));
 };
 
@@ -121,7 +121,7 @@ const _coreFactory = (key, current, instance = Lens) => {
 	return new instance(getter, setter, current);
 };
 
-const _isPathEntry = (diffs, key) => diffs.some(({ path }) => path && path[0] === key);
+const _isPathEntry = (diffs, key) => diffs.some(({ path }) => path && path[0] == key /* string or int */);
 
 /**
  * Lens node
