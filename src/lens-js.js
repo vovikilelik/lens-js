@@ -186,7 +186,9 @@ export class Lens {
 
 		// remove unnecessary children
 		if (typeof value !== 'object') {
-			this._format();
+			if (value !== undefined && value !== null)
+				this._format();
+
 			return;
 		}
 		
