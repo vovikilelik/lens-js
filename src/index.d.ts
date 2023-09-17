@@ -52,7 +52,10 @@ export class Lens<T, P = unknown> {
 export type CallbackWithSync<T> = (event: AttachEvent<T>, node: Lens<T>, sync: () => boolean, stamp: number) => void;
 
 interface DebounceConstructor {
-	new(defaultTimeout?: number): { run: (func: (sync: () => boolean, stamp: number) => void, timeout?: number) => void };
+	new(defaultTimeout?: number): {
+		run: (func: (sync: () => boolean, stamp: number) => void, timeout?: number) => void;
+		cancel: () => void;
+	};
 }
 
 export const Debounce: DebounceConstructor;

@@ -16,4 +16,6 @@ export function Debounce(defaultTimeout = 0) {
 			(sync === stamp) && func(() => stamp === sync, stamp);
 		}, timeout);
 	};
+	
+	this.cancel = () => sync++;
 }
