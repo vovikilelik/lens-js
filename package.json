@@ -1,6 +1,6 @@
 {
     "name": "@vovikilelik/lens-js",
-    "version": "2.3.5",
+    "version": "2.3.7",
     "keywords": [
         "util",
         "functional",
@@ -32,10 +32,10 @@
 		"index.d.ts"
     ],
     "scripts": {},
-    "homepage": "http://git.vovikilelik.com/Clu/lens-js/wiki",
+    "homepage": "http://wiki.dev-store.ru/lens-js/",
     "repository": {
         "type": "git",
-        "url": "http://git.vovikilelik.com/Clu/lens-js.git"
+        "url": "http://git.dev-store.xyz/Clu/lens-js.git"
     },
     "license": "LGPL-3.0-or-later"
 }
