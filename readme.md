@@ -1,13 +1,12 @@
-# Wiki
-* [На русском](http://git.vovikilelik.com/Clu/lens-js/wiki)
-* [English](http://git.vovikilelik.com/Clu/lens-js/wiki/Home-en)
 
-There are many major changes, see [changelog](http://git.vovikilelik.com/Clu/lens-js/wiki/Changelog-en)
+# Links
+* [Docs](http://wiki.dev-store.ru/lens-js/)
+* [Changelog](http://git.dev-store.xyz/Clu/lens-js/wiki/Changelog-en)
 
 # Instalation
 
  - **Git**
-  `git clone http://git.vovikilelik.com/Clu/lens-js.git`
+  `git clone http://git.dev-store.xyz/Clu/lens-js.git`
   
 - **Npm**
 `npm i @vovikilelik/lens-js`
@@ -21,7 +20,7 @@ There are many major changes, see [changelog](http://git.vovikilelik.com/Clu/len
 // or
 
 <script type="module">
-    import { Lens } from './lens-js.js';
+    import { Lens } from './path_to_module/index.js';
 
     /* your code here */
 </script>
@@ -60,71 +59,73 @@ We believe that `LensJs` can be used in conjunction with other state managers.
 
 ## Using
 
-* Creation root store
+### Creation root store
 ```js
-export const lens = LensUtils.createLens({ /* default data */ });
+export const store = createLens({ /* default data */ });
 ```
-* Getting deep structure
+### Getting values
 ```js
-const deep = lens.go('deep');
-const deeper = deep.go('deeper');
+const store = createLens({ one: { two: 'Hi!' } });
 
-// Like "lens.deep.deeper"
-```
+const one = store.go('one');  // Like store.one
+const two = one.go('two');  // Like one.two
 
-* Reading and writing
-```js
-const catName = lens.go('cat').go('name');
-
-catName.set('Tom'); // Writing by "lens.cat.name"
-const value = catName.get(); // Reading
-
-// Like:
-// lens.cat.name = 'Tom';
-// const value = lens.cat.name;
+two.get()  // Hi!
 ```
 
-* Getting full state (if needed)
+### Writing values
 ```js
-lens.go('basket').go('apples').go('count').set(3);
-const state = lens.get();
+const store = createLens({ cat: { name: 'Bob' } });
 
-// "state" is { basket: { apples: { count: 3 } } }
+const name = store.go('cat').go('name');
+name.set('Tom');  // Like lens.cat.name = 'Tom'
 ```
 
-* Catching changes
-```js
-const callback = ({ current }) => console.log(current.value);
-lens.attach(callback);
-
-lens.set('Hello!') // console: Hello!
-```
-
-* Singleton pattern able to use for each other node
-```js
-lens.go('singleton') === lens.go('singleton'); // true
-```
-
-* Export every node as const
-```js
-export const appState = lens.go('app');
-export const authState = lens.go('auth');
-```
-
-* Extending
+### Prototyping
 ```js
 class MyLens extends Lens {
-  doRequest(addr) {
-    myFetch(addr).then(response => this.set(response));
-  }
+  fetch() { ... }
 }
 
-const foo = lens.go('foo', MyLens);
-foo.doRequest('https://');
+const store = createLens({ ... }, MyLens);
+const state.fetch();
 ```
-* Live-transforming
+
+* Prototyping while `go()` method:
 ```js
-import {transform} from 'lens-utils';
+const store = createLens({ myLens: {} });
+
+const myLens = store.go('myLens', MyLens);
+myLens.fetch();
+```
+
+### Catching changes
+```js
+const store = createLens({ input: '' });
+
+const input = store.go('input');
+input.attach(({ current }) => console.log(current.value));
+
+input.set('Hello!')  // console: Hello!
+```
+
+### Singleton pattern able to use for each other node
+```js
+lens.go('singleton') === lens.go('singleton');  // true
+```
+
+### Export every node as const
+```js
+const store = createLens({ app: {}, auth: {} });
+
+export const app = store.go('app');
+export const auth = store.go('auth');
+```
+
+### Live-transforming
+For example, writing color as Web-string, but saves as number;
+```js
+import { transform } from '@vovikilelik/lens-js';
 
 const toHex = transform(
   v => `#${v.toString(16)}`,
@@ -136,110 +137,3 @@ hex.set('#aabbcc');
 
 console.log(lens.get()) // { color: 11189196 } 
 ```
-
-For more information look [wiki](http://git.vovikilelik.com/Clu/lens-js/wiki/Home-en)
-
-
-# Comparation with Redux and MobX/MST
-> Not contrast but nearly
-
-## No reducers
-`LensJs` does not deed in `redusers` or same because it merge data automatically
-
-### `Redux`:
-```js
-enum ActionType {
-  hello;
-}
-
-const getHelloAction = (value) => ({
-  type: ActionType.hello,
-  value
-});
-
-const reducer = (state, {type, value}) {
-  switch(type) {
-    case ActionType.hello:
-      return { world: value };
-
-      default: return state;
-  }
-}
-
-...
-dispatch(getHelloAction('Hello!'));
-```
-
-### `LensJs`:
-```js
-lens.go('world').set('Hello!');
-```
-
-## Better encapsulation
-Every lens node is root of own subtree. It give passibility to make components whitch is not assign with main form.
-
-### `Redux`:
-```js
-const Cat = ({ cat }) => <div>{cat.ribbon.color}</div>;
-const mapStateToProps = (state, ownProps) =>
-  ({cat: state.cats[ownProps.name]});
-export default connect(Cat, mapStateToProps);
-```
-
-### `LensJs`:
-```js
-export const Cat = ({ lens }) => {
-  const [ cat ] = useLens(lens);
-  return <div>{cat.ribbon.color}</div>;
-}
-```
-
-## No overcode
-It means that `lensJs` is easier than others (in default)
-
-### `MobX/MST`:
-```js
-/* Ribbon store */
-export const Ribbon = type
-  .model("Ribbon", {
-    color: type.string
-  })
-  .actions(self => ({
-    setColor(value) {
-      self.color = value;
-    },
-  }));
-  
-/* Cat store */
-export const Cat = type
-  .model("Cat", {
-    ribbon: type.reference(Ribbon)
-  });
-```
-
-### `LensJs`:
-```js
-const cat = cats.go('murzik');
-const ribbon = cat.go('ribbon');
-```
-
-You can make controller like ModX
-
-```js
-class MyController extends Lens {
-    get id() {
-        return this.go('id').get();
-    }
-
-    set id(value) {
-        this.go('id').set(value, () => doRequest());
-    }
-}
-
-// Example
-const controller = lens.go('page', MyController);
-controller.id = 12345;
-```
-
----
-[Lens-Js Wiki](http://git.vovikilelik.com/Clu/lens-js/wiki)
