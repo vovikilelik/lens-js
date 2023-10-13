@@ -123,6 +123,12 @@ const _coreFactory = (key, current, instance = Lens) => {
 
 const _isPathEntry = (diffs, key) => diffs.some(({ path }) => path && path[0] == key /* string or int */);
 
+const _copyProperty = (original, source, key) => {
+	const descriptor = Object.getOwnPropertyDescriptor(source, key);
+	Object.defineProperty(original, key, descriptor);
+};
+
+
 /**
  * Lens node
  * @type Lens
@@ -224,7 +230,14 @@ export class Lens {
 		}
 	}
 	
+	/**
+	 * @deprecated use transform
+	 */
 	chain(factory) {
+		return this.transform(factory);
+	}
+	
+	transform(factory) {
 		if (!factory || this._chainFactory === factory) {
 			return this._chain || this;
 		}
@@ -345,5 +358,28 @@ export class Lens {
 
 	list() {
 		return Array.from(this);
+	}
+	
+	extends(prototype) {
+		if (typeof prototype === 'function') {
+			const currentProto = prototype(this);
+			
+			return Object.keys(currentProto).reduce((acc, key) => {
+				if (typeof currentProto[key] === 'function') {
+					acc[key] = currentProto[key];
+				} else {
+					_copyProperty(acc, currentProto, key);
+				}
+
+				return acc;
+			}, this);
+		} else {
+			return Object.keys(prototype).reduce((acc, key) => {
+				Object.defineProperty(acc, key, { get: () => acc.go(key) });
+				acc[key].set(prototype[key]);
+				
+				return acc;
+			}, this);
+		}
 	}
 }

@@ -18,14 +18,15 @@ type Children<T, P, K extends keyof T> = Lens<T[K], P>;
 
 export type ChainFactory<A extends Lens<any>, B extends Lens<any> = A> = (current: A) => B;
 
-type Instance<R, T> = new (...args: ConstructorProps<T>) => R;
+type Constructor<T, P = unknown> = [getter: Getter<T>, setter: Setter<T>, parent?: P];
+type ConstructorExt<T, P = unknown> = Constructor<T, P> & [...args: unknown[]];
 
-type ConstructorProps<T, P = unknown> = [getter: Getter<T>, setter: Setter<T>, parent?: P, ...args: unknown[]];
+type Instance<R, T> = new (...args: ConstructorExt<T>) => R;
 
 type ArrayType<T, R = unknown> = T extends (infer E)[] ? E : R;
 
 export class Lens<T, P = unknown> {
-	constructor(...args: ConstructorProps<T, P>);
+	constructor(...args: ConstructorExt<T, P>);
 
 	/* LensLike imlp */
 	public get(): T;
@@ -41,12 +42,20 @@ export class Lens<T, P = unknown> {
 	public attach(callback: Callback<T>): boolean;
 	public detach(callback: Callback<T>): boolean;
 
+	public transform<B extends Lens<any>>(factory: ChainFactory<Lens<T, P>, B>): B;
+	public transform<B extends Lens<any>>(): B;
+	
+	/** @deprecated use transform */
 	public chain<B extends Lens<any>>(factory: ChainFactory<Lens<T, P>, B>): B;
+	/** @deprecated use transform */
 	public chain<B extends Lens<any>>(): B;
 
 	public list<L extends Lens<ArrayType<T>>>(): L[];
 
 	public children<L extends Lens<ArrayType<T>>>(): Generator<{ key: string, value: L }>;
+	
+	public extends<P extends object>(prototype: (lens: this) => P): (typeof this) & P;
+	public extends<P extends object, K extends keyof P>(prototype: P): (typeof this) & Record<K, Lens<P[K]>>;
 }
 
 export type CallbackWithSync<T> = (event: AttachEvent<T>, node: Lens<T>, sync: () => boolean, stamp: number) => void;

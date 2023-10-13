@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+	<head>
+		<title>TODO supply a title</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	</head>
+	<body>
+		<div>TODO write content</div>
+		<script type="module">
+			import { Lens, createLens } from '../src/index.js';
+
+			const exLens = createLens({ foo: 'foox' })
+				.extends({ moo: 'moox' })
+				.extends(lens => ({ xoo: 'xoo', get mooValue() { return lens.moo.get(); }, func: () => lens.get() }));
+			
+			console.log(exLens);
+			console.log(exLens.moo.get());
+			console.log(exLens.xoo, exLens.mooValue, exLens.moo.get(), exLens.func());
+			
+			exLens.moo.set('asd');
+			
+			console.log(exLens.xoo, exLens.mooValue, exLens.moo.get(), exLens.func());
+		</script>	
+	</body>
+</html>
