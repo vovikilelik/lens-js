@@ -382,4 +382,8 @@ export class Lens {
 			}, this);
 		}
 	}
+	
+	toString() {
+		return this.get();
+	}
 }
