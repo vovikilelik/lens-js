@@ -63,6 +63,7 @@ We believe that `LensJs` can be used in conjunction with other state managers.
 ```js
 export const store = createLens({ /* default data */ });
 ```
+
 ### Getting values
 ```js
 const store = createLens({ one: { two: 'Hi!' } });
@@ -82,6 +83,7 @@ name.set('Tom');  // Like lens.cat.name = 'Tom'
 ```
 
 ### Prototyping
+## OOP Like
 ```js
 class MyLens extends Lens {
   fetch() { ... }
@@ -97,6 +99,35 @@ const store = createLens({ myLens: {} });
 
 const myLens = store.go('myLens', MyLens);
 myLens.fetch();
+```
+
+## Functional Like
+
+With autocreation neasted nodes:
+```js
+const store = createLens({})
+	.extends({ foo: 'Hello!' });
+
+store.foo.get();  // Hello!
+```
+
+With user configuration
+```js
+const store = createLens({ moo: 'Hola!' })
+	.extends(node => { get moo: () => node.go('moo') });
+
+store.moo.get();  // Hola!
+```
+
+Both variants:
+```js
+const store = createLens({})
+	.extends({ message: 'Hello' })
+	.extends(node => {
+		sayHello: name => `${node.go('message').get() } ${name}!`
+	});
+
+store.sayHello('Tom');  // Hello Tom!
 ```
 
 ### Catching changes
@@ -132,7 +163,7 @@ const toHex = transform(
   v => parseInt(v.substring(1), 16);
 );
 
-const hex = lens.go('color').chain(toHex);
+const hex = lens.go('color').transform(toHex);
 hex.set('#aabbcc');
 
 console.log(lens.get()) // { color: 11189196 } 
