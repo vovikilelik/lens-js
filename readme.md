@@ -3,6 +3,8 @@
 * [Docs](http://wiki.dev-store.ru/lens-js/)
 * [Changelog](http://git.dev-store.xyz/Clu/lens-js/wiki/Changelog-en)
 
+See ReactJs [implementation](https://www.npmjs.com/package/@vovikilelik/react-lens)
+
 # Instalation
 
  - **Git**
