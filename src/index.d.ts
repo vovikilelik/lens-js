@@ -19,7 +19,7 @@ type Children<T, P, K extends keyof T> = Lens<T[K], P>;
 export type ChainFactory<A extends Lens<any>, B extends Lens<any> = A> = (current: A) => B;
 
 type Constructor<T, P = unknown> = [getter: Getter<T>, setter: Setter<T>, parent?: P];
-type ConstructorExt<T, P = unknown> = Constructor<T, P> & [...args: unknown[]];
+type ConstructorExt<T, P = unknown> = [getter: Getter<T>, setter: Setter<T>, parent?: P, ...args: unknown[]];
 
 type Instance<R, T> = new (...args: ConstructorExt<T>) => R;
 
