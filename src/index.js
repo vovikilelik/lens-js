@@ -1,2 +1,3 @@
-export * from './lens-js.js';
-export * from './lens-utils.js';
+export * from './utils.js';
+export * from './lens.js';
+export * from './store.js';

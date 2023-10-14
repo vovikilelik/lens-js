@@ -123,11 +123,6 @@ const _coreFactory = (key, current, instance = Lens) => {
 
 const _isPathEntry = (diffs, key) => diffs.some(({ path }) => path && path[0] == key /* string or int */);
 
-const _copyProperty = (original, source, key) => {
-	const descriptor = Object.getOwnPropertyDescriptor(source, key);
-	Object.defineProperty(original, key, descriptor);
-};
-
 
 /**
  * Lens node
@@ -135,7 +130,8 @@ const _copyProperty = (original, source, key) => {
  */
 export class Lens {
 
-	_attachments = [];
+	_subscribes = [];
+	
 	_children = {};
 	
 	_transactions = [];
@@ -151,6 +147,8 @@ export class Lens {
 		this._getter = getter;
 		this._setter = setter;
 		this._parent = parent;
+		
+		this._localSetter = this.set.bind(this);
 
 		this[Symbol.iterator] = function* () {
 			const raw = this.get();
@@ -162,23 +160,45 @@ export class Lens {
 			}
 		};
 	}
-
+	
 	* children() {
 		const keys = Object.keys(this._children);
 
 		for (let key in keys) {
-			yield { key, value: this._children[key] }
+			yield { key, value: this._children[key] };
 		}
 	}
-
-	_format() {
+	
+	
+	list() {
+		return Array.from(this);
+	}
+	
+	toString() {
+		return this.get();
+	}
+	
+	get getter() {
+		return this._getter;
+	}
+	
+	get setter() {
+		return this._localSetter;
+	}
+	
+	_unplug() {
+		this._parent = undefined;
+	}
+	
+	_clear() {
+		Object.values(this._children).forEach(node => node._unplug?.());
 		this._children = {};
 	}
 
 	_fire(diffs, currentDiff) {
 		const event = new AttachEvent(diffs, currentDiff);
 
-		this._attachments.forEach(callback => callback(event, this));
+		this._subscribes.forEach(callback => callback(event, this));
 		this._chain && this._chain._fire && this._chain._fire(diffs, currentDiff);
 	}
 
@@ -193,7 +213,7 @@ export class Lens {
 		// remove unnecessary children
 		if (typeof value !== 'object') {
 			if (value !== undefined && value !== null)
-				this._format();
+				this._clear();
 
 			return;
 		}
@@ -333,13 +353,12 @@ export class Lens {
 	 * @param {Function(AttachEvent e)} callback
 	 * @returns {boolean}
 	 */
-	attach(callback) {
+	subscribe(callback) {
 		if (typeof callback !== 'function') return false;
 		
-		const exists = this._attachments.find(c => c === callback);
-		!exists && (this._attachments.push(callback));
+		!this.hasSubscribed(callback) && (this._subscribes.push(callback));
 
-		return !exists;
+		return () => this.unsubscribe(callback);
 	}
 
 	/**
@@ -347,43 +366,16 @@ export class Lens {
 	 * @param {Function} callback
 	 * @returns {boolean}
 	 */
-	detach(callback) {
-		const filtered = this._attachments.filter(c => c !== callback);
-		const changed = this._attachments.length === filtered.length;
+	unsubscribe(callback) {
+		const filtered = this._subscribes.filter(c => c !== callback);
+		const changed = this._subscribes.length === filtered.length;
 
-		this._attachments = filtered;
+		this._subscribes = filtered;
 
 		return changed;
 	}
-
-	list() {
-		return Array.from(this);
-	}
 	
-	extends(prototype) {
-		if (typeof prototype === 'function') {
-			const currentProto = prototype(this);
-			
-			return Object.keys(currentProto).reduce((acc, key) => {
-				if (typeof currentProto[key] === 'function') {
-					acc[key] = currentProto[key];
-				} else {
-					_copyProperty(acc, currentProto, key);
-				}
-
-				return acc;
-			}, this);
-		} else {
-			return Object.keys(prototype).reduce((acc, key) => {
-				Object.defineProperty(acc, key, { get: () => acc.go(key) });
-				acc[key].set(prototype[key]);
-				
-				return acc;
-			}, this);
-		}
-	}
-	
-	toString() {
-		return this.get();
+	hasSubscribed(callback) {
+		return this._subscribes.some(c => c === callback);
 	}
 }

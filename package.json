@@ -1,6 +1,6 @@
 {
     "name": "@vovikilelik/lens-js",
-    "version": "2.4.1",
+    "version": "3.0.0",
     "keywords": [
         "util",
         "functional",
@@ -25,8 +25,9 @@
     "files": [
 		"src/index.d.ts",
 		"src/index.js",
-        "src/lens-js.js",
-        "src/lens-utils.js",
+		"src/utils.js",
+        "src/lens.js",
+		"src/store.js",
 		"src/lib/debounce.js",
         "index.js",
 		"index.d.ts"
