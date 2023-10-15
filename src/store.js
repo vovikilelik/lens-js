@@ -3,7 +3,7 @@
  */
 
 import { Lens } from './lens.js';
-import { createLens, transform } from './utils.js';
+import { createLens, transform, createCallback } from './utils.js';
 
 const _copyProperty = (original, source, key) => {
 	const descriptor = Object.getOwnPropertyDescriptor(source, key);

@@ -189,6 +189,7 @@ export class Lens {
 	
 	_unplug() {
 		this._parent = undefined;
+		this._push = undefined;
 	}
 	
 	_clear() {

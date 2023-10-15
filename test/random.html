@@ -13,35 +13,35 @@ and open the template in the editor.
 	<body>
 		<div>TODO write content</div>
 		<script type="module">
-			import { Lens, createLens, Callbacks } from '../src/index.js';
+			import { Lens, createStore, Callbacks, Triggers } from '../src/index.js';
 			
-			class XLens extends Lens {
-				
-				get test() {
-					return 'XLens';
-				}
-			}
+			const time = (time = 1000) => new Promise(resolve => setTimeout(resolve, time));
 			
-			const data = { one: { two: { moo: 'moo' } } };
+			const data = createStore()
+					.extends({ foo: 'foo' });
 			
-			const lens = createLens(data, XLens);
-			lens.set(data);
+			const store = createStore()
+					.extends({ data })
+					.extends(node => ({
+						setFoo: async v => {
+							await time();
+							node.go('data').go('foo').set(v);
+						}
+					}))
+					.extends(node => ({
+						setFooX: v => {
+							node.setFoo(v).then(() => v + 'X').then(node.go('data').go('foo').setter);
+						}
+					}));
 
-			console.log(lens.test, lens.get());
+			const data = store.go('data');
+			data.on(Triggers.subtree, ({ current, diffs}) => console.log('subtree', current));
 			
-			const two = lens.go('one').go('two');
+			const foo = store.go('data').go('foo');
+			foo.on(Triggers.strict, ({ current }) => console.log('strict', current));
+			store.setFooX('moo');
 			
-			two.attach(Callbacks.change(e => console.log('two', e)));
-			
-			for (let i = 0; i < 1000; i++) {
-				two.set({ xoo: 'xoo' + i });
-			}
-
-//			two.set({ xoo: 'xoo' });
-			two.go('xoo2').set('xxx');
-			lens.go('any').go('yoo').set('yoo');
-			lens.go('any').set('yoo');
-//			two.set('yoo');
+			console.log(foo + "");
 		</script>	
 	</body>
 </html>
