@@ -4,7 +4,7 @@
  * LGPLv3
  */
 
-import { Lens } from './lens-js.js';
+import { Lens } from './lens.js';
 import { Debounce as Pool } from './lib/debounce.js';
 
 export const Debounce = Pool;

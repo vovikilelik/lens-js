@@ -2,8 +2,8 @@
  LGPLv3
  */
 
-import { Lens } from 'lens.js';
-import { createLens } from 'utils.js';
+import { Lens } from './lens.js';
+import { createLens, transform } from './utils.js';
 
 const _copyProperty = (original, source, key) => {
 	const descriptor = Object.getOwnPropertyDescriptor(source, key);
@@ -12,6 +12,26 @@ const _copyProperty = (original, source, key) => {
 
 export class Store extends Lens {
 	
+	static from(lens) {
+		return new Store(
+			lens.getter,
+			lens.setter,
+			lens
+		);
+	}
+
+	go(key, instance = Store) {
+		return super.go(key, instance);
+	}
+
+	list() {
+		return Array.from(this);
+	}
+
+	transform(onGet, onSet, instance = Store) {
+		return super.chain(transform(onGet, onSet, instance));
+	}
+
 	extends(prototype) {
 		if (typeof prototype === 'function') {
 			const currentProto = prototype(this);
@@ -35,7 +55,7 @@ export class Store extends Lens {
 		}
 	}
 	
-	on(typeOrTrigger, ...callbacks) {
+	on(trigger, ...callbacks) {
 		
 		
 		return this;

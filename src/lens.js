@@ -169,9 +169,10 @@ export class Lens {
 		}
 	}
 	
-	
-	list() {
-		return Array.from(this);
+	* subscribes() {
+		for (const item of this._subscribes) {
+			yield item;
+		}
 	}
 	
 	toString() {
@@ -217,14 +218,30 @@ export class Lens {
 
 			return;
 		}
+
+		let keys = Object.keys(children);
 		
+		// remove unnecessary array elements
+		if (Array.isArray(value)) {
+			for (let i = value.length; i < keys.length; i++) {
+				if (children[i]) {
+					children[i]._unplug?.();
+					delete children[i];
+				}
+			}
+		}
+
 		const treeExists = diffs.some(({ path }) => path && path.length);
 		
-		Object.keys(children).forEach(key => {
+		keys.forEach(key => {
+			const child = children[key];
+
+			if (!child)
+				return;
+			
 			if (treeExists && !_isPathEntry(diffs, key))
 				return;
 
-			const child = children[key];
 			child._cascade && child._cascade(_trimDiffs(key, diffs), value[key], prev && prev[key]);
 		});
 	}
@@ -250,14 +267,7 @@ export class Lens {
 		}
 	}
 	
-	/**
-	 * @deprecated use transform
-	 */
 	chain(factory) {
-		return this.transform(factory);
-	}
-	
-	transform(factory) {
 		if (!factory || this._chainFactory === factory) {
 			return this._chain || this;
 		}

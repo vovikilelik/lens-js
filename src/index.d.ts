@@ -23,8 +23,6 @@ type ConstructorExt<T, P = unknown> = [getter: Getter<T>, setter: Setter<T>, par
 
 type Instance<R, T> = new (...args: ConstructorExt<T>) => R;
 
-type ArrayType<T, R = unknown> = T extends (infer E)[] ? E : R;
-
 export class Lens<T, P = unknown> {
 	constructor(...args: ConstructorExt<T, P>);
 
@@ -42,11 +40,10 @@ export class Lens<T, P = unknown> {
 	public subscribe(callback: Callback<T>): () => void;
 	public unsubscribe(callback: Callback<T>): boolean;
 	public hasSubscribed(callback: Callback<T>): boolean;
+	public subscribes(): Generator<Callback<T>>;
 
-	public transform<B extends Lens<any>>(factory: ChainFactory<Lens<T, P>, B>): B;
-	public transform<B extends Lens<any>>(): B;
-
-	public list<L extends Lens<ArrayType<T>>>(): L[];
+	public chain<B extends Lens<any>>(factory: ChainFactory<Lens<T, P>, B>): B;
+	public chain<B extends Lens<any>>(): B;
 
 	public children<L extends Lens<ArrayType<T>>>(): Generator<{ key: string, value: L }>;
 	
@@ -54,9 +51,26 @@ export class Lens<T, P = unknown> {
 	public setter: Setter<T>;
 }
 
+type ArrayType<T, R = unknown> = T extends (infer E)[] ? E : R;
+
+export type Trigger<T, R = unknown> = (event: AttachEvent<T>, node: Lens<T>) => R | undefined;
+
 export class Store<T, P = unknown> extends Lens<T, P> {
+
+	/* Overloads */
+	public go<K extends keyof T>(key: K): Store<T[K], P>;
+	public go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>): R;
+	public go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>, ...args: unknown[]): R;
+
+	public list<L extends Lens<ArrayType<T>>>(): L[];
+	
+	public transform<B, R extends Lens<B> = Lens<B>>(onGet: (value: T) => B, onSet: (value: B, prev: T) => T): R;
+
 	public extends<P extends object>(prototype: (lens: this) => P): (typeof this) & P;
 	public extends<P extends object, K extends keyof P>(prototype: P): (typeof this) & Record<K, Lens<P[K]>>;
+	
+	public on(callback: Callback<T>): this;
+	public on(trigger: Trigger<T>, callback: Callback<T>): this;
 }
 
 export function createStore<X extends Store<T>, T = unknown, R = X>(key: T, instance?: Instance<R, T>, options?: CreateOptions<T>): R;
