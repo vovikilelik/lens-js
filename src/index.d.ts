@@ -86,6 +86,15 @@ interface DebounceConstructor {
 
 export const Debounce: DebounceConstructor;
 
+export namespace Triggers {
+	export const object: Trigger<T>;
+	export const strict: Trigger<T>;
+	export const subtree: Trigger<T>;
+	export const path: Trigger<T>;
+}
+
+export function createCallback<T>(trigger: Trigger<T>, ...callbacks: Callback<T>[]): Callback<T>;
+
 export namespace Callbacks {
 
 	export function async<R, T>(
@@ -96,13 +105,10 @@ export namespace Callbacks {
 
 	export function debounce<T>(callback: Callback<T> | CallbackWithSync<T>, timeout?: number): Callback<T>;
 
+	export function object<T>(callback: Callback<T>): Callback<T>;
 	export function strict<T>(callback: Callback<T>): Callback<T>;
-
-	export function before<T>(callback: Callback<T>): Callback<T>;
-
-	export function after<T>(callback: Callback<T>): Callback<T>;
-
-	export function change<T>(callback: Callback<T>): Callback<T>;
+	export function subtree<T>(callback: Callback<T>): Callback<T>;
+	export function path<T>(callback: Callback<T>): Callback<T>;
 }
 
 export function transform<A, B = A>(onGet: (value: A) => B, onSet: (value: B, prev: A) => A): ChainFactory<Lens<A>, Lens<B>>;

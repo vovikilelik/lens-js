@@ -13,52 +13,33 @@ const _isStrict = diffs => diffs.some(({ path }) => !path || !path.length);
 
 /**
  * Creating callback, which will be called only if current node would be changed
- * @param {Function} callback
- * @returns {Function}
  */
-const change = (callback) => (...args) => {
-	const [ { current, diffs } ] = args;
-
+const object = ({ current, diffs }) => {
 	const strictAndAssign = diffs.find(({ path }) => !path || path.length < 2);
 	
 	const change = (typeof current.value === 'object')
 		? current.prev === undefined && current.value !== undefined
 		: current.prev !== current.value;
 
-	if (strictAndAssign || change) {
-		return callback(...args);
-	}
+	return strictAndAssign || change;
 };
 
 /**
  * Creating callback, which will be called only if current node would be replaced of new structure
- * @param {Function} callback
- * @returns {Function}
  */
-const strict = (callback) => (...args) => {
-	const [ { diffs } ] = args;
-	return _isStrict(diffs) && callback(...args);
-};
+const strict = ({ diffs }) => _isStrict(diffs);
 
 /**
  * Creating callback, which will be called if current node and subtree would be changed or creating
- * @param {Function} callback
- * @returns {Function}
  */
-const before = (callback) => (...args) => {
-	const [ { diffs } ] = args;
-	return (_isStrict(diffs) || diffs.length === 0) && callback(...args);
-};
+const subtree = ({ diffs }) => _isStrict(diffs) || diffs.length === 0;
 
 /**
  * Creating callback, which will be triggered on path from root to changed node
- * @param {Function} callback
- * @returns {Function}
  */
-const after = (callback) => (...args) => {
-	const [ { diffs } ] = args;
-	return (_isStrict(diffs) || diffs.length > 0) && callback(...args);
-};
+const path = ({ diffs }) => _isStrict(diffs) || diffs.length > 0;
+
+export const Triggers = { object, strict, subtree, path };
 
 /**
  * Creating callback with throttling
@@ -66,8 +47,8 @@ const after = (callback) => (...args) => {
  * @param {Number} timeout
  * @returns {Function}
  */
-const debounce = (callback, timeout = 0) => {
-	const pool = new Pool(timeout);
+const debounce = (callback, timeout) => {
+	const pool = new Pool(timeout || 0);
 
 	return (...e) => {
 		pool.run((...d) => callback(...e, ...d));
@@ -88,19 +69,20 @@ const async = (request, resolve, timeout = 0) => {
 	);
 };
 
+export const createCallback = (trigger, ...callbacks) =>
+	(...args) => (!trigger || trigger(...args)) && callbacks.forEach(c => c(...args));
+
 /**
  * Namespace of callback factory
  * @type type
  */
-export const Callbacks = { change, strict, after, before, debounce, async };
-
-/**
- * Getting array of Lens from any node
- * @param {Lens} lens
- * @returns {Array<Lens>}
- */
-export const getArray = (lens) => {
-	return lens.list();
+export const Callbacks = {
+	object: (...callbacks) => createCallback(Triggers.object, ...callbacks),
+	strict: (...callbacks) => createCallback(Triggers.strict, ...callbacks),
+	subtree: (...callbacks) => createCallback(Triggers.subtree, ...callbacks),
+	path: (...callbacks) => createCallback(Triggers.path, ...callbacks),
+	debounce,
+	async
 };
 
 /**

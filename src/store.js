@@ -56,7 +56,11 @@ export class Store extends Lens {
 	}
 	
 	on(trigger, ...callbacks) {
-		
+		if ((trigger || trigger === null) && callbacks.length) {
+			this.subscribe(createCallback(trigger, ...callbacks));
+		} else {
+			this.subscribe(trigger);
+		}
 		
 		return this;
 	}
