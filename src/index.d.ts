@@ -87,10 +87,10 @@ interface DebounceConstructor {
 export const Debounce: DebounceConstructor;
 
 export namespace Triggers {
-	export const object: Trigger<T>;
-	export const strict: Trigger<T>;
-	export const subtree: Trigger<T>;
-	export const path: Trigger<T>;
+	export const object: Trigger<unknown>;
+	export const strict: Trigger<unknown>;
+	export const subtree: Trigger<unknown>;
+	export const path: Trigger<unknown>;
 }
 
 export function createCallback<T>(trigger: Trigger<T>, ...callbacks: Callback<T>[]): Callback<T>;
