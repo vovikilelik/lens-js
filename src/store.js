@@ -47,9 +47,19 @@ export class Store extends Lens {
 			}, this);
 		} else {
 			return Object.keys(prototype).reduce((acc, key) => {
-				Object.defineProperty(acc, key, { get: () => acc.go(key) });
-				acc[key].set(prototype[key]);
+				const field = prototype[key];
 				
+				if (field instanceof Lens) {
+					Object.defineProperty(acc, key, { get: () => field });
+					
+					const fieldData = field.get();
+					acc.define(key, field);
+					acc[key].set(fieldData);
+				} else {
+					Object.defineProperty(acc, key, { get: () => acc.go(key) });
+					acc[key].set(field);
+				}
+
 				return acc;
 			}, this);
 		}

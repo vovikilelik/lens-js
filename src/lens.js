@@ -247,6 +247,23 @@ export class Lens {
 		});
 	}
 
+	_assign(key, node) {
+		node._push = transaction => this._transaction(transaction, key);
+		this._children[key] = node;
+	}
+	
+	define(key, node) {
+		if (this._children[key])
+			this._unplug(this._children[key]);
+		
+		this._assign(key, node);
+		
+		node._parent = this;
+		
+		node._getter = () => this.get()?.[key];
+		node._setter = (value, ...args) => this.set(_makeObjectOrArray(key, value, this.get()), ...args);
+	}
+
 	/**
 	 * Move to next node
 	 * @param {string} key Name of node
@@ -260,9 +277,8 @@ export class Lens {
 			return current;
 		} else {
 			const node = _coreFactory(key, this, instance || Lens);
-			node._push = (transaction) => this._transaction(transaction, key);
-
-			this._children[key] = node;
+			
+			this._assign(key, node);
 
 			return node;
 		}
