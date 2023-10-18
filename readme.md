@@ -143,7 +143,7 @@ console.log(store.go('field').get())  // Hello!
 ```js
 class MyStore extends Store {
   get field() {
-    this.go('field');
+    return this.go('field');
   }
 }
 
