@@ -3,7 +3,7 @@
  */
 
 import { Lens } from './lens.js';
-import { createLens, transform, createCallback } from './utils.js';
+import { createLens, transform, createCallback, Triggers } from './utils.js';
 
 const _copyProperty = (original, source, key) => {
 	const descriptor = Object.getOwnPropertyDescriptor(source, key);
@@ -12,14 +12,6 @@ const _copyProperty = (original, source, key) => {
 
 export class Store extends Lens {
 	
-	static from(lens) {
-		return new Store(
-			lens.getter,
-			lens.setter,
-			lens
-		);
-	}
-
 	go(key, instance = Store) {
 		return super.go(key, instance);
 	}
@@ -53,6 +45,7 @@ export class Store extends Lens {
 					Object.defineProperty(acc, key, { get: () => field });
 					
 					const fieldData = field.get();
+					
 					acc.define(key, field);
 					acc[key].set(fieldData);
 				} else {
@@ -69,7 +62,7 @@ export class Store extends Lens {
 		if ((trigger || trigger === null) && callbacks.length) {
 			this.subscribe(createCallback(trigger, ...callbacks));
 		} else {
-			this.subscribe(trigger);
+			this.subscribe(createCallback(Triggers.object, ...callbacks));
 		}
 		
 		return this;
