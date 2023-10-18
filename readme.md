@@ -9,8 +9,8 @@ See ReactJs [implementation](https://www.npmjs.com/package/@vovikilelik/react-le
 const store = createStore(0);
 
 const Counter: react.FC = () => {
-	const [ value, setValue ] = useLens(store);
-	return <button onClick={() => setValue(value + 1)}>{value}<button>
+  const [value, setValue] = useLens(store);
+  return <button onClick={() => setValue(value + 1)}>{value}<button>;
 }
 ```
 
