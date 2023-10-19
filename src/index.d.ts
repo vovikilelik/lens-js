@@ -86,6 +86,17 @@ interface DebounceConstructor {
 
 export const Debounce: DebounceConstructor;
 
+export interface DifferMethods {
+	checker<T>(): Trigger<T>;
+	is<T>(value: T): Trigger<T>;
+	changed<T>(changed?: boolean): Trigger<T>;
+	defined<T>(defined?: boolean): Trigger<T>;
+}
+
+export namespace Differ {
+	export function check<T, L extends Lens<T>>(field?: string | ((event: AttachEvent<T>, node: L) => NodeDiff<T>)): DifferMethods;
+}
+
 export namespace Triggers {
 	export const object: Trigger<unknown>;
 	export const strict: Trigger<unknown>;

@@ -41,6 +41,53 @@ const path = ({ diffs }) => _isStrict(diffs) || diffs.length > 0;
 
 export const Triggers = { object, strict, subtree, path };
 
+const _getField = (source, path) => {
+	if (path.length === 1)
+		return source[path[0]];
+	
+	let name = path[0];
+	let value = source;
+	
+	for (i = 0; i < path.length && value; i++)
+		value = value[name];
+	
+	return value;
+};
+
+const createDefaultDiffGetter = (field) => {
+	const fieldPath = field && field.split('.');
+	
+	return ({ current }) => {
+		if (!fieldPath)
+			return current;
+		
+		const value = _getField(current.value, fieldPath);
+		const prev = _getField(current.prev, fieldPath);
+		
+		return { value, prev, path: current.path };
+	};
+};
+
+const check = (field) => {
+	const diffGetter = typeof field === 'string' || !field
+		? createDefaultDiffGetter(field)
+		: field;
+
+	const checker = (method) => (event, ...args) => {
+		const diff = diffGetter(event);
+		return diff && method(diff, ...args);
+	};
+	
+	return {
+		checker,
+		is: (...values) => checker(({ value }) => values.some(v => v === value)),
+		changed: (changed = true) => checker(({ value, prev }) => (value !== prev) === changed),
+		defined: (defined = true) => checker(({ value, prev }) => ((prev === undefined || prev === null) === defined) && ((value !== undefined && value !== null) === defined)),
+	};
+};
+
+export const Differ = { check };
+
 /**
  * Creating callback with throttling
  * @param {Function} callback

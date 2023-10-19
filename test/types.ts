@@ -1,4 +1,4 @@
-import { Lens, createLens, createStore } from '../src';
+import { Lens, createLens, createStore, Differ } from '../src';
 
 class MyLens<T> extends Lens<T> {
 
@@ -16,6 +16,12 @@ export class XLens<T> extends Lens<T> {
 	public go(key: keyof T) {
 		return super.go(key, XLens<T[keyof T]>);
 	}
+}
+
+function differ() {
+	const store = createStore({ arr: [1, 2, 3], foo: 'foo' });
+
+	store.go('foo').on(Differ.check('foo').is('foo'), () => {});
 }
 
 function test() {
@@ -55,5 +61,4 @@ function test() {
 
 	const xLens = {} as XLens<{ x: 1 }>;
 	const xo = xLens.go('x');
-
 }
