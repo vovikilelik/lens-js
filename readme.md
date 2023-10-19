@@ -9,8 +9,8 @@ See ReactJs [implementation](https://www.npmjs.com/package/@vovikilelik/react-le
 const store = createStore(0);
 
 const Counter: react.FC = () => {
-  const [value, setValue] = useLens(store);
-  return <button onClick={() => setValue(value + 1)}>{value}<button>;
+	const [ value, setValue ] = useLens(store);
+	return <button onClick={() => setValue(value + 1)}>{value}<button>
 }
 ```
 
@@ -68,6 +68,7 @@ We believe that `LensJs` can be used in conjunction with other state managers.
 * Both scalability (out/up)
 * Object-oriented and functional approach
 * Encapsulation
+* Typings with TypeScript
 
 # Using
 
@@ -143,7 +144,7 @@ console.log(store.go('field').get())  // Hello!
 ```js
 class MyStore extends Store {
   get field() {
-    return this.go('field');
+    this.go('field');
   }
 }
 
@@ -228,6 +229,18 @@ You can use the createCallback utility to combine a listener with a trigger. The
 const unsubscriber = store.subscribe(createCallback(Trigger.object, () => { ... }));
 ```
 
+You can create universal handlers that depend only on the data structure, and not on a specific node. To do this, you can use the second argument of the callback function to refer to the node where the event occurred.
+
+```js
+const universalCallback = (event, node) => { console.log(node.get()) };
+
+const store1 = createStore({});
+const store2 = createStore({});
+
+store1.on(universalCallback);  // Correct
+store2.on(universalCallback);  // Correct
+```
+
 ## Transform Data
 You can use the `transform()` method to bidirectionally transform data on the fly.
 
@@ -296,13 +309,14 @@ There are several utilities in the LensJs package that simplify development:
 
 - `Callbacks` - Filters as cover for callback
 - `Triggers` - Filters as functions for callback
+- `Differ` - Trigger construction utility
 - `Debounce` - Debounce and throttling utility
 - `createCallback` - Create cover filter for callback
 - `createStore` - Create method for store (instead OOP style)
 
 ### Examples
 
-#### Debounce output
+#### Debounce Output
 ```js
 const debounce = new Debounce(1000);
 
@@ -327,7 +341,7 @@ debounce.cancel();
 // No output
 ```
 
-#### Debounce and acync callbacks
+#### Debounce And Acync Callbacks
 You can use the Callbacks utility to create asynchronous and deferred state change handlers.
 
 ```ts
@@ -355,16 +369,37 @@ state.set('two');
 // Output from https://example.org/two response
 ```
 
+#### Using Trigger Constructor
+
+Triggers can be created using the `Differ` utility. For example, the following code will respond to any field `id` change.
+
+```js
+const store = createStore({});
+
+store.on(Differ.check('id').changed(), () => { ... })
+```
+
 And yes, so you can update your state on demand.
 
 ```ts
 const state = createState({ id: '', data: [] });
 
 const asyncCallback = Callbacks.async(
-  (event, node) => fetch('https://example.org/' + node),
-  ({ records }) => state.go('data').set(records)
+  (event, node) => fetch('https://example.org/' + node.go('id')),
+  ({ records }, event, node) => node.go('data').set(records)
 );
 
-state.go('id').on(asyncCallback);
+state.on(Differ.check('id').changed(), asyncCallback);
 state.go('id').set('1');
+```
+
+You can also create your own checks with `use()` method, if necessary.
+
+```ts
+const checkSum = (current, prev) => current > prev;
+
+state.on(
+  Differ.check('id').use(checkSum),
+  () => { ... }
+);
 ```

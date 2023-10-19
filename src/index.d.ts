@@ -87,9 +87,9 @@ interface DebounceConstructor {
 export const Debounce: DebounceConstructor;
 
 export interface DifferMethods {
-	checker<T>(): Trigger<T>;
+	use<T>(): Trigger<T>;
 	is<T>(value: T): Trigger<T>;
-	changed<T>(changed?: boolean): Trigger<T>;
+	changed<T>(): Trigger<T>;
 	defined<T>(defined?: boolean): Trigger<T>;
 }
 

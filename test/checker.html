@@ -17,22 +17,25 @@ and open the template in the editor.
 			
 			const time = (time = 1000) => new Promise(resolve => setTimeout(resolve, time));
 			
-			const store = createStore({})
-					.on(Differ.check('foo').checker(({ value }) => value?.[0] === 'l'), () => console.log('starts l', store.get()))
-					.on(Differ.check('foo').defined(), () => console.log('node is defined', store.get()))
-					.on(Differ.check('foo').is('loo'), () => console.log('node is loo', store.get()))
-					.on(Differ.check('foo').is('moo'), () => console.log('node is loo', store.get()))
-					.on(Differ.check('foo').changed(), () => console.log('changed', store.get()))
-					.on(Differ.check('foo').defined(false), () => console.log('node is undefined', store.get()));
+			const store = createStore({});
+			const node = store.go('node')
+					.on(null, console.log)
+//					.on(Differ.check('foo').checker(({ value }) => value?.[0] === 'l'), () => console.log('starts l', store.get()))
+//					.on(Differ.check('foo').defined(), () => console.log('node is defined', store.get()))
+//					.on(Differ.check('foo').is('loo'), () => console.log('node is loo', store.get()))
+//					.on(Differ.check('foo').is('moo'), () => console.log('node is moo', store.get()))
+					.on(Differ.check().changed(), () => console.log('changed', store.get()))
+//					.on(Differ.check('foo').defined(false), () => console.log('node is undefined', store.get()));
 
 			
-			const foo = store.go('foo');
+			const foo = node.go('foo');
 			
 			// const values = ['moo', 'loo', undefined];
 			
-			setTimeout(() => foo.set('moo'), 500);
+//			setTimeout(() => foo.set('moo'), 500);
 			setTimeout(() => foo.set('loo'), 1000);
-			setTimeout(() => foo.set(undefined), 1500);
+			setTimeout(() => node.set({ foo: 'loo' }), 1500);
+//			setTimeout(() => foo.set(undefined), 2000);
 		</script>	
 	</body>
 </html>

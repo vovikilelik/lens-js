@@ -61,8 +61,8 @@ const createDefaultDiffGetter = (field) => {
 		if (!fieldPath)
 			return current;
 		
-		const value = _getField(current.value, fieldPath);
-		const prev = _getField(current.prev, fieldPath);
+		const value = current.value && _getField(current.value, fieldPath);
+		const prev = current.prev && _getField(current.prev, fieldPath);
 		
 		return { value, prev, path: current.path };
 	};
@@ -79,10 +79,10 @@ const check = (field) => {
 	};
 	
 	return {
-		checker,
+		use: checker,
 		is: (...values) => checker(({ value }) => values.some(v => v === value)),
-		changed: (changed = true) => checker(({ value, prev }) => (value !== prev) === changed),
-		defined: (defined = true) => checker(({ value, prev }) => ((prev === undefined || prev === null) === defined) && ((value !== undefined && value !== null) === defined)),
+		changed: () => checker(({ value, prev }) => value !== prev),
+		defined: (defined = true) => checker(({ value, prev }) => ((prev === undefined || prev === null) === defined) && ((value !== undefined && value !== null) === defined))
 	};
 };
 
