@@ -1,36 +1,23 @@
 
 # Links
-* [Docs](https://wiki.dev-store.ru/lens-js/)
+* [Wiki](https://wiki.dev-store.xyz/lens-js/) - documentation
+* [react-lens](https://www.npmjs.com/package/@vovikilelik/react-lens) - ReactJS implementation
 * [Changelog](https://git.dev-store.xyz/Clu/lens-js/wiki/Changelog-en)
-
-# React JS implementation
-See ReactJs [implementation](https://www.npmjs.com/package/@vovikilelik/react-lens)
-```ts
-const store = createStore(0);
-
-const Counter: react.FC = () => {
-	const [ value, setValue ] = useLens(store);
-	return <button onClick={() => setValue(value + 1)}>{value}<button>
-}
-```
 
 # Instalation
 
- - **Git**
-  `git clone http://git.dev-store.xyz/Clu/lens-js.git`
-  
-- **Npm**
-`npm i @vovikilelik/lens-js`
+ - **Git:** `git clone https://git.dev-store.xyz/Clu/lens-js.git`  
+- **Npm:** `npm i @vovikilelik/lens-js`
 
 # Imports
 
 ### Web Components
 ```html
 <script type="module">
-    import { createStore } from './path_to_module/index.js';
+  import { createStore } from './path_to_module/index.js';
 
-    const store = createStore(0);
-    ...
+  const store = createStore(0);
+  ...
 </script>
 ```
 
@@ -70,20 +57,40 @@ We believe that `LensJs` can be used in conjunction with other state managers.
 * Encapsulation
 * Typings with TypeScript
 
+# Implementations
+## React JS
+See [react-lens](https://www.npmjs.com/package/@vovikilelik/react-lens) for ReactJS implementation.
+```ts
+const store = createStore(0);
+
+const Counter: react.FC = () => {
+  const [value, setValue] = useLens(store);
+  return <button onClick={() => setValue(value + 1)}>{value}<button>;
+}
+```
+
 # Using
 
 ## Creation and extends
+There are two main approaches to extending the state model: functional, provided by the `Store` class, and Object-oriented.
 
 ### Simple Store
+The `Store` class provides a functional approach to creating state. You can add new properties to the model using the `extends()` method. For convenience, we recommend using the `createStore()` utility.
 ```js
 export const store = createStore({ /* default data */ })
   .extends({ message: 'Hello' })
   .extends(node => {
     sayHello: (name) => alert(node.hello + ' ' + name)
   });
+
+console.log(store.sayHello('Mike'));  // Hello Mike
 ```
 
 ### Nested Store
+The state model has a lazy tree structure. This means that child models will be created only after accessing them via the `go()` method. However, you can create a model in advance and embed it in another one. In this case, there will be no need to access the `go()` method, but to access it as a simple field.
+
+The `extends()` method takes an argument of two types: a simple object and a function that returns an addition to the state prototype. The fields of a simple object will be converted to state properties.
+
 ```js
 export const message = createStore('Hello World!');
 
@@ -93,7 +100,15 @@ export const store = createStore({})
 console.log(store.message.get());  // Hello World!
 ```
 
+At the same time, we can always use the `go()` method as a universal way to access nested models.
+
+```js
+store.message === store.go('message')  // true
+```
+
 ### OOP Way
+
+You can always create and share class-based models. Your classes must be derived from `Lens` or one of its child classes, like `Store`
 ```js
 class HelloStore extends Store {
   sayHello(name) => this.go('message').get() + ' ' + name;
@@ -103,7 +118,21 @@ export const store = createStore({ message: 'Hello' }, HelloStore);
 store.sayHello('Tom');  // Hello Tom
 ```
 
+Accordingly, such models can be created with a regular constructor. The `createStore()` utility does about the same thing.
+
+```js
+let state = {};
+
+export const store = new HelloStore(
+  () => state,  // getter
+  value => state = value  // setter
+);
+```
+
+In such models, access to nested models can only be obtained through the `go()` method, unless you yourself have defined such a thing in the class.
+
 ### Both Ways
+However, no one forbids combining both approaches to determining the state. This way you will get the benefits of both approaches.
 ```js
 class Car extends Store {
   move() {}
