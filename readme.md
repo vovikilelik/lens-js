@@ -391,9 +391,11 @@ const asyncCallback = Callbacks.async(
 
 state.on(Differ.check('id').changed(), asyncCallback);
 state.go('id').set('1');
+
+// Data will be changed
 ```
 
-You can also create your own checks with `use()` method, if necessary.
+You can also create your own checks with `use()` method, if necessary. For example, you can create a trigger that will prevent triggering on the input of elements less than it was in the state of the application.
 
 ```ts
 const checkSum = (current, prev) => current > prev;
@@ -402,4 +404,8 @@ state.on(
   Differ.check('id').use(checkSum),
   () => { ... }
 );
+
+state.id.set(1);  // Triggered
+state.id.set(2);  // Triggered
+state.id.set(1);  // Not triggered. Need a value greater than 2
 ```

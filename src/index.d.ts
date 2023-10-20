@@ -62,7 +62,7 @@ export class Store<T, P = unknown> extends Lens<T, P> {
 	public go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>): R;
 	public go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>, ...args: unknown[]): R;
 
-	public list<L extends Lens<ArrayType<T>>>(): L[];
+	public list<L extends Lens<ArrayType<T>> = Store<ArrayType<T>>>(): L[];
 	
 	public transform<B, R extends Lens<B> = Lens<B>>(onGet: (value: T) => B, onSet: (value: B, prev: T) => T): R;
 
@@ -77,11 +77,13 @@ export function createStore<X extends Store<T>, T = unknown, R = X>(key: T, inst
 
 export type CallbackWithSync<T> = (event: AttachEvent<T>, node: Lens<T>, sync: () => boolean, stamp: number) => void;
 
-interface DebounceConstructor {
-	new(defaultTimeout?: number): {
-		run: (func: (sync: () => boolean, stamp: number) => void, timeout?: number) => void;
-		cancel: () => void;
-	};
+export type DebounceType = {
+	run: (func: (sync: () => boolean, stamp: number) => void, timeout?: number) => void;
+	cancel: () => void;
+};
+
+export interface DebounceConstructor {
+	new(defaultTimeout?: number): DebounceType;
 }
 
 export const Debounce: DebounceConstructor;
@@ -98,10 +100,10 @@ export namespace Differ {
 }
 
 export namespace Triggers {
-	export const object: Trigger<unknown>;
-	export const strict: Trigger<unknown>;
-	export const subtree: Trigger<unknown>;
-	export const path: Trigger<unknown>;
+	export const object: Trigger<any>;
+	export const strict: Trigger<any>;
+	export const subtree: Trigger<any>;
+	export const path: Trigger<any>;
 }
 
 export function createCallback<T>(trigger: Trigger<T>, ...callbacks: Callback<T>[]): Callback<T>;
