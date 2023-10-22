@@ -342,7 +342,7 @@ There are several utilities in the LensJs package that simplify development:
 - `createCallback()` - Create cover filter for callback.
 - `createLens()` - Creation of store in OOP style.
 - `createStore()` - Creation of store in functionlan style.
-- `asArray()` - `Arrat.form()` mapper for helps of type management.
+- `asArray()` - `Array.form()` mapper for helps of type management.
 
 ### Examples
 
