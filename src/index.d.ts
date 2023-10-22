@@ -73,7 +73,7 @@ export class Store<T, P = unknown> extends Lens<T, P> {
 	public on(trigger: Trigger<T>, callback: Callback<T>): this;
 }
 
-export function createStore<X extends Store<T>, T = unknown, R = X>(key: T, instance?: Instance<R, T>, options?: CreateOptions<T>): R;
+export function createStore<L extends Store<T>, T = unknown>(key: T, instance?: Instance<L, T>, options?: CreateOptions<T>): L;
 
 export type CallbackWithSync<T> = (event: AttachEvent<T>, node: Lens<T>, sync: () => boolean, stamp: number) => void;
 
@@ -131,4 +131,6 @@ export interface CreateOptions<T> {
 	onSet?: (value: T, prev?: T) => T;
 }
 
-export function createLens<X extends Lens<T>, T = unknown, R = X>(key: T, instance?: Instance<R, T>, options?: CreateOptions<T>): R;
+export function createLens<L extends Lens<T>, T = unknown>(key: T, instance?: Instance<L, T>, options?: CreateOptions<T>): L;
+
+export function asArray<T = unknown, L = Lens<ArrayType<T>>>(lens: Lens<T>): L[];

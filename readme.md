@@ -1,35 +1,14 @@
-
-# Links
-* [Wiki](https://wiki.dev-store.xyz/lens-js/) - documentation
-* [react-lens](https://www.npmjs.com/package/@vovikilelik/react-lens) - ReactJS implementation
-* [Changelog](https://git.dev-store.xyz/Clu/lens-js/wiki/Changelog-en)
-
-# Instalation
-
- - **Git:** `git clone https://git.dev-store.xyz/Clu/lens-js.git`  
-- **Npm:** `npm i @vovikilelik/lens-js`
-
-# Imports
-
-### Web Components
-```html
-<script type="module">
-  import { createStore } from './path_to_module/index.js';
-
-  const store = createStore(0);
-  ...
-</script>
-```
-
-### Webpack
-```js
-import { createStore } from '@vovikilelik/lens-js';
-const store = createStore(0);
-...
-```
-
 # Introduction
 `LensJs` implement the concept of a functional programming, where the data structure has the form of a directed graph (from the root to the leaves). Each node is an object model that is able to extend the basic prototype with methods and fields. LensJs is base technology for implimentation to any frameworks like ReactJs, Angular, Vue e.t.c.
+
+## Links
+* [Wiki](https://wiki.dev-store.xyz/lens-js/) - documentation
+* [react-lens](https://www.npmjs.com/package/@vovikilelik/react-lens) - ReactJS implementation
+
+## Instalation
+
+- **Git:** `git clone https://git.dev-store.xyz/Clu/lens-js.git`
+- **Npm:** `npm i @vovikilelik/lens-js`
 
 ## Philosofy
 
@@ -70,6 +49,26 @@ const Counter: react.FC = () => {
 ```
 
 # Using
+
+`lens-js` can be used as a standalone status manager, or as part of a library. It is suitable for use in **Web Components** or **Node Modules**.
+
+### Web Components
+```html
+<script type="module">
+  import { createStore } from './path_to_module/index.js';
+
+  const store = createStore({ /* App data */ });
+  ...
+</script>
+```
+
+### Node Modules
+```js
+import { createStore } from '@vovikilelik/lens-js';
+
+export const store = createStore({ /* App data */ });
+...
+```
 
 ## Creation and extends
 There are two main approaches to extending the state model: functional, provided by the `Store` class, and Object-oriented.
@@ -336,12 +335,14 @@ export const auth = createStore({});
 
 There are several utilities in the LensJs package that simplify development:
 
-- `Callbacks` - Filters as cover for callback
-- `Triggers` - Filters as functions for callback
-- `Differ` - Trigger construction utility
-- `Debounce` - Debounce and throttling utility
-- `createCallback` - Create cover filter for callback
-- `createStore` - Create method for store (instead OOP style)
+- `Callbacks` - Filters as cover for callback.
+- `Triggers` - Filters as functions for callback.
+- `Differ` - Trigger construction utility.
+- `Debounce` - Debounce and throttling utility.
+- `createCallback()` - Create cover filter for callback.
+- `createLens()` - Creation of store in OOP style.
+- `createStore()` - Creation of store in functionlan style.
+- `asArray()` - `Arrat.form()` mapper for helps of type management.
 
 ### Examples
 
@@ -438,3 +439,6 @@ state.id.set(1);  // Triggered
 state.id.set(2);  // Triggered
 state.id.set(1);  // Not triggered. Need a value greater than 2
 ```
+
+---
+For more documentation see [Wiki](https://wiki.dev-store.xyz/lens-js/) documentation.

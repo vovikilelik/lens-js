@@ -159,3 +159,5 @@ export const createLens = (data, instance = Lens, { onGet, onSet } = {}) => {
 		);
 	}
 };
+
+export const asArray = lens => Array.from(lens);
