@@ -285,7 +285,7 @@ const asHex = lens.go('color')
 
 asHex.set('#aabbcc');
 
-console.log(lens.get());  // { color: 11189196 } 
+console.log(store.get());  // { color: 11189196 } 
 ```
 
 There is a lower-level `chain` method. You can use it to create more flexible transformations. For example, unidirectional read output will look like this:
