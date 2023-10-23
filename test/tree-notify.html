@@ -13,8 +13,7 @@ and open the template in the editor.
 	<body>
 		<div>TODO write content</div>
 		<script type="module">
-			import { Lens } from '../src/lens-js.js';
-            import { createLens } from '../src/lens-utils.js';
+			import { Lens, createLens } from '../src/index.js';
 			
 			const data0 = {};
 			const data1 = { tree: { node: { value: 'test' } } };
@@ -34,9 +33,9 @@ and open the template in the editor.
 
 			const lens = createLens(data0);
 
-			lens.attach((...args) => console.log('root', ...args));
+			lens.subscribe((...args) => console.log('root', ...args));
 
-			lens.go('tree').go('node').attach(callback);
+			lens.go('tree').go('node').subscribe(callback);
 			
 			lens.set(data1);
 			lens.set(data2);

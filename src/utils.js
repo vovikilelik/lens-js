@@ -4,7 +4,7 @@
  * LGPLv3
  */
 
-import { Lens } from './lens-js.js';
+import { Lens } from './lens.js';
 import { Debounce as Pool } from './lib/debounce.js';
 
 export const Debounce = Pool;
@@ -13,52 +13,80 @@ const _isStrict = diffs => diffs.some(({ path }) => !path || !path.length);
 
 /**
  * Creating callback, which will be called only if current node would be changed
- * @param {Function} callback
- * @returns {Function}
  */
-const change = (callback) => (...args) => {
-	const [ { current, diffs } ] = args;
-
+const object = ({ current, diffs }) => {
 	const strictAndAssign = diffs.find(({ path }) => !path || path.length < 2);
 	
 	const change = (typeof current.value === 'object')
 		? current.prev === undefined && current.value !== undefined
 		: current.prev !== current.value;
 
-	if (strictAndAssign || change) {
-		return callback(...args);
-	}
+	return strictAndAssign || change;
 };
 
 /**
  * Creating callback, which will be called only if current node would be replaced of new structure
- * @param {Function} callback
- * @returns {Function}
  */
-const strict = (callback) => (...args) => {
-	const [ { diffs } ] = args;
-	return _isStrict(diffs) && callback(...args);
-};
+const strict = ({ diffs }) => _isStrict(diffs);
 
 /**
  * Creating callback, which will be called if current node and subtree would be changed or creating
- * @param {Function} callback
- * @returns {Function}
  */
-const before = (callback) => (...args) => {
-	const [ { diffs } ] = args;
-	return (_isStrict(diffs) || diffs.length === 0) && callback(...args);
-};
+const subtree = ({ diffs }) => _isStrict(diffs) || diffs.length === 0;
 
 /**
  * Creating callback, which will be triggered on path from root to changed node
- * @param {Function} callback
- * @returns {Function}
  */
-const after = (callback) => (...args) => {
-	const [ { diffs } ] = args;
-	return (_isStrict(diffs) || diffs.length > 0) && callback(...args);
+const path = ({ diffs }) => _isStrict(diffs) || diffs.length > 0;
+
+export const Triggers = { object, strict, subtree, path };
+
+const _getField = (source, path) => {
+	if (path.length === 1)
+		return source[path[0]];
+	
+	let name = path[0];
+	let value = source;
+	
+	for (i = 0; i < path.length && value; i++)
+		value = value[name];
+	
+	return value;
 };
+
+const createDefaultDiffGetter = (field) => {
+	const fieldPath = field && field.split('.');
+	
+	return ({ current }) => {
+		if (!fieldPath)
+			return current;
+		
+		const value = current.value && _getField(current.value, fieldPath);
+		const prev = current.prev && _getField(current.prev, fieldPath);
+		
+		return { value, prev, path: current.path };
+	};
+};
+
+const check = (field) => {
+	const diffGetter = typeof field === 'string' || !field
+		? createDefaultDiffGetter(field)
+		: field;
+
+	const checker = (method) => (event, ...args) => {
+		const diff = diffGetter(event);
+		return diff && method(diff, ...args);
+	};
+	
+	return {
+		use: checker,
+		is: (...values) => checker(({ value }) => values.some(v => v === value)),
+		changed: () => checker(({ value, prev }) => value !== prev),
+		defined: (defined = true) => checker(({ value, prev }) => ((prev === undefined || prev === null) === defined) && ((value !== undefined && value !== null) === defined))
+	};
+};
+
+export const Differ = { check };
 
 /**
  * Creating callback with throttling
@@ -66,8 +94,8 @@ const after = (callback) => (...args) => {
  * @param {Number} timeout
  * @returns {Function}
  */
-const debounce = (callback, timeout = 0) => {
-	const pool = new Pool(timeout);
+const debounce = (callback, timeout) => {
+	const pool = new Pool(timeout || 0);
 
 	return (...e) => {
 		pool.run((...d) => callback(...e, ...d));
@@ -88,19 +116,20 @@ const async = (request, resolve, timeout = 0) => {
 	);
 };
 
+export const createCallback = (trigger, ...callbacks) =>
+	(...args) => (!trigger || trigger(...args)) && callbacks.forEach(c => c(...args));
+
 /**
  * Namespace of callback factory
  * @type type
  */
-export const Callbacks = { change, strict, after, before, debounce, async };
-
-/**
- * Getting array of Lens from any node
- * @param {Lens} lens
- * @returns {Array<Lens>}
- */
-export const getArray = (lens) => {
-	return lens.list();
+export const Callbacks = {
+	object: (...callbacks) => createCallback(Triggers.object, ...callbacks),
+	strict: (...callbacks) => createCallback(Triggers.strict, ...callbacks),
+	subtree: (...callbacks) => createCallback(Triggers.subtree, ...callbacks),
+	path: (...callbacks) => createCallback(Triggers.path, ...callbacks),
+	debounce,
+	async
 };
 
 /**
@@ -130,3 +159,5 @@ export const createLens = (data, instance = Lens, { onGet, onSet } = {}) => {
 		);
 	}
 };
+
+export const asArray = lens => Array.from(lens);

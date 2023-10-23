@@ -11,22 +11,29 @@ and open the template in the editor.
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	</head>
 	<body>
+		<div>TODO write content</div>
 		<script type="module">
-			import { Lens, createLens } from '../src/index.js';
+			import { Lens, createLens, Callbacks } from '../src/index.js';
 			
-			const qwe = ['q', 'w', 'e'];
-			console.log(Object.keys(qwe));
+			const data1 = [1, 2, 3, 4, 5];
+			const data2 = [1, 2, 3];
 			
-			const x = { boo: 'x' };
-			const m = { x };
+			const lens = createLens(data1);
 			
-			x.m = m;
-			
-			const lens = createLens(m);
-			
-//			lens.go('x').go('boo').set('y');
+			const items = num => {
+				for (let i = 0; i < num; i++)
+					lens.go(i);
+			};
 			
 			console.log(lens.get());
-		</script>
+			items(5);
+			console.log(Array.from(lens.children()));
+			
+			
+			lens.set(data2);
+			
+			console.log(lens.get());
+			console.log(Array.from(lens.children()));
+		</script>	
 	</body>
 </html>
