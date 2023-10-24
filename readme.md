@@ -36,9 +36,25 @@ We believe that `LensJs` can be used in conjunction with other state managers.
 * Encapsulation
 * Typings with TypeScript
 
+## Main Idea
+One of the main ideas of lens-js is to create a basic mechanism that could form the basis of shells for other frameworks: ReactJS, Angular, Vue, etc. This would allow many developers to better understand processes on different frameworks and depend less on a particular stack. And also, it would allow achieving good code portability between projects on different frameworks.
+
+```ts
+|-----------| |-----------| |--------------|
+|  ReactJS  | |  Angular  | |  Vue е.т.с.  |
+|-----------| |-----------| |--------------|
+[react-lens ] [angular-lens] ...
+      |             |              |
+|------------------------------------------|
+|                 lens-js                  |
+|------------------------------------------|
+```
+
 # Implementations
+
 ## React JS
 See [react-lens](https://www.npmjs.com/package/@vovikilelik/react-lens) for ReactJS implementation.
+
 ```ts
 const store = createStore(0);
 
