@@ -90,7 +90,7 @@ export const Debounce: DebounceConstructor;
 
 export interface DifferMethods {
 	use<T>(): Trigger<T>;
-	is<T>(value: T): Trigger<T>;
+	is<T>(...values: Array<T | ((value: T) => any)>): Trigger<T>;
 	changed<T>(): Trigger<T>;
 	defined<T>(defined?: boolean): Trigger<T>;
 }
@@ -104,6 +104,9 @@ export namespace Triggers {
 	export const strict: Trigger<any>;
 	export const subtree: Trigger<any>;
 	export const path: Trigger<any>;
+	export const combine: <T>(...triggers: Trigger<T>[]) => Trigger<T>;
+	export const pass: <T>(trigger: Trigger<T>) => Trigger<T>;
+	export const interrupt: <T>(trigger: Trigger<T>) => Trigger<T>;
 }
 
 export function createCallback<T>(trigger: Trigger<T>, ...callbacks: Callback<T>[]): Callback<T>;

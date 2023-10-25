@@ -1,4 +1,4 @@
-import { Lens, createLens, createStore, Differ } from '../src';
+import { Lens, createLens, createStore, Differ, Triggers } from '../src';
 
 class MyLens<T> extends Lens<T> {
 

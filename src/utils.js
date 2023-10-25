@@ -9,6 +9,9 @@ import { Debounce as Pool } from './lib/debounce.js';
 
 export const Debounce = Pool;
 
+const _passIfFalse = value => value ? value : undefined;
+const _interruptIfFalse = value => value ? value : false;
+
 const _isStrict = diffs => diffs.some(({ path }) => !path || !path.length);
 
 /**
@@ -21,25 +24,37 @@ const object = ({ current, diffs }) => {
 		? current.prev === undefined && current.value !== undefined
 		: current.prev !== current.value;
 
-	return strictAndAssign || change;
+	return _passIfFalse(strictAndAssign || change);
 };
 
 /**
  * Creating callback, which will be called only if current node would be replaced of new structure
  */
-const strict = ({ diffs }) => _isStrict(diffs);
+const strict = ({ diffs }) => _passIfFalse(_isStrict(diffs));
 
 /**
  * Creating callback, which will be called if current node and subtree would be changed or creating
  */
-const subtree = ({ diffs }) => _isStrict(diffs) || diffs.length === 0;
+const subtree = ({ diffs }) => _passIfFalse(_isStrict(diffs) || diffs.length === 0);
 
 /**
  * Creating callback, which will be triggered on path from root to changed node
  */
-const path = ({ diffs }) => _isStrict(diffs) || diffs.length > 0;
+const path = ({ diffs }) => _passIfFalse(_isStrict(diffs) || diffs.length > 0);
 
-export const Triggers = { object, strict, subtree, path };
+const _combineTriggers = (...triggers) => (...args) => {
+	for (const trigger of triggers) {
+		const result = trigger(...args);
+		
+		if (result !== undefined)
+			return result;
+	}
+};
+
+const _passTrigger = trigger => (...args) => _passIfFalse(trigger(...args));
+const _interruptTrigger = trigger => (...args) => _interruptIfFalse(trigger(...args));
+
+export const Triggers = { object, strict, subtree, path, combine: _combineTriggers, pass: _passTrigger, interrupt: _interruptTrigger };
 
 const _getField = (source, path) => {
 	if (path.length === 1)
@@ -80,7 +95,7 @@ const check = (field) => {
 	
 	return {
 		use: checker,
-		is: (...values) => checker(({ value }) => values.some(v => v === value)),
+		is: (...values) => checker(({ value }) => values.some(v => (typeof v === 'function') ? v(value) : v === value)),
 		changed: () => checker(({ value, prev }) => value !== prev),
 		defined: (defined = true) => checker(({ value, prev }) => ((prev === undefined || prev === null) === defined) && ((value !== undefined && value !== null) === defined))
 	};
