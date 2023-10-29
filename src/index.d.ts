@@ -42,8 +42,7 @@ export class Lens<T, P = unknown> {
 	public hasSubscribed(callback: Callback<T>): boolean;
 	public subscribes(): Generator<Callback<T>>;
 	
-	public chain<B extends Lens<any>>(instance: Instance<B, T>): B;
-	public chain<B extends Lens<any>>(factory: ChainFactory<Lens<T, P>, B>): B;
+	public chain<B extends Lens<any>>(factory: ChainFactory<Lens<T, P>, B> | Instance<B, T>): B;
 	public chain<B extends Lens<any>>(): B;
 
 	public children<L extends Lens<ArrayType<T>>>(): Generator<{ key: string, value: L }>;
