@@ -5,6 +5,8 @@ class MyLens<T> extends Lens<T> {
 	constructor(a, b, c) {
 		super(a, b, c);
 	}
+	
+	public test() {}
 }
 
 export class XLens<T> extends Lens<T> {
@@ -61,4 +63,12 @@ function test() {
 
 	const xLens = {} as XLens<{ x: 1 }>;
 	const xo = xLens.go('x');
+}
+
+function test2() {
+	const store = createStore({ arr: [1, 2, 3] });
+	
+	const ch = store.chain(current => createStore({ loo: 'loo' }));
+	
+	ch.go('loo');
 }

@@ -289,7 +289,10 @@ export class Lens {
 			return this._chain || this;
 		}
 
-		this._chain = factory(this);
+		this._chain = typeof factory === 'function'
+			? factory(this)
+			: new instance(() => this.get(), (...args) => this.set(...args), this);
+			
 		this._chain._push = this._push;
 		
 		this._chainFactory = factory;

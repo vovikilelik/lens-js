@@ -69,4 +69,32 @@ export class Store extends Lens {
 	}
 }
 
+export class ArrayStore extends Store {
+	
+	push(value) {
+		this.set(this.get().push(value));
+	}
+	
+	pop() {
+		const data = this.get();
+		const value = data[data.length - 1];
+		
+		this.set(data.slice(0, -1));
+		
+		return value;
+	}
+	
+	find() {
+		
+	}
+	
+	delete(value) {
+		const data = typeof value === 'function'
+			? this.get().filter(value)
+			: this.get().filter(i => i !== value);
+			
+		this.set(data);
+	}
+}
+
 export const createStore = (data, instance = Store, options = {}) => createLens(data, instance, options);
