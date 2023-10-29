@@ -67,7 +67,7 @@ export class Store<T, P = unknown> extends Lens<T, P> {
 	public transform<B, R extends Lens<B> = Lens<B>>(onGet: (value: T) => B, onSet: (value: B, prev: T) => T): R;
 
 	public extends<P extends object>(prototype: (lens: this) => P): (typeof this) & P;
-	public extends<P extends object, K extends keyof P>(prototype: P): (typeof this) & Record<K, Lens<P[K]>>;
+	public extends<P extends object, K extends keyof P>(prototype: P): (typeof this) & Record<K, P[K] extends Lens<any> ? P[K] : Lens<P[K]>>;
 	
 	public on(callback: Callback<T>): this;
 	public on(trigger: Trigger<T>, callback: Callback<T>): this;
