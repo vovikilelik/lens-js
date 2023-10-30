@@ -114,8 +114,8 @@ export function createCallback<T>(trigger: Trigger<T>, ...callbacks: Callback<T>
 export namespace Callbacks {
 
 	export function async<R, T>(
-		request: (e: AttachEvent<T>) => Promise<R>,
-		resolve: (result: R, e: AttachEvent<T>, node: Lens<T>, sync: () => boolean, stamp: number) => void,
+		request: (event: AttachEvent<T>, node: Lens<T>) => Promise<R>,
+		resolve: (result: R, event: AttachEvent<T>, node: Lens<T>, sync: () => boolean, stamp: number) => void,
 		timeout?: number
 	): Callback<T>;
 
