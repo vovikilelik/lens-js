@@ -55,10 +55,16 @@ type ArrayType<T, R = unknown> = T extends (infer E)[] ? E : R;
 
 export type Trigger<T, R = unknown> = (event: AttachEvent<T>, node: Lens<T>) => R | undefined;
 
+type StoreGoEntity<T> = {
+	go<K extends keyof T>(key: K): Store<T[K], T>;
+	go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>): R;
+	go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>, ...args: unknown[]): R;
+}
+
 export class Store<T, P = unknown> extends Lens<T, P> {
 
 	/* Overloads */
-	public go<K extends keyof T>(key: K): Store<T[K], P>;
+	public go<K extends keyof T>(key: K): Store<T[K], T>;
 	public go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>): R;
 	public go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>, ...args: unknown[]): R;
 
@@ -66,8 +72,8 @@ export class Store<T, P = unknown> extends Lens<T, P> {
 	
 	public transform<B, R extends Lens<B> = Lens<B>>(onGet: (value: T) => B, onSet: (value: B, prev: T) => T): R;
 
-	public extends<P extends object>(prototype: (lens: this) => P): (typeof this) & P;
-	public extends<P extends object, K extends keyof P>(prototype: P): (typeof this) & { [X in K]: (P[X] extends Lens<any> ? P[X] : Lens<P[X]>) };
+	public extends<E extends object>(prototype: (lens: this) => E): this & E & StoreGoEntity<E>;
+	public extends<E extends object, K extends keyof E>(prototype: E): this & { [X in K]: (E[X] extends Lens<any> ? E[X] : Lens<E[X]>) } & StoreGoEntity<E>;
 	
 	public on(callback: Callback<T>): this;
 	public on(trigger: Trigger<T>, callback: Callback<T>): this;

@@ -72,3 +72,11 @@ function test2() {
 	
 	ch.go('loo');
 }
+
+function test3() {
+	const store = createStore({ arr: [1, 2, 3] });
+	
+	const ch = store.extends({ moo: 'moo' });
+	
+	ch.go('moo', MyLens);
+}
