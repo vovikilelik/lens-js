@@ -159,15 +159,19 @@ export const transform = (to, from, instance = Lens) => (current) => new instanc
 	current
 );
 
-export const createLens = (data, instance = Lens, { onGet, onSet } = {}) => {
-	const store = { data };
-	
-	if (onGet || onSet) {
-		return new instance(
-			() => onGet ? onGet(store.data) : store.data,
-			(value) => onSet ? (store.data = onSet(value, store.data)) : (store.data = value)
-		);
+export const asArray = lens => Array.from(lens);
+
+const _createLensFromMapper = (router, instance = Lens) => new instance(
+	() => router.get(),
+	(value, ...args) => router.set(value, ...args)
+);
+
+export const createLens = (dataOrRouter, instance = Lens) => {
+	if (dataOrRouter instanceof Router) {
+		return _createLensFromMapper(dataOrRouter, instance);
 	} else {
+		const store = { data };
+		
 		return new instance(
 			() => store.data,
 			(value) => store.data = value
@@ -175,22 +179,3 @@ export const createLens = (data, instance = Lens, { onGet, onSet } = {}) => {
 	}
 };
 
-export const asArray = lens => Array.from(lens);
-
-export const createLocalStorageAdapter = (key) => {
-
-	const getItem = (key, defaultValue) => {
-		const value = localStorage.getItem(key);
-		return value ? JSON.parse(value) : defaultValue;
-	};
-	
-	const setItem = (key, value) => {
-		localStorage.setItem(key, JSON.stringify(value));
-		return value;
-	};
-
-	return {
-		onGet: value => getItem(key, value),
-		onSet: (value, prev) => setItem(key, value)
-	};
-};
