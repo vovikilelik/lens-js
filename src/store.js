@@ -106,4 +106,4 @@ export class ArrayStore extends Store {
 	}
 }
 
-export const createStore = (data, instance = Store, options = {}) => createLens(data, instance, options);
+export const createStore = (dataOrRouter, instance = Store) => createLens(dataOrRouter, instance);

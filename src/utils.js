@@ -5,6 +5,7 @@
  */
 
 import { Lens } from './lens.js';
+import { Router } from './router.js';
 import { Debounce as Pool } from './lib/debounce.js';
 
 export const Debounce = Pool;
