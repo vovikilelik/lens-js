@@ -7,6 +7,6 @@ export class Adapter {
 	
 }
 
-export class AsincAdapter extends Adapter {
+export class AsyncAdapter extends Adapter {
 	
 }
