@@ -176,3 +176,21 @@ export const createLens = (data, instance = Lens, { onGet, onSet } = {}) => {
 };
 
 export const asArray = lens => Array.from(lens);
+
+export const createLocalStorageAdapter = (key) => {
+
+	const getItem = (key, defaultValue) => {
+		const value = localStorage.getItem(key);
+		return value ? JSON.parse(value) : defaultValue;
+	};
+	
+	const setItem = (key, value) => {
+		localStorage.setItem(key, JSON.stringify(value));
+		return value;
+	};
+
+	return {
+		onGet: value => getItem(key, value),
+		onSet: (value, prev) => setItem(key, value)
+	};
+};

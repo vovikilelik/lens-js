@@ -77,6 +77,8 @@ export class Store<T, P = unknown> extends Lens<T, P> {
 	
 	public on(callback: Callback<T>): this;
 	public on(trigger: Trigger<T>, callback: Callback<T>): this;
+	
+	public version: number;
 }
 
 export function createStore<L extends Store<T>, T = unknown>(key: T, instance?: Instance<L, T>, options?: CreateOptions<T>): L;
@@ -135,11 +137,13 @@ export namespace Callbacks {
 
 export function transform<A, B = A>(onGet: (value: A) => B, onSet: (value: B, prev: A) => A): ChainFactory<Lens<A>, Lens<B>>;
 
-export interface CreateOptions<T> {
+export interface Adapter<T> {
 	onGet?: (value: T) => T;
 	onSet?: (value: T, prev?: T) => T;
 }
 
-export function createLens<L extends Lens<T>, T = unknown>(key: T, instance?: Instance<L, T>, options?: CreateOptions<T>): L;
+export function createLens<L extends Lens<T>, T = unknown>(key: T, instance?: Instance<L, T>, options?: Adapter<T>): L;
 
 export function asArray<T = unknown, L = Lens<ArrayType<T>>>(lens: Lens<T>): L[];
+
+export function createLocalStorageAdapter<T>(key: string): Adapter<T>;

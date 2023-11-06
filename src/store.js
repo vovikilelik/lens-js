@@ -12,6 +12,15 @@ const _copyProperty = (original, source, key) => {
 
 export class Store extends Lens {
 	
+	get version() {
+		return this._version || 0;
+	}
+	
+	set(...args) {
+		super.set(...args);
+		this._version ? this._version++ : (this._version = 1);
+	}
+	
 	go(key, instance = Store) {
 		return super.go(key, instance);
 	}
