@@ -17,8 +17,8 @@ export class Store extends Lens {
 	}
 	
 	set(...args) {
-		super.set(...args);
 		this._version ? this._version++ : (this._version = 1);
+		super.set(...args);
 	}
 	
 	go(key, instance = Store) {
