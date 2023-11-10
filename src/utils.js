@@ -1,7 +1,7 @@
 /* 
  * Lens Utils
  * version 2.0.x
- * LGPLv3
+ * lgpl-v2.1-or-later
  */
 
 import { Lens } from './lens.js';
