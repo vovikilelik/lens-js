@@ -1,5 +1,5 @@
 /* 
- * LGPLv3
+ * lgpl-v2.1-or-later
  */
 
 /**

@@ -1,7 +1,7 @@
 /* 
  * Lens
  * version 2.0.x
- * LGPLv3
+ * lgpl-v2.1-or-later
  */
 
 import { Debounce } from './lib/debounce.js';
