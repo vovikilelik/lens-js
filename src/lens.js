@@ -86,7 +86,7 @@ const _pathStartsWith = (start, path) => {
 			return false;
 		}
 	}
-	
+
 	return true;
 };
 
@@ -95,16 +95,16 @@ const _getByPath = (value, path) => {
 		if (value === undefined || value === null) {
 			return undefined;
 		}
-		
+
 		value = value[path[i]];
 	}
-	
+
 	return value;
 };
 
 const _makeObjectOrArray = (key, value, prev) => {
 	const isArray = typeof key === 'number' || Array.isArray(prev);
-	
+
 	if (isArray) {
 		const result = prev ? [ ...prev ] : [];
 		result[+key] = value;
@@ -139,9 +139,9 @@ const _isPathEntry = (diffs, key) => diffs.some(({ path }) => path && path[0] ==
 export class Lens {
 
 	_subscribes = [];
-	
+
 	_children = {};
-	
+
 	_transactions = [];
 
 	/**
@@ -155,20 +155,20 @@ export class Lens {
 		this._getter = getter;
 		this._setter = setter;
 		this._parent = parent;
-		
+
 		this._localSetter = this.set.bind(this);
 
 		this[Symbol.iterator] = function* () {
 			const raw = this.get();
-			
+
 			const isArray = Array.isArray(raw);
-			
+
 			for (const key in raw) {
 				yield this.go(isArray ? +key : key);
 			}
 		};
 	}
-	
+
 	* children() {
 		const keys = Object.keys(this._children);
 
@@ -176,30 +176,30 @@ export class Lens {
 			yield { key, value: this._children[key] };
 		}
 	}
-	
+
 	* subscribes() {
 		for (const item of this._subscribes) {
 			yield item;
 		}
 	}
-	
+
 	toString() {
 		return this.get();
 	}
-	
+
 	get getter() {
 		return this._getter;
 	}
-	
+
 	get setter() {
 		return this._localSetter;
 	}
-	
+
 	_unplug() {
 		this._parent = undefined;
 		this._push = undefined;
 	}
-	
+
 	_clear() {
 		Object.values(this._children).forEach(node => node._unplug?.());
 		this._children = {};
@@ -229,7 +229,7 @@ export class Lens {
 		}
 
 		let keys = Object.keys(children);
-		
+
 		// remove unnecessary array elements
 		if (Array.isArray(value)) {
 			for (let i = value.length; i < keys.length; i++) {
@@ -241,13 +241,13 @@ export class Lens {
 		}
 
 		const treeExists = diffs.some(({ path }) => path && path.length);
-		
+
 		keys.forEach(key => {
 			const child = children[key];
 
 			if (!child)
 				return;
-			
+
 			if (treeExists && !_isPathEntry(diffs, key))
 				return;
 
@@ -259,15 +259,15 @@ export class Lens {
 		node._push = transaction => this._transaction(transaction, key);
 		this._children[key] = node;
 	}
-	
+
 	define(key, node) {
 		if (this._children[key])
 			this._unplug(this._children[key]);
-		
+
 		this._assign(key, node);
-		
+
 		node._parent = this;
-		
+
 		node._getter = () => this.get()?.[key];
 		node._setter = (value, ...args) => this.set(_makeObjectOrArray(key, value, this.get()), ...args);
 	}
@@ -285,13 +285,13 @@ export class Lens {
 			return current;
 		} else {
 			const node = _coreFactory(key, this, instance || Lens);
-			
+
 			this._assign(key, node);
 
 			return node;
 		}
 	}
-	
+
 	chain(factory) {
 		if (!factory || this._chainFactory === factory) {
 			return this._chain || this;
@@ -300,11 +300,11 @@ export class Lens {
 		this._chain = (factory.prototype && factory.prototype.constructor)
 			? new factory(() => this.get(), (...args) => this.set(...args), this)
 			: factory(this);
-			
+
 		this._chain._push = this._push;
-		
+
 		this._chainFactory = factory;
-		
+
 		return this._chain;
 	}
 
@@ -320,22 +320,24 @@ export class Lens {
 		if (this._transactions[0] && this._transactions[0].sender === sender) {
 			return;
 		}
-		
+
 		this._transactions.push({ sender, path });
-		
+
 		const notifer = () => {
 			const prev = this._prev;
 			this._prev = undefined;
 
 			const current = this.get();
-			
+
 			if (prev !== current) {
-				this._transactions.sort((a, b) => a.path.length - b.path.length);
-				const roots = this._transactions.reduce((acc, b) => {
+				const activeTransactions = [...this._transactions];
+
+				activeTransactions.sort((a, b) => a.path.length - b.path.length);
+				const roots = activeTransactions.reduce((acc, b) => {
 					if (!acc.some(a => _pathStartsWith(a.path, b.path))) {
 						acc.push(b);
 					}
-					
+
 					return acc;
 				}, []);
 
@@ -343,11 +345,11 @@ export class Lens {
 					const locals = _getDiffs(_getByPath(prev, root.path), root.sender.get(), root.path, []);
 					return [ ...acc, ...locals];
 				}, []);
-				
+
 				diffs.length && this._cascade(diffs, current, prev);
+
+				this._transactions = [...this._transactions.filter(t => !activeTransactions.some(c => c === t))];
 			}
-			
-			this._transactions = [];
 		};
 
 		if (this._debounce) {
@@ -357,7 +359,7 @@ export class Lens {
 			notifer();
 		}
 	}
-	
+
 	_transaction([sender, path], key) {
 		this._push
 			? this._push([sender, [key].concat(path)])
@@ -372,7 +374,7 @@ export class Lens {
 	_set(value, ...args) {
 		this.parent ? this._setter(value, ...args) : this._store(value, ...args);
 	}
-	
+
 	/**
 	 * Setting data to store relatives current node
 	 * @param {any} value
@@ -393,7 +395,7 @@ export class Lens {
 	 */
 	subscribe(callback) {
 		if (typeof callback !== 'function') return false;
-		
+
 		!this.hasSubscribed(callback) && (this._subscribes.push(callback));
 
 		return () => this.unsubscribe(callback);
@@ -412,7 +414,7 @@ export class Lens {
 
 		return changed;
 	}
-	
+
 	hasSubscribed(callback) {
 		return this._subscribes.some(c => c === callback);
 	}
