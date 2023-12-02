@@ -302,7 +302,7 @@ const asHex = lens.go('color')
 
 asHex.set('#aabbcc');
 
-console.log(store.get());  // { color: 11189196 } 
+console.log(store.get());  // { color: 11189196 }
 ```
 
 There is a lower-level `chain` method. You can use it to create more flexible transformations. For example, unidirectional read output will look like this:
@@ -455,6 +455,30 @@ state.on(
 state.id.set(1);  // Triggered
 state.id.set(2);  // Triggered
 state.id.set(1);  // Not triggered. Need a value greater than 2
+```
+
+#### Pipe
+You can create sequential handlers for changes. Each handler can be a regular function or an asynchronous one.
+
+```ts
+// Create pipe
+const pipe = Callbacks.pipe(
+	() => console.log(1),
+	async () => console.log('fetch') || await fetch('https://'),
+	() => console.log(3)
+);
+
+// Create lens state and subscribe listener on changies
+const lens = createLens('');
+lens.subscribe(pipe);
+
+// Trigger
+lens.set('Hello!')
+
+// Console output:
+// 1
+// fetch
+// 3
 ```
 
 ---
