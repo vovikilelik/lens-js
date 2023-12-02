@@ -463,9 +463,9 @@ You can create sequential handlers for changes. Each handler can be a regular fu
 ```ts
 // Create pipe
 const pipe = Callbacks.pipe(
-	() => console.log(1),
-	async () => console.log('fetch') || await fetch('https://'),
-	() => console.log(3)
+  () => console.log(1),
+  async () => console.log('fetch') || await fetch('https://'),
+  () => console.log(3)
 );
 
 // Create lens state and subscribe listener on changies
