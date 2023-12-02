@@ -1,11 +1,11 @@
-import { Lens, createLens, createStore, Differ, Triggers } from '../src';
+import { Lens, createLens, createStore, Differ, Triggers, Callbacks } from '../src';
 
 class MyLens<T> extends Lens<T> {
 
 	constructor(a, b, c) {
 		super(a, b, c);
 	}
-	
+
 	public test() {}
 }
 
@@ -28,16 +28,16 @@ function differ() {
 
 function test() {
 	const store = createStore({ arr: [1, 2, 3] });
-	
+
 	const rr = store.transform(v => ({ foo: v.arr }), v => ({ arr: v.foo })).get();
 
 	const lens = createStore({ arr: [1, 2, 3] });
-	
+
 	const aa = lens.go('arr').list().map(l => {
 		const v = l.get();
 		return v;
 	});
-	
+
 	const myLens = createStore({ arr: [1, 2, 3] }).go('arr', MyLens);
 
 	const ab = myLens.chain(current => createStore(current.get())).list().map(l => {
@@ -67,16 +67,24 @@ function test() {
 
 function test2() {
 	const store = createStore({ arr: [1, 2, 3] });
-	
+
 	const ch = store.chain(current => createStore({ loo: 'loo' }));
-	
+
 	ch.go('loo');
 }
 
 function test3() {
 	const store = createStore({ arr: [1, 2, 3] });
-	
+
 	const ch = store.extends({ moo: 'moo' });
-	
+
 	ch.go('moo', MyLens);
+}
+
+function test4() {
+	const store = createStore({ arr: [1, 2, 3] });
+
+	const pipe = Callbacks.pipe((e) => true, async () => await true, () => {});
+
+	const ch = store.subscribe(pipe);
 }

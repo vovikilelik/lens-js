@@ -27,7 +27,7 @@ const _isStrict = diffs => diffs.some(({ path }) => !path || !path.length);
  */
 const object = ({ current, diffs }) => {
 	const strictAndAssign = diffs.find(({ path }) => !path || path.length < 2);
-	
+
 	const change = (typeof current.value === 'object')
 		? current.prev === undefined && current.value !== undefined
 		: current.prev !== current.value;
@@ -53,7 +53,7 @@ const path = ({ diffs }) => _passIfFalse(_isStrict(diffs) || diffs.length > 0);
 const _combineTriggers = (...triggers) => (...args) => {
 	for (const trigger of triggers) {
 		const result = trigger(...args);
-		
+
 		if (result !== undefined)
 			return result;
 	}
@@ -67,26 +67,26 @@ export const Triggers = { object, strict, subtree, path, combine: _combineTrigge
 const _getField = (source, path) => {
 	if (path.length === 1)
 		return source[path[0]];
-	
+
 	let name = path[0];
 	let value = source;
-	
+
 	for (i = 0; i < path.length && value; i++)
 		value = value[name];
-	
+
 	return value;
 };
 
 const createDefaultDiffGetter = (field) => {
 	const fieldPath = field && field.split('.');
-	
+
 	return ({ current }) => {
 		if (!fieldPath)
 			return current;
-		
+
 		const value = current.value && _getField(current.value, fieldPath);
 		const prev = current.prev && _getField(current.prev, fieldPath);
-		
+
 		return { value, prev, path: current.path };
 	};
 };
@@ -100,7 +100,7 @@ const check = (field) => {
 		const diff = diffGetter(event);
 		return diff && method(diff, ...args);
 	};
-	
+
 	return {
 		use: checker,
 		is: (...values) => checker(({ value }) => values.some(v => (typeof v === 'function') ? v(value) : v === value)),
@@ -139,6 +139,36 @@ const async = (request, resolve, timeout = 0) => {
 	);
 };
 
+async function* _pipeGenerator(callbacks, ...args) {
+	for (let i = 0; i < callbacks.length; i++) {
+		const callback = callbacks[i];
+		yield await callback(...args);
+	}
+};
+
+const _isValueDefine = value => value !== undefined && value !== null;
+
+const _hasPipeNext = result => !_isValueDefine(result) || result;
+
+async function _pipeRunner(callbacks, ...args) {
+	const generator = _pipeGenerator(callbacks, ...args);
+
+	while (true) {
+		const { done, value } = await generator.next();
+
+		const returnValue = typeof value === 'function'
+			? await value(...args)
+			: value;
+
+		if (!_hasPipeNext(returnValue)) return returnValue;
+
+		if (done) return;
+	}
+};
+
+const pipe = (...callbacks) =>
+	async (...args) => await _pipeRunner(callbacks, ...args);
+
 export const createCallback = (trigger, ...callbacks) =>
 	(...args) => (!trigger || trigger(...args)) && callbacks.forEach(c => c(...args));
 
@@ -152,7 +182,8 @@ export const Callbacks = {
 	subtree: (...callbacks) => createCallback(Triggers.subtree, ...callbacks),
 	path: (...callbacks) => createCallback(Triggers.path, ...callbacks),
 	debounce,
-	async
+	async,
+	pipe
 };
 
 /**
@@ -169,7 +200,7 @@ export const transform = (to, from, instance = Lens) => (current) => new instanc
 
 export const createLens = (data, instance = Lens, { onGet, onSet } = {}) => {
 	const store = { data };
-	
+
 	if (onGet || onSet) {
 		return new instance(
 			() => onGet ? onGet(store.data) : store.data,
@@ -191,7 +222,7 @@ export const createLocalStorageAdapter = (key) => {
 		const value = localStorage.getItem(key);
 		return value ? JSON.parse(value) : defaultValue;
 	};
-	
+
 	const setItem = (key, value) => {
 		localStorage.setItem(key, JSON.stringify(value));
 		return value;

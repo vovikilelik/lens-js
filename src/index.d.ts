@@ -55,12 +55,12 @@ export class Lens<T, P = unknown> {
 	public unsubscribe(callback: Callback<T>): boolean;
 	public hasSubscribed(callback: Callback<T>): boolean;
 	public subscribes(): Generator<Callback<T>>;
-	
+
 	public chain<B extends Lens<any>>(factory: ChainFactory<Lens<T, P>, B> | Instance<B, T>): B;
 	public chain<B extends Lens<any>>(): B;
 
 	public children<L extends Lens<ArrayType<T>>>(): Generator<{ key: string, value: L }>;
-	
+
 	public getter: Getter<T>;
 	public setter: Setter<T>;
 }
@@ -83,15 +83,15 @@ export class Store<T, P = unknown> extends Lens<T, P> {
 	public go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>, ...args: unknown[]): R;
 
 	public list<L extends Lens<ArrayType<T>> = Store<ArrayType<T>>>(): L[];
-	
+
 	public transform<B, R extends Lens<B> = Lens<B>>(onGet: (value: T) => B, onSet: (value: B, prev: T) => T): R;
 
 	public extends<E extends object>(prototype: (lens: this) => E): this & E & StoreGoEntity<E>;
 	public extends<E extends object, K extends keyof E>(prototype: E): this & { [X in K]: (E[X] extends Lens<any> ? E[X] : Lens<E[X]>) } & StoreGoEntity<E>;
-	
+
 	public on(callback: Callback<T>): this;
 	public on(trigger: Trigger<T>, callback: Callback<T>): this;
-	
+
 	public version: number;
 }
 
@@ -143,10 +143,11 @@ export namespace Callbacks {
 
 	export function debounce<T>(callback: Callback<T> | CallbackWithSync<T>, timeout?: number): Callback<T>;
 
-	export function object<T>(callback: Callback<T>): Callback<T>;
-	export function strict<T>(callback: Callback<T>): Callback<T>;
-	export function subtree<T>(callback: Callback<T>): Callback<T>;
-	export function path<T>(callback: Callback<T>): Callback<T>;
+	export function object<T>(...callbacks: Callback<T>[]): Callback<T>;
+	export function strict<T>(...callbacks: Callback<T>[]): Callback<T>;
+	export function subtree<T>(...callbacks: Callback<T>[]): Callback<T>;
+	export function path<T>(...callbacks: Callback<T>[]): Callback<T>;
+	export function pipe<T>(...callbacks: Array<Trigger<T> | Promise<Trigger<T>>>): Trigger<T>;
 }
 
 export function transform<A, B = A>(onGet: (value: A) => B, onSet: (value: B, prev: A) => A): ChainFactory<Lens<A>, Lens<B>>;

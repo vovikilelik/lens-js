@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+	<head>
+		<title>TODO supply a title</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	</head>
+	<body>
+		<script type="module">
+			import { Lens, createLens, Callbacks } from '../src/index.js';
+
+			const lens = createLens({ foo: 'foo' });
+
+			const test = (mes, t) => new Promise(resolve => {
+				setTimeout(() => console.log(mes) || resolve(), t);
+			});
+
+			lens.subscribe(console.log('changed'));
+			lens.subscribe(
+				Callbacks.pipe(
+					async () => await test('1', 1000 * Math.random()),
+					() => Callbacks.pipe(
+						async () => lens.set({ moo: 'moox' }),
+						() => {Callbacks.pipe(
+							async () => await test('2', 1000 * Math.random()) || false,
+							() => test('3', 1000 * Math.random()),
+							() => console.log(4)
+						); return true},
+						() => console.log(5)
+					),
+					() => console.log(6)
+				)
+			);
+
+			lens.set({ moo: 'moo' });
+		</script>
+	</body>
+</html>
