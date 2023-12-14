@@ -87,4 +87,7 @@ function test4() {
 	const pipe = Callbacks.pipe((e) => true, async () => await true, () => {});
 
 	const ch = store.subscribe(pipe);
+
+	store.go('arr').set([]);
+	store.go('arr').set(p => p.concat([]));
 }

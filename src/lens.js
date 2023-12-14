@@ -102,16 +102,22 @@ const _getByPath = (value, path) => {
 	return value;
 };
 
-const _makeObjectOrArray = (key, value, prev) => {
-	const isArray = typeof key === 'number' || Array.isArray(prev);
+const _makeValue = (value, prev) => typeof value === 'function'
+	? value(prev)
+	: value;
+
+const _makeObjectOrArray = (key, value, all) => {
+	const isArray = typeof key === 'number' || Array.isArray(all);
+
+	const currentValue = _makeValue(value, all && all[key]);
 
 	if (isArray) {
-		const result = prev ? [ ...prev ] : [];
-		result[+key] = value;
+		const result = all ? [ ...all ] : [];
+		result[+key] = currentValue;
 
 		return result;
 	} else {
-			return { ...prev, [key]: value };
+			return { ...all, [key]: currentValue };
 	}
 };
 
@@ -122,8 +128,8 @@ const _coreFactory = (key, current, instance = Lens) => {
 	};
 
 	const setter = (value, ...args) => {
-		const prev = current.get();
-		current._set(_makeObjectOrArray(key, value, prev), ...args);
+		const all = current.get();
+		current._set(_makeObjectOrArray(key, value, all), ...args);
 	};
 
 	return new instance(getter, setter, current);
@@ -317,7 +323,9 @@ export class Lens {
 	}
 
 	_notify([sender, path]) {
-		if (this._transactions[0] && this._transactions[0].sender === sender) {
+		/* Ignore dublicate transaction */
+		const lastTransaction = this._transactions[this._transactions.length - 1];
+		if (lastTransaction && lastTransaction.sender === sender) {
 			return;
 		}
 
