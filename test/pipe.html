@@ -24,13 +24,13 @@ and open the template in the editor.
 			lens.subscribe(
 				Callbacks.pipe(
 					async () => await test('1', 1000 * Math.random()),
-					() => Callbacks.pipe(
+					Callbacks.pipe(
 						async () => lens.set({ moo: 'moox' }),
-						() => {Callbacks.pipe(
-							async () => await test('2', 1000 * Math.random()) || false,
+						Callbacks.pipe(
+							async () => await test('2', 1000 * Math.random()),
 							() => test('3', 1000 * Math.random()),
 							() => console.log(4)
-						); return true},
+						),
 						() => console.log(5)
 					),
 					() => console.log(6)

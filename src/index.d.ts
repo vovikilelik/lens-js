@@ -46,7 +46,7 @@ export class Lens<T, P = unknown> {
 	public go<K extends keyof T>(key: K): Lens<T[K], P>;
 
 	/* Overloads */
-	public set(value: T): void;
+	public set(value: (prev: T) => T): void;
 	public go<X extends Lens<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>): R;
 	public go<X extends Lens<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>, ...args: unknown[]): R;
 
