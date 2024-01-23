@@ -380,7 +380,7 @@ export class Lens {
 	}
 
 	_set(value, ...args) {
-		this.parent ? this._setter(value, ...args) : this._store(value, ...args);
+		this._push ? this._setter(value, ...args) : this._store(value, ...args);
 	}
 
 	/**
