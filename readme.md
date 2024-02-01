@@ -1,4 +1,4 @@
-# Introduction
+# Abstract
 `LensJs` implement the concept of a functional programming, where the data structure has the form of a directed graph (from the root to the leaves). Each node is an object model that is able to extend the basic prototype with methods and fields. LensJs is base technology for implimentation to any frameworks like ReactJs, Angular, Vue e.t.c.
 
 ## Links
@@ -183,6 +183,15 @@ const store = createStore({}).extends({ field: 'Hello!' });
 
 console.log(store.field.get())  // Hello!
 console.log(store.go('field').get())  // Hello!
+```
+
+Use the `view()` to access the model data immediately.
+
+```js
+const store = createStore({}).view({ count: 0, nested: { foo: 'Hello!' } });
+
+store.count++;  // 1
+store.nested.foo;  // Hello!
 ```
 
 #### OOP Style
