@@ -89,13 +89,15 @@ export class Store<T, P = unknown> extends Lens<T, P> {
 	public extends<E extends object>(prototype: (lens: this) => E): this & E & StoreGoEntity<E>;
 	public extends<E extends object, K extends keyof E>(prototype: E): this & { [X in K]: (E[X] extends Lens<any> ? E[X] : Lens<E[X]>) } & StoreGoEntity<E>;
 
+	public view<E extends object, K extends keyof E>(prototype: E): this & { [X in K]: E[X] } & StoreGoEntity<E>;
+
 	public on(callback: Callback<T>): this;
 	public on(trigger: Trigger<T>, callback: Callback<T>): this;
 
 	public version: number;
 }
 
-export function createStore<L extends Store<T>, T = unknown>(key: T, instance?: Instance<L, T>, options?: CreateOptions<T>): L;
+export function createStore<L extends Store<T>, T = unknown>(key: T, instance?: Instance<L, T>, options?: Adapter<T>): L;
 
 export type CallbackWithSync<T> = (event: AttachEvent<T>, node: Lens<T>, sync: () => boolean, stamp: number) => void;
 

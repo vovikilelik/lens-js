@@ -90,4 +90,7 @@ function test4() {
 
 	store.go('arr').set([]);
 	store.go('arr').set(p => p.concat([]));
+
+	const sv = store.view({ count: 0 });
+	sv.count++;
 }
