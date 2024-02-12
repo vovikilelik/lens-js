@@ -62,7 +62,9 @@ const _combineTriggers = (...triggers) => (...args) => {
 const _passTrigger = trigger => (...args) => _passIfFalse(trigger(...args));
 const _interruptTrigger = trigger => (...args) => _interruptIfFalse(trigger(...args));
 
-export const Triggers = { object, strict, subtree, path, combine: _combineTriggers, pass: _passTrigger, interrupt: _interruptTrigger };
+const _allTrigger = () => true;
+
+export const Triggers = { all: _allTrigger, object, strict, subtree, path, combine: _combineTriggers, pass: _passTrigger, interrupt: _interruptTrigger };
 
 const _getField = (source, path) => {
 	if (path.length === 1)
