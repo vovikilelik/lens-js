@@ -124,6 +124,7 @@ export namespace Differ {
 }
 
 export namespace Triggers {
+	export const all: Trigger<any>;
 	export const object: Trigger<any>;
 	export const strict: Trigger<any>;
 	export const subtree: Trigger<any>;
