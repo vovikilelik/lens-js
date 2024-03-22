@@ -93,4 +93,6 @@ function test4() {
 
 	const sv = store.view({ count: 0 });
 	sv.count++;
+
+	store.set(prev => prev);
 }

@@ -30,6 +30,7 @@ We believe that `LensJs` can be used in conjunction with other state managers.
 
 ## Main Features
 * Asynchronous change assambly
+* Concurrency
 * Catching changies
 * Data transform on demand
 * Both scalability (out/up)
