@@ -37,6 +37,8 @@ type ConstructorExt<T, P = unknown> = [getter: Getter<T>, setter: Setter<T>, par
 
 type Instance<R, T> = new (...args: ConstructorExt<T>) => R;
 
+type NodeSetter<T> = (prev: T) => T;
+
 export class Lens<T, P = unknown> {
 	constructor(...args: ConstructorExt<T, P>);
 
@@ -46,7 +48,7 @@ export class Lens<T, P = unknown> {
 	public go<K extends keyof T>(key: K): Lens<T[K], P>;
 
 	/* Overloads */
-	public set(value: (prev: T) => T): void;
+	public set(value: NodeSetter<T>): void;
 	public go<X extends Lens<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>): R;
 	public go<X extends Lens<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>, ...args: unknown[]): R;
 
@@ -75,16 +77,12 @@ type StoreGoEntity<T> = {
 	go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>, ...args: unknown[]): R;
 }
 
-type StoreSetter<T> = (prev: T) => T;
-
 export class Store<T, P = unknown> extends Lens<T, P> {
 
 	/* Overloads */
 	public go<K extends keyof T>(key: K): Store<T[K], T>;
 	public go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>): R;
 	public go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>, ...args: unknown[]): R;
-	public set(value: StoreSetter<T> | T): void;
-
 	public list<L extends Lens<ArrayType<T>> = Store<ArrayType<T>>>(): L[];
 
 	public transform<B, R extends Lens<B> = Lens<B>>(onGet: (value: T) => B, onSet: (value: B, prev: T) => T): R;

@@ -55,6 +55,10 @@ and open the template in the editor.
 			const data3 = createStore(111);
 			data3.set(prev => prev + 1);
 			console.log(data3.get());
+
+			const data4 = createStore({ z: 111 });
+			data4.go('z').set(prev => prev + 1);
+			console.log(data4.get());
 		</script>
 	</body>
 </html>
