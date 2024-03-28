@@ -85,7 +85,7 @@ export class Store<T, P = unknown> extends Lens<T, P> {
 	public go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>, ...args: unknown[]): R;
 	public list<L extends Lens<ArrayType<T>> = Store<ArrayType<T>>>(): L[];
 
-	public transform<B, R extends Lens<B> = Lens<B>>(onGet: (value: T) => B, onSet: (value: B, prev: T) => T): R;
+	public transform<B, X extends Lens<B>, R = X>(onGet: (value: T) => B, onSet: (value: B, prev: T) => T, instance?: Instance<R, B>): R;
 
 	public extends<E extends object>(prototype: (lens: this) => E): this & E & StoreGoEntity<E>;
 	public extends<E extends object, K extends keyof E>(prototype: E): this & { [X in K]: (E[X] extends Lens<any> ? E[X] : Lens<E[X]>) } & StoreGoEntity<E>;
@@ -98,7 +98,7 @@ export class Store<T, P = unknown> extends Lens<T, P> {
 	public version: number;
 }
 
-export function createStore<L extends Store<T>, T = unknown>(key: T, instance?: Instance<L, T>, options?: Adapter<T>): L;
+export function createStore<L extends Store<T>, T = unknown>(data: T, instance?: Instance<L, T>, options?: Adapter<T>): L;
 
 export type CallbackWithSync<T> = (event: AttachEvent<T>, node: Lens<T>, sync: () => boolean, stamp: number) => void;
 
@@ -114,7 +114,7 @@ export interface DebounceConstructor {
 export const Debounce: DebounceConstructor;
 
 export interface DifferMethods {
-	use<T>(): Trigger<T>;
+	use<T>(checker: (diff: NodeDiff<T>, node: Lens<T>) => boolean | undefined): Trigger<T>;
 	is<T>(...values: Array<T | ((value: T) => any)>): Trigger<T>;
 	changed<T>(): Trigger<T>;
 	defined<T>(defined?: boolean): Trigger<T>;
@@ -154,14 +154,14 @@ export namespace Callbacks {
 	export function pipe<T>(...callbacks: Array<Trigger<T> | Promise<Trigger<T>>>): Trigger<T>;
 }
 
-export function transform<A, B = A>(onGet: (value: A) => B, onSet: (value: B, prev: A) => A): ChainFactory<Lens<A>, Lens<B>>;
+export function transform<A, B = A, X extends Lens<B> = Lens<B>>(onGet: (value: A) => B, onSet: (value: B, prev: A) => A, instance?: Instance<X, B>): ChainFactory<Lens<A>, X>;
 
 export interface Adapter<T> {
 	onGet?: (value: T) => T;
 	onSet?: (value: T, prev?: T) => T;
 }
 
-export function createLens<L extends Lens<T>, T = unknown>(key: T, instance?: Instance<L, T>, options?: Adapter<T>): L;
+export function createLens<L extends Lens<T>, T = unknown>(data: T, instance?: Instance<L, T>, options?: Adapter<T>): L;
 
 export function asArray<T = unknown, L = Lens<ArrayType<T>>>(lens: Lens<T>): L[];
 
