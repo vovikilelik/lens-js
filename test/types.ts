@@ -1,4 +1,4 @@
-import { Lens, createLens, createStore, Differ, Triggers, Callbacks } from '../src';
+import { Lens, Store, createLens, createStore, Differ, Triggers, Callbacks, transform } from '../src';
 
 class MyLens<T> extends Lens<T> {
 
@@ -18,6 +18,8 @@ export class XLens<T> extends Lens<T> {
 	public go(key: keyof T) {
 		return super.go(key, XLens<T[keyof T]>);
 	}
+
+	public testXLens() {}
 }
 
 function differ() {
@@ -29,7 +31,18 @@ function differ() {
 function test() {
 	const store = createStore({ arr: [1, 2, 3] });
 
-	const rr = store.transform(v => ({ foo: v.arr }), v => ({ arr: v.foo })).get();
+	const rr = store.transform(v => ({ foo: v.arr }), v => ({ arr: v.foo }), XLens);
+
+	const trr = transform<{ arr: number[] }, { foo: number[] }>(v => ({ foo: v.arr }), v => ({ arr: v.foo }), MyLens);
+
+	const rrchain = store.chain(trr);
+
+	// rrchain.
+
+//	rr.
+
+	const rrxlens = store.go('arr', XLens);
+//	rrxlens.
 
 	const lens = createStore({ arr: [1, 2, 3] });
 
