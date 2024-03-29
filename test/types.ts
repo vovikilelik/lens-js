@@ -97,7 +97,7 @@ function test3() {
 function test4() {
 	const store = createStore({ arr: [1, 2, 3] });
 
-	const pipe = Callbacks.pipe((e) => true, async () => await true, () => {});
+	const pipe = Callbacks.pipe<{ arr: number[] }>((e) => true, async () => await true, () => {});
 
 	const ch = store.subscribe(pipe);
 

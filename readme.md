@@ -1,4 +1,8 @@
 # Abstract
+Shared multi-paradigm application state and action manager.
+
+It will help you organize the global state of your application, the local state of a separate module, or combine several modules that differ in architecture. It can also work in conjunction with other state managers.
+
 `LensJs` implement the concept of a functional programming, where the data structure has the form of a directed graph (from the root to the leaves). Each node is an object model that is able to extend the basic prototype with methods and fields. LensJs is base technology for implimentation to any frameworks like ReactJs, Angular, Vue e.t.c.
 
 ## Links
@@ -176,6 +180,20 @@ const two = one.go('two');  // Like one.two
 two.get()  // Hi!
 ```
 
+### Extending with prototype
+You can also create models based on your own prototypes
+
+```ts
+class Cat extends Store {
+  mew() {}
+}
+
+const store = createStore({ foo: {} });
+
+const fooIsCat = store.go('foo', Cat);
+fooIsCat.mew();
+```
+
 ### Field Access Style
 This method is only available when using the `extends` method or the OOP approach. There is a universal way to get nested nodes - this is the `go()` method.
 
@@ -216,6 +234,19 @@ const store = createStore({ fruit: { name: 'Apple' } });
 
 const name = store.go('fruit').go('name');  // access to value of fruit
 name.set('Orange');  // { fruit: { name: 'Orange' } }
+```
+
+### Using functions with `set()`
+You can pass to the `set()' method` the mutator function.
+
+```ts
+const store = createStore(0);
+
+const setter = prev => prev + 1;
+
+store.set(setter);  // 1
+store.set(setter);  // 2
+store.set(setter);  // 3
 ```
 
 ### Arrays And Generator

@@ -1,6 +1,6 @@
 {
     "name": "@vovikilelik/lens-js",
-    "version": "3.3.4",
+    "version": "3.3.5",
     "keywords": [
         "util",
         "functional",
@@ -17,7 +17,7 @@
     "contributors": [
     ],
     "dependencies": {},
-    "description": "Application state and action manager",
+    "description": "Shared multi-paradigm application state and action manager",
     "directories": {},
     "main": "index.js",
 	"typings": "index.d.ts",
