@@ -92,8 +92,8 @@ export class Store<T, P = unknown> extends Lens<T, P> {
 
 	public view<E extends object, K extends keyof E>(prototype: E): this & { [X in K]: E[X] } & StoreGoEntity<E>;
 
-	public on(callback: Callback<T>): this;
-	public on(trigger: Trigger<T>, callback: Callback<T>): this;
+	public on(callback: Callback<T> | Trigger<T>): this;
+	public on(...triggerOrCallback: Array<Callback<T> | Trigger<T>>): this;
 
 	public version: number;
 }
@@ -113,15 +113,17 @@ export interface DebounceConstructor {
 
 export const Debounce: DebounceConstructor;
 
-export interface DifferMethods {
-	use<T>(checker: (diff: NodeDiff<T>, node: Lens<T>) => boolean | undefined): Trigger<T>;
-	is<T>(...values: Array<T | ((value: T) => any)>): Trigger<T>;
-	changed<T>(): Trigger<T>;
-	defined<T>(defined?: boolean): Trigger<T>;
+export interface DifferMethods<T, V = T> {
+	use(checker: (diff: NodeDiff<V>, node: Lens<V>) => boolean | undefined): Trigger<T>;
+	is(...values: Array<V | ((value: V) => any)>): Trigger<T>;
+	changed<T = any>(): Trigger<T>;
+	defined<T = any>(defined?: boolean): Trigger<T>;
 }
 
 export namespace Differ {
-	export function check<T, L extends Lens<T>>(field?: string | ((event: AttachEvent<T>, node: L) => NodeDiff<T>)): DifferMethods;
+	export function check<T, L extends Lens<T> = Lens<T>>(field: ((event: AttachEvent<T>, node: L) => NodeDiff<T>)): DifferMethods<T>;
+	export function check<T, K extends keyof T = keyof T>(field: K): DifferMethods<T, T[K]>;
+	export function check<T>(): DifferMethods<T>;
 }
 
 export namespace Triggers {

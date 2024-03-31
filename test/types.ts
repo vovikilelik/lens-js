@@ -92,6 +92,14 @@ function test3() {
 	const ch = store.extends({ moo: 'moo' });
 
 	ch.go('moo', MyLens);
+
+	const t1 = Differ.check().changed();
+	const t2 = Differ.check<{ arwr: number[] }>('arwr').changed();
+	const t3 = Differ.check<{ arr: number[] }>('arr').is([]);
+
+	const t4 = Differ.check<{ arr: number[] }>('arr');
+
+	store.on(t1, t2, t3, t4.is([]) ,console.log);
 }
 
 function test4() {
