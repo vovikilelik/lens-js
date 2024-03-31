@@ -121,9 +121,9 @@ export interface DifferMethods<T, V = T> {
 }
 
 export namespace Differ {
-	export function check<T, L extends Lens<T> = Lens<T>>(field: ((event: AttachEvent<T>, node: L) => NodeDiff<T>)): DifferMethods<T>;
-	export function check<T, K extends keyof T = keyof T>(field: K): DifferMethods<T, T[K]>;
-	export function check<T>(): DifferMethods<T>;
+	export function check<T = any, L extends Lens<T> = Lens<T>>(field: ((event: AttachEvent<T>, node: L) => NodeDiff<T>)): DifferMethods<T>;
+	export function check<T = any, K extends keyof T = keyof T>(field: K): DifferMethods<T, T[K]>;
+	export function check<T = any>(): DifferMethods<T>;
 }
 
 export namespace Triggers {
@@ -137,7 +137,7 @@ export namespace Triggers {
 	export const interrupt: <T>(trigger: Trigger<T>) => Trigger<T>;
 }
 
-export function createCallback<T>(trigger: Trigger<T>, ...callbacks: Callback<T>[]): Callback<T>;
+export function createCallback<T>(trigger: Trigger<T>, ...callbacks: Array<Callback<T> | Trigger<T>>): Callback<T>;
 
 export namespace Callbacks {
 

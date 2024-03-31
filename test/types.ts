@@ -25,7 +25,9 @@ export class XLens<T> extends Lens<T> {
 function differ() {
 	const store = createStore({ arr: [1, 2, 3], foo: 'foo' });
 
-	store.go('foo').on(Differ.check('foo').is('foo'), () => {});
+	// const t1 = Differ.check<{ arr: number[], foo: string }>('foo').is('foo');
+
+	store.go('foo').on(Differ.check<string>().is('1'), () => {});
 }
 
 function test() {
