@@ -13,19 +13,24 @@ and open the template in the editor.
 	<body>
 		<div>TODO write content</div>
 		<script type="module">
-			import { Lens, createLens } from '../src/index.js';
+			import { Lens, createStore } from '../src/index.js';
 
-			const exLens = createLens({ foo: 'foox' })
+			const exLens = createStore({ foo: 'foox' })
 				.extends({ moo: 'moox' })
-				.extends(lens => ({ xoo: 'xoo', get mooValue() { return lens.moo.get(); }, func: () => lens.get() }));
-			
+				.extends(lens => ({ xoo: 'xoo', get mooValue() { return lens.moo.get(); }, func: () => lens.get() }))
+				.view({ pool: 0 });
+
 			console.log(exLens);
 			console.log(exLens.moo.get());
 			console.log(exLens.xoo, exLens.mooValue, exLens.moo.get(), exLens.func());
-			
+
 			exLens.moo.set('asd');
-			
+
 			console.log(exLens.xoo, exLens.mooValue, exLens.moo.get(), exLens.func());
-		</script>	
+
+			exLens.pool++;
+
+			console.log(exLens.pool);
+		</script>
 	</body>
 </html>

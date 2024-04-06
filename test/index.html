@@ -13,19 +13,19 @@ and open the template in the editor.
 	<body>
 		<script type="module">
 			import { Lens, createLens } from '../src/index.js';
-			
+
 			const qwe = ['q', 'w', 'e'];
 			console.log(Object.keys(qwe));
-			
+
 			const x = { boo: 'x' };
 			const m = { x };
-			
+
 			x.m = m;
-			
+
 			const lens = createLens(m);
-			
+
 //			lens.go('x').go('boo').set('y');
-			
+
 			console.log(lens.get());
 		</script>
 	</body>

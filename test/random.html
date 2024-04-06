@@ -14,12 +14,12 @@ and open the template in the editor.
 		<div>TODO write content</div>
 		<script type="module">
 			import { Lens, createStore, Callbacks, Triggers } from '../src/index.js';
-			
+
 			const time = (time = 1000) => new Promise(resolve => setTimeout(resolve, time));
-			
+
 			const data = createStore()
 					.extends({ foo: 'foo' });
-			
+
 			const store = createStore()
 					.extends({ data })
 					.extends(node => ({
@@ -40,14 +40,25 @@ and open the template in the editor.
 
 			const dataf = store.go('data');
 			dataf.on(() => true, ({ current, diffs}) => console.log('all', current));
-			
+
 			const foo = store.go('data').go('foo');
 			foo.on(Triggers.strict, ({ current }) => console.log('strict', current));
 			store.setFooX('moo');
-			
+
 			console.log(foo + "");
-			
-//			console.log('store', store.get());
-		</script>	
+
+			const data2 = createStore({ foo: 1 });
+
+			data2.go('foo').set(prev => ++prev);
+			console.log(data2.get());
+
+			const data3 = createStore(111);
+			data3.set(prev => prev + 1);
+			console.log(data3.get());
+
+			const data4 = createStore({ z: 111 });
+			data4.go('z').set(prev => prev + 1);
+			console.log(data4.get());
+		</script>
 	</body>
 </html>
