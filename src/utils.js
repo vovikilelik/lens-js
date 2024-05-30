@@ -200,12 +200,6 @@ export const Callbacks = {
 	pipe
 };
 
-/**
- * Create mappable ChainFactory
- * @param {type} to getter
- * @param {type} from setter
- * @returns {ChainFactory} factory
- */
 export const transform = (to, from, instance = Lens) => (current) => new instance(
 	() => to(current.get()),
 	(value, ...args) => current.set(from(value, current.get()), ...args),

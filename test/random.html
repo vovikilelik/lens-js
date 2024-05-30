@@ -14,7 +14,10 @@ and open the template in the editor.
 		<div>TODO write content</div>
 		<script type="module">
 			import { Lens, createStore, Callbacks, Triggers } from '../src/index.js';
-
+			
+			const date = Symbol('');
+			console.log('typeof', typeof date);
+			
 			const time = (time = 1000) => new Promise(resolve => setTimeout(resolve, time));
 
 			const data = createStore()

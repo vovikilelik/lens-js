@@ -31,9 +31,19 @@ const _compareKeys = (prevKeys, nextKeys) => {
 };
 
 const _typeof = (value) => {
-	return value === null || value === undefined
-		? 'undefined'
-		: typeof value;
+	if (value === null || value === undefined) {
+		return 'undefined';
+	} else {
+		const type = typeof value;
+		
+		if (type === 'object') {
+			return value instanceof Date
+				? 'date'
+				: type;
+		} else {
+			return type;
+		}
+	}
 };
 
 const _getKeys = (data) => {
