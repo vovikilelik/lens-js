@@ -101,29 +101,47 @@ export class Store extends Lens {
 
 export class ArrayStore extends Store {
 
-	push(value) {
-		this.set(this.get().push(value));
+	push(...value) {
+		const data = this.get() || [];
+
+		const length = data.push(...value);
+		this.set(data);
+
+		return length;
 	}
 
 	pop() {
 		const data = this.get();
-		const value = data[data.length - 1];
-
-		this.set(data.slice(0, -1));
+		
+		if (!data) return undefined;
+		
+		const value = data.pop();
+		this.set(data);
 
 		return value;
 	}
-
-	find() {
-
+	
+	delete(value) {
+		const prev = this.get();
+		
+		if (!prev) return false;
+		
+		const data = typeof value === 'function'
+			? prev.filter(value)
+			: prev.filter(i => i !== value);
+		
+		const result = prev.length !== data.length;
+		this.set(data);
+		
+		return result;
 	}
 
-	delete(value) {
-		const data = typeof value === 'function'
-			? this.get().filter(value)
-			: this.get().filter(i => i !== value);
-
-		this.set(data);
+	get length() {
+		return this.get()?.length || 0;
+	}
+	
+	isEmpty() {
+		return this.length === 0;
 	}
 }
 

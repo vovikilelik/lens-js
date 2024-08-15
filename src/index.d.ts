@@ -98,6 +98,16 @@ export class Store<T, P = unknown> extends Lens<T, P> {
 	public version: number;
 }
 
+export class ArrayStore<T, P = unknown, E = ArrayType<T>> extends Store<T, P> {
+	public push(...value: E[]): number;
+	public pop(): E;
+	public delete(element: E | ((element: E, index: number, all: E[]) => boolean)): boolean;
+
+	public length: number;
+	
+	public isEmpty(): boolean;
+}
+
 export function createStore<L extends Store<T>, T = unknown>(data: T, instance?: Instance<L, T>, options?: Adapter<T>): L;
 
 export type CallbackWithSync<T> = (event: AttachEvent<T>, node: Lens<T>, sync: () => boolean, stamp: number) => void;
