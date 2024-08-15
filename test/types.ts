@@ -1,4 +1,4 @@
-import { Lens, Store, createLens, createStore, Differ, Triggers, Callbacks, transform } from '../src';
+import { Lens, Store, ArrayStore, createLens, createStore, Differ, Triggers, Callbacks, transform } from '../src';
 
 class MyLens<T> extends Lens<T> {
 
@@ -118,4 +118,29 @@ function test4() {
 	sv.count++;
 
 	store.set(prev => prev);
+}
+
+interface Arr {
+	arr: number[];
+	noarr: string;
+	uarr?: number[];
+}
+
+function test5() {
+	const store = createStore({ arr: [1, 2, 3], noarr: '' } as Arr);
+
+	const arr1 = store.go('noarr');
+	const arr2 = store.go('uarr');
+	
+	const v = arr2.get();
+	
+	arr2.push(3);
+	arr2.delete(2);
+	arr2.delete((v) => v === 1);
+	const z = arr2.pop();
+	arr2.length;
+}
+
+function test6() {
+
 }

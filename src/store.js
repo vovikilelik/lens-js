@@ -103,22 +103,23 @@ export class ArrayStore extends Store {
 
 	push(...value) {
 		const data = this.get() || [];
+		
+		const newData = [...data, ...value];
+		this.set(newData);
 
-		const length = data.push(...value);
-		this.set(data);
-
-		return length;
+		return newData.length;
 	}
 
 	pop() {
 		const data = this.get();
 		
-		if (!data) return undefined;
+		if (!data || !data.length) return undefined;
 		
-		const value = data.pop();
-		this.set(data);
+		const result = data[data.length - 1];
+		const newData = data.slice(0, data.length - 1);
+		this.set(newData);
 
-		return value;
+		return result;
 	}
 	
 	delete(value) {
@@ -127,8 +128,8 @@ export class ArrayStore extends Store {
 		if (!prev) return false;
 		
 		const data = typeof value === 'function'
-			? prev.filter(value)
-			: prev.filter(i => i !== value);
+			? prev.filter((...args) => !value(...args))
+			: prev.filter(v => v !== value);
 		
 		const result = prev.length !== data.length;
 		this.set(data);

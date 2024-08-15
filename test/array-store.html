@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+	<head>
+		<title>TODO supply a title</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	</head>
+	<body>
+		<div>TODO write content</div>
+		<script type="module">
+			import { ArrayStore, createStore, createLocalStorageAdapter } from '../src/index.js';
+			
+			const store = createStore([1, 2, 3], ArrayStore);
+			
+			console.log('init', store.get());
+			
+			store.push(4);
+			console.log('push', store.get());
+			
+			console.log('pop', store.pop());
+			console.log('pop', store.get());
+			
+			store.delete(2);
+			console.log('delete', store.get());
+			
+			store.delete(v => v === 1);
+			console.log('delete', store.get());
+			
+			console.log(store.length);
+		</script>	
+	</body>
+</html>

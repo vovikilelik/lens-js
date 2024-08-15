@@ -80,7 +80,7 @@ type StoreGoEntity<T> = {
 export class Store<T, P = unknown> extends Lens<T, P> {
 
 	/* Overloads */
-	public go<K extends keyof T>(key: K): Store<T[K], T>;
+	public go<K extends keyof T>(key: K): T[K] extends Array<any> ? ArrayStore<T[K], T> : Store<T[K], T>;
 	public go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>): R;
 	public go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>, ...args: unknown[]): R;
 	public list<L extends Lens<ArrayType<T>> = Store<ArrayType<T>>>(): L[];
@@ -100,7 +100,7 @@ export class Store<T, P = unknown> extends Lens<T, P> {
 
 export class ArrayStore<T, P = unknown, E = ArrayType<T>> extends Store<T, P> {
 	public push(...value: E[]): number;
-	public pop(): E;
+	public pop(): E | undefined;
 	public delete(element: E | ((element: E, index: number, all: E[]) => boolean)): boolean;
 
 	public length: number;
@@ -137,7 +137,7 @@ export namespace Differ {
 }
 
 export namespace Triggers {
-	export const all: Trigger<any>;
+	export const deep: Trigger<any>;
 	export const object: Trigger<any>;
 	export const strict: Trigger<any>;
 	export const subtree: Trigger<any>;

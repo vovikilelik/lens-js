@@ -62,7 +62,7 @@ const _combineTriggers = (...triggers) => (...args) => {
 const _passTrigger = trigger => (...args) => _passIfFalse(trigger(...args));
 const _interruptTrigger = trigger => (...args) => _interruptIfFalse(trigger(...args));
 
-const _allTrigger = () => true;
+const _deepTrigger = () => true;
 
 const and = (...triggers) => (...args) => {
 	// ?
@@ -76,7 +76,7 @@ const not = trigger => (...args) => {
 	// ?
 };
 
-export const Triggers = { all: _allTrigger, object, strict, subtree, path, combine: _combineTriggers, pass: _passTrigger, interrupt: _interruptTrigger };
+export const Triggers = { deep: _deepTrigger, object, strict, subtree, path, combine: _combineTriggers, pass: _passTrigger, interrupt: _interruptTrigger };
 
 const _getField = (source, path) => {
 	if (path.length === 1)
