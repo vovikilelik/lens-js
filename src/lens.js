@@ -336,10 +336,10 @@ export class Lens {
 		/* Ignore dublicate transaction */
 		const lastTransaction = this._transactions[this._transactions.length - 1];
 		if (lastTransaction && lastTransaction.sender === sender) {
-			return;
+			// No action
+		} else {
+			this._transactions.push({ sender, path });
 		}
-
-		this._transactions.push({ sender, path });
 
 		const notifer = () => {
 			const prev = this._prev;
