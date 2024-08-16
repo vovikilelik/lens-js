@@ -337,6 +337,7 @@ export class Lens {
 		const lastTransaction = this._transactions[this._transactions.length - 1];
 		if (lastTransaction && lastTransaction.sender === sender) {
 			// No action
+			return;
 		} else {
 			this._transactions.push({ sender, path });
 		}
@@ -347,9 +348,13 @@ export class Lens {
 
 			const current = this.get();
 
-			if (prev !== current) {
-				const activeTransactions = [...this._transactions];
+			// Тут может быть ошибка, при которой транзакции "зависнут" и notifer не будет отрабатывать.
+			// Если выполнить set() с одинаковыми данными, то следующее условие не сработает и старая транзакция не удалиться.
+			// В итоге, следующие попытки вставить другое значение будут игнорироваться ЕСЛИ _notify будет пропускать повторяющиеся транзакции без перезапуска notifer()
+			
+			const activeTransactions = [...this._transactions];
 
+			if (prev !== current) {
 				activeTransactions.sort((a, b) => a.path.length - b.path.length);
 				const roots = activeTransactions.reduce((acc, b) => {
 					if (!acc.some(a => _pathStartsWith(a.path, b.path))) {
@@ -365,9 +370,9 @@ export class Lens {
 				}, []);
 
 				diffs.length && this._cascade(diffs, current, prev);
-
-				this._transactions = [...this._transactions.filter(t => !activeTransactions.some(c => c === t))];
 			}
+			
+			this._transactions = [...this._transactions.filter(t => !activeTransactions.some(c => c === t))];
 		};
 
 		if (this._debounce) {
