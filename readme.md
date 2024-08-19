@@ -389,6 +389,18 @@ export const form = createStore({});
 export const auth = createStore({});
 ```
 
+## ArrayStore
+You can use a special utility class to work with arrays at the storage level.
+
+```ts
+const store = createStore(['one', 'too', 'moo'], ArrayStore);
+
+store.push('foo');
+const foo = store.pop();
+
+store.delete('one');
+```
+
 ## Utils
 
 There are several utilities in the LensJs package that simplify development:
