@@ -65,6 +65,8 @@ export class Lens<T, P = unknown> {
 
 	public getter: Getter<T>;
 	public setter: Setter<T>;
+	
+	[Symbol.iterator]<L extends Lens<ArrayType<T>>>(): IterableIterator<L>;
 }
 
 type ArrayType<T, R = unknown> = T extends (infer E)[] ? E : R;

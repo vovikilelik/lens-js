@@ -142,5 +142,10 @@ function test5() {
 }
 
 function test6() {
+	const store = createLens([1, 2, 3]);
 
+	
+	for (const l of store) {
+		l.set(1)
+	}
 }
