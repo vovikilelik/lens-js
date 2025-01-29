@@ -225,7 +225,7 @@ export class Lens {
 		const event = new AttachEvent(diffs, currentDiff);
 
 		this._subscribes.forEach(callback => callback(event, this));
-		this._chain && this._chain._fire && this._chain._fire(diffs, currentDiff);
+//		this._chain && this._chain._fire && this._chain._fire(diffs, currentDiff);
 	}
 
 	_cascade(diffs, value, prev) {
@@ -235,6 +235,9 @@ export class Lens {
 
 		const currentDiff = diffs.find(({ path }) => !path || !path.length);
 		this._fire(diffs, currentDiff || new NodeDiff([], value, prev));
+		
+		// fire cascade on all chain
+		this._chain && this._chain._cascade(diffs, value, prev);
 
 		// remove unnecessary children
 		if (typeof value !== 'object') {
