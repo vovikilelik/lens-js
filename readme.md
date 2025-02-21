@@ -327,6 +327,42 @@ store1.on(universalCallback);  // Correct
 store2.on(universalCallback);  // Correct
 ```
 
+## Chains
+There is a lower-level `chain` method. You can use it to create more flexible transformations. For example, unidirectional read output will look like this:
+
+```js
+class Foo {
+    foo() {}
+}
+
+class Moo {
+    moo() {}
+}
+
+const store = createStore({}, Foo);
+store.foo() // Store is Foo
+
+const chain = store.chain(Moo);
+chain.moo() // The chain of store is Moo. But you can use store like Foo.
+```
+
+Method chain provides an props for instance constructor.
+
+```js
+class Foo {
+    foo() {}
+}
+
+class Moo {
+    afterCreate(props) {
+        // props will be there
+    }
+}
+
+const store = createStore({}, Foo);
+const chain = store.chain(Moo, { moo: 'props_for_moo' });
+```
+
 ## Transform Data
 You can use the `transform()` method to bidirectionally transform data on the fly.
 
@@ -346,7 +382,7 @@ asHex.set('#aabbcc');
 console.log(store.get());  // { color: 11189196 }
 ```
 
-There is a lower-level `chain` method. You can use it to create more flexible transformations. For example, unidirectional read output will look like this:
+Using `chain` method...
 
 ```js
 const store = createStore('Tom');

@@ -200,24 +200,26 @@ export const Callbacks = {
 	pipe
 };
 
-export const transform = (to, from, instance = Lens) => (current) => new instance(
+export const transform = (to, from, instance = Lens, props) => (current) => new instance(
 	() => to(current.get()),
 	(value, ...args) => current.set(from(value, current.get()), ...args),
-	current
+	props
 );
 
-export const createLens = (data, instance = Lens, { onGet, onSet } = {}) => {
+export const createLens = (data, instance = Lens, props, { onGet, onSet } = {}) => {
 	const store = { data };
 
 	if (onGet || onSet) {
 		return new instance(
 			() => onGet ? onGet(store.data) : store.data,
-			(value) => onSet ? (store.data = onSet(value, store.data)) : (store.data = value)
+			(value) => onSet ? (store.data = onSet(value, store.data)) : (store.data = value),
+			props
 		);
 	} else {
 		return new instance(
 			() => store.data,
-			(value) => store.data = value
+			(value) => store.data = value,
+			props
 		);
 	}
 };

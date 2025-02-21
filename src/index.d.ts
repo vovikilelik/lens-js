@@ -30,27 +30,30 @@ export type Setter<T> = (value: T) => void;
 
 type Children<T, P, K extends keyof T> = Lens<T[K], P>;
 
-export type ChainFactory<A extends Lens<any>, B extends Lens<any> = A> = (current: A) => B;
+export type ChainFactory<A extends Lens<any>, B extends Lens<any> = A, P = unknown> = (current: A, props: P) => B;
 
-type Constructor<T, P = unknown> = [getter: Getter<T>, setter: Setter<T>, parent?: P];
-type ConstructorExt<T, P = unknown> = [getter: Getter<T>, setter: Setter<T>, parent?: P, ...args: unknown[]];
+type Constructor<T, P = unknown> = [getter: Getter<T>, setter: Setter<T>, props: P];
 
-type Instance<R, T> = new (...args: ConstructorExt<T>) => R;
+type Instance<R, T, P = unknown> = new (...args: Constructor<T, P>) => R;
 
 type NodeSetter<T> = (prev: T) => T;
 
 export class Lens<T, P = unknown> {
-	constructor(...args: ConstructorExt<T, P>);
+	constructor(...args: Constructor<T, P>);
 
 	/* LensLike imlp */
+	
 	public get(): T;
 	public set(value: T): void;
 	public go<K extends keyof T>(key: K): Lens<T[K], P>;
+	
+	/* Hooks */
+	public afterCreate(props?: P): void;
 
 	/* Overloads */
 	public set(value: NodeSetter<T>): void;
 	public go<X extends Lens<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>): R;
-	public go<X extends Lens<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>, ...args: unknown[]): R;
+	public go<X extends Lens<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>, props: P): R;
 
 	/* Own */
 	public subscribe(callback: Callback<T>): () => void;
@@ -58,7 +61,8 @@ export class Lens<T, P = unknown> {
 	public hasSubscribed(callback: Callback<T>): boolean;
 	public subscribes(): Generator<Callback<T>>;
 
-	public chain<B extends Lens<any>>(factory: ChainFactory<Lens<T, P>, B> | Instance<B, T>): B;
+	public chain<B extends Lens<any>, A>(factory: ChainFactory<Lens<T, A>, B, A> | Instance<B, T, A>, props: A): B;
+	public chain<B extends Lens<any>>(factory: ChainFactory<Lens<T>, B> | Instance<B, T>): B;
 	public chain<B extends Lens<any>>(): B;
 
 	public children<L extends Lens<ArrayType<T>>>(): Generator<{ key: string, value: L }>;
@@ -73,26 +77,31 @@ type ArrayType<T, R = unknown> = T extends (infer E)[] ? E : R;
 
 export type Trigger<T, R = unknown> = (event: AttachEvent<T>, node: Lens<T>) => R | undefined;
 
-type StoreGoEntity<T> = {
-	go<K extends keyof T>(key: K): Store<T[K], T>;
+type StoreGoEntity<T, P = unknown> = {
+	go<K extends keyof T>(key: K): Store<T[K], P>;
 	go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>): R;
-	go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>, ...args: unknown[]): R;
+	go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>, props: P): R;
 }
 
 export class Store<T, P = unknown> extends Lens<T, P> {
 
 	/* Overloads */
-	public go<K extends keyof T>(key: K): T[K] extends Array<any> ? ArrayStore<T[K], T> : Store<T[K], T>;
+	public go<K extends keyof T>(key: K): T[K] extends Array<any> ? ArrayStore<T[K], P> : Store<T[K], P>;
 	public go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>): R;
-	public go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>, ...args: unknown[]): R;
+	public go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>, props: P): R;
 	public list<L extends Lens<ArrayType<T>> = Store<ArrayType<T>>>(): L[];
 
-	public transform<B, X extends Lens<B>, R = X>(onGet: (value: T) => B, onSet: (value: B, prev: T) => T, instance?: Instance<R, B>): R;
+	public transform<B, X extends Lens<B>, P = unknown, R = X>(
+		onGet: (value: T) => B,
+		onSet: (value: B, prev: T) => T,
+		instance?: Instance<R, B, P>,
+		props?: P
+	): R;
 
-	public extends<E extends object>(prototype: (lens: this) => E): this & E & StoreGoEntity<E>;
-	public extends<E extends object, K extends keyof E>(prototype: E): this & { [X in K]: (E[X] extends Lens<any> ? E[X] : Lens<E[X]>) } & StoreGoEntity<E>;
+	public extends<E extends object>(prototype: (lens: this) => E): this & E & StoreGoEntity<E, P>;
+	public extends<E extends object, K extends keyof E>(prototype: E): this & { [X in K]: (E[X] extends Lens<any> ? E[X] : Lens<E[X]>) } & StoreGoEntity<E, P>;
 
-	public view<E extends object, K extends keyof E>(prototype: E): this & { [X in K]: E[X] } & StoreGoEntity<E>;
+	public view<E extends object, K extends keyof E>(prototype: E): this & { [X in K]: E[X] } & StoreGoEntity<E, P>;
 
 	public on(callback: Callback<T> | Trigger<T>): this;
 	public on(...triggerOrCallback: Array<Callback<T> | Trigger<T>>): this;
@@ -110,7 +119,7 @@ export class ArrayStore<T, P = unknown, E = ArrayType<T>> extends Store<T, P> {
 	public isEmpty(): boolean;
 }
 
-export function createStore<L extends Store<T>, T = unknown>(data: T, instance?: Instance<L, T>, options?: Adapter<T>): L;
+export function createStore<L extends Store<T>, T = unknown, P = unknown>(data: T, instance?: Instance<L, T, P>, options?: Adapter<T>): L;
 
 export type CallbackWithSync<T> = (event: AttachEvent<T>, node: Lens<T>, sync: () => boolean, stamp: number) => void;
 
@@ -168,14 +177,19 @@ export namespace Callbacks {
 	export function pipe<T>(...callbacks: Array<Trigger<T> | Promise<Trigger<T>>>): Trigger<T>;
 }
 
-export function transform<A, B = A, X extends Lens<B> = Lens<B>>(onGet: (value: A) => B, onSet: (value: B, prev: A) => A, instance?: Instance<X, B>): ChainFactory<Lens<A>, X>;
+export function transform<A, B = A, P = unknown, X extends Lens<B> = Lens<B>>(
+	onGet: (value: A) => B,
+	onSet: (value: B, prev: A) => A,
+	instance?: Instance<X, B, P>,
+	props?: P
+): ChainFactory<Lens<A>, X>;
 
 export interface Adapter<T> {
 	onGet?: (value: T) => T;
 	onSet?: (value: T, prev?: T) => T;
 }
 
-export function createLens<L extends Lens<T>, T = unknown>(data: T, instance?: Instance<L, T>, options?: Adapter<T>): L;
+export function createLens<L extends Lens<T, P>, T = unknown, P = unknown>(data: T, instance?: Instance<L, T, P>, props?: P, options?: Adapter<T>): L;
 
 export function asArray<T = unknown, L = Lens<ArrayType<T>>>(lens: Lens<T>): L[];
 

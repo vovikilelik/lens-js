@@ -130,7 +130,7 @@ function test5() {
 	const store = createStore({ arr: [1, 2, 3], noarr: '' } as Arr);
 
 	const arr1 = store.go('noarr');
-	const arr2 = store.go('uarr');
+	const arr2 = store.go('arr');
 	
 	const v = arr2.get();
 	
@@ -144,8 +144,31 @@ function test5() {
 function test6() {
 	const store = createLens([1, 2, 3]);
 
-	
 	for (const l of store) {
 		l.set(1)
 	}
+}
+
+interface Foo {
+	foo: string;
+}
+
+interface FooChain {
+	foo: string;
+	moo?: string;
+}
+
+class FooChainPrototype extends Lens<FooChain, { loo: string }> {
+}
+
+function test7() {
+	const store = createLens({ foo: 'foo' } as Foo);
+
+	const chain1 = store.chain(FooChainPrototype, { loo: '' });
+	const chain2 = store.chain(c => createLens({}));
+	
+	const store2 = createLens({ foo: 'foo' }, FooChainPrototype, { loo: '' });
+	
+	const store3 = createStore({ foo: 'foo' } as Foo);
+	store3.transform(a => a, b => b, FooChainPrototype, { loo: '' });
 }

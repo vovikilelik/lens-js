@@ -20,8 +20,7 @@ and open the template in the editor.
 			 * 4. Расширение дерева новыми производными
 			 */
 			
-			import { Lens } from '../src/lens-js.js';
-            import { createLens } from '../src/lens-utils.js';
+			import { Lens, createLens } from '../src/index.js';
 			
 			const lens = createLens({ foo: 255, loo: {  } });
 
@@ -29,24 +28,29 @@ and open the template in the editor.
 				get test() {
 					return `XLens`;
 				}
+				
+				afterCreate(props) {
+					console.log('afterCreate', props);
+				}
 			};
 			
-			const transform = (to, from) => (current) => {
+			const transform = (to, from) => (current, props) => {
+				console.log('transform', props);
 				return new Lens(
 					() => to(current.get()),
-					(value, ...args) => current.set(from(value), ...args),
-					current
+					(value, ...args) => current.set(from(value), ...args)
 				);
 			};
 			
 			const t1 = transform(v => v.toString(16), v => parseInt(v, 16));
 			
 			const foo = lens.go('foo');
-			const fooChain = foo.chain(t1);
+			const fooChain = foo.chain(t1, { afterCreate: 'test' });
+			fooChain.chain(XLens, { afterCreate: 'test' })
 			console.log(foo.get(), fooChain.get());
 			
-			foo.attach(console.log);
-			fooChain.attach(console.log);
+			foo.subscribe(console.log);
+			fooChain.subscribe(console.log);
 			
 			fooChain.set('AADD');
 			

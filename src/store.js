@@ -31,16 +31,16 @@ export class Store extends Lens {
 		super.set(...args);
 	}
 
-	go(key, instance = Store) {
-		return super.go(key, instance);
+	go(key, instance = Store, props) {
+		return super.go(key, instance, props);
 	}
 
 	list() {
 		return Array.from(this);
 	}
 
-	transform(onGet, onSet, instance = Store) {
-		return super.chain(transform(onGet, onSet, instance));
+	transform(onGet, onSet, instance = Store, props) {
+		return super.chain(transform(onGet, onSet, instance, props));
 	}
 
 	extends(prototype) {
@@ -146,4 +146,4 @@ export class ArrayStore extends Store {
 	}
 }
 
-export const createStore = (dataOrRouter, instance = Store) => createLens(dataOrRouter, instance);
+export const createStore = (dataOrRouter, instance = Store, props, adapter) => createLens(dataOrRouter, instance, props, adapter);

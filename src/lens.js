@@ -131,7 +131,7 @@ const _makeObjectOrArray = (key, value, all) => {
 	}
 };
 
-const _coreFactory = (key, current, instance = Lens) => {
+const _coreFactory = (key, current, instance = Lens, props) => {
 	const getter = () => {
 		const value = current.get();
 		return value && value[key];
@@ -142,7 +142,7 @@ const _coreFactory = (key, current, instance = Lens) => {
 		current._set(_makeObjectOrArray(key, value, all), ...args);
 	};
 
-	return new instance(getter, setter, current);
+	return new instance(getter, setter, props);
 };
 
 const _isPathEntry = (diffs, key) => diffs.some(({ path }) => path && path[0] == key /* string or int */);
@@ -164,13 +164,12 @@ export class Lens {
 	 * Constructor
 	 * @param {Function} getter
 	 * @param {Function} setter
-	 * @param {Lens} parent
+	 * @param {object} props
 	 * @returns {Lens}
 	 */
-	constructor(getter, setter, parent) {
+	constructor(getter, setter, props) {
 		this._getter = getter;
 		this._setter = setter;
-		this._parent = parent;
 
 		this._localSetter = this.set.bind(this);
 
@@ -183,7 +182,16 @@ export class Lens {
 				yield this.go(isArray ? +key : key);
 			}
 		};
+		
+		this.afterCreate(props);
 	}
+	
+	/**
+	 * After creation hook
+	 * @param {type} props Constructor props
+	 * @returns {undefined}
+	 */
+	afterCreate(props) {}
 
 	* children() {
 		const keys = Object.keys(this._children);
@@ -212,7 +220,6 @@ export class Lens {
 	}
 
 	_unplug() {
-		this._parent = undefined;
 		this._push = undefined;
 	}
 
@@ -285,40 +292,45 @@ export class Lens {
 
 		this._assign(key, node);
 
-		node._parent = this;
-
 		node._getter = () => this.get()?.[key];
 		node._setter = (value, ...args) => this.set(_makeObjectOrArray(key, value, this.get()), ...args);
 	}
 
 	/**
-	 * Move to next node
-	 * @param {string} key Name of node
-	 * @param {class} instance node prototype
-	 * @returns {instance}
+	 * Move to nested node
+	 * @param {string|number} key Name of nested field
+	 * @param {class} instance Instance new node prototype
+	 * @param {object} props Constructor props
+	 * @returns {Lens} Nested node
 	 */
-	go(key, instance) {
+	go(key, instance, props) {
 		const current = this._children[key];
 
 		if (current) {
 			return current;
 		} else {
-			const node = _coreFactory(key, this, instance || Lens);
+			const node = _coreFactory(key, this, instance || Lens, props);
 
 			this._assign(key, node);
 
 			return node;
 		}
 	}
-
-	chain(factory) {
+	
+	/**
+	 * Create mirror node with different instance
+	 * @param {class|function} factory Factory or instance of new node
+	 * @param {object} props Constructor props
+	 * @returns {Lens}
+	 */
+	chain(factory, props) {
 		if (!factory || this._chainFactory === factory) {
 			return this._chain || this;
 		}
 
 		this._chain = (factory.prototype && factory.prototype.constructor)
-			? new factory(() => this.get(), (...args) => this.set(...args), this)
-			: factory(this);
+			? new factory(() => this.get(), (...args) => this.set(...args), props)
+			: factory(this, props);
 
 		this._chain._push = this._push;
 
