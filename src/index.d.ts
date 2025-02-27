@@ -53,7 +53,7 @@ export class Lens<T, P = unknown> {
 	/* Overloads */
 	public set(value: NodeSetter<T>): void;
 	public go<X extends Lens<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>): R;
-	public go<X extends Lens<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>, props: P): R;
+	public go<X extends Lens<T[K]>, K extends keyof T, R = X, A = unknown>(key: K, instance: Instance<R, T[K], A>, props: A): R;
 
 	/* Own */
 	public subscribe(callback: Callback<T>): () => void;

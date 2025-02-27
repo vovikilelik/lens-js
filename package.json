@@ -1,6 +1,6 @@
 {
     "name": "@vovikilelik/lens-js",
-    "version": "4.0.1",
+    "version": "4.0.2",
     "keywords": [
         "util",
         "functional",
@@ -38,5 +38,5 @@
         "type": "git",
         "url": "https://git.dev-store.xyz/Clu/lens-js.git"
     },
-    "license": "MIT OR LGPL-2.1-or-later"
+    "license": "LGPL-2.1-or-later"
 }
