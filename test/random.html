@@ -15,53 +15,130 @@ and open the template in the editor.
 		<script type="module">
 			import { Lens, createStore, Callbacks, Triggers } from '../src/index.js';
 			
-			const date = Symbol('');
-			console.log('typeof', typeof date);
+//			const date = Symbol('');
+//			console.log('typeof', typeof date);
+//			
+//			const time = (time = 1000) => new Promise(resolve => setTimeout(resolve, time));
+//
+//			const data = createStore()
+//					.extends({ foo: 'foo' });
+//
+//			const store = createStore()
+//					.extends({ data })
+//					.extends(node => ({
+//						setFoo: async v => {
+//							await time();
+//							node.go('data').go('foo').set(v);
+////							console.log('store', store.get());
+//						}
+//					}))
+//					.extends(node => ({
+//						setFooX: v => {
+//							node.setFoo(v)
+//								.then(() => v + 'X')
+//								.then(node.go('data').go('foo').setter)
+//								.then(() => console.log('store', store.get()));
+//						}
+//					}));
+//
+//			const dataf = store.go('data');
+//			dataf.on(() => true, ({ current, diffs}) => console.log('all', current));
+//
+//			const foo = store.go('data').go('foo');
+//			foo.on(Triggers.strict, ({ current }) => console.log('strict', current));
+//			store.setFooX('moo');
+//
+//			console.log(foo + "");
+//
+//			const data2 = createStore({ foo: 1 });
+//
+//			data2.go('foo').set(prev => ++prev);
+//			console.log(data2.get());
+//
+//			const data3 = createStore(111);
+//			data3.set(prev => prev + 1);
+//			console.log(data3.get());
+//
+//			const data4 = createStore({ z: 111 });
+//			data4.go('z').set(prev => prev + 1);
+//			console.log(data4.get());
 			
-			const time = (time = 1000) => new Promise(resolve => setTimeout(resolve, time));
+			const data5 = createStore({ a: { b: [] } });
+			data5.go('a').go('b').on(Triggers.object, ({ current }) => console.log('object', current));
+			data5.set({ a: { b: [1, 2, 3] }, foo: '' });
+			
+			
+			function combinationSum(nums, target) {
+  const result = [];
+  
+  // Сортируем массив для оптимизации (необязательно, но полезно)
+  nums.sort((a, b) => a - b);
+  
+  // Вспомогательная функция для рекурсивного поиска
+  function backtrack(start, target, path) {
+    // Базовый случай: если цель достигнута
+    if (target === 0) {
+      result.push([...path]);
+      return;
+    }
+    
+    // Перебираем все возможные числа, начиная с индекса start
+    for (let i = start; i < nums.length; i++) {
+      // Если текущее число больше оставшейся цели, прерываем цикл
+      // (оптимизация работает благодаря предварительной сортировке)
+      if (nums[i] > target) break;
+      
+      // Добавляем текущее число в путь
+      path.push(nums[i]);
+      
+      // Рекурсивно ищем комбинации с текущим числом
+      // Начинаем с того же индекса i, так как можно использовать число многократно
+      backtrack(i + 1, target - nums[i], path);
+      
+      // Убираем текущее число из пути (бэктрекинг)
+      path.pop();
+    }
+  }
+  
+  backtrack(0, target, []);
+  
+  return result;
+}
 
-			const data = createStore()
-					.extends({ foo: 'foo' });
+function combinationSum2(nums, target) {
+  // Создаем массив для хранения всех комбинаций с суммой i
+  const dp = Array(target + 1).fill().map(() => []);
+  
+  // Базовый случай: пустая комбинация для суммы 0
+  dp[0] = [[]];
+  
+  // Для каждого числа в массиве
+  for (const num of nums) {
+    // Для каждой возможной суммы от num до target
+	console.log('[0]', num, '======');
+    for (let sum = num; sum <= target; sum++) {
+		console.log('  [1]', sum, '------');
+      // Для каждой комбинации, которая дает сумму (sum - num)
+      for (const combo of dp[sum - num]) {
+        // Создаем новую комбинацию, добавляя текущее число
+        dp[sum].push([...combo, num]);
+		
+		console.log('    [3]', sum - num, sum, JSON.parse(JSON.stringify(dp)));
+      }
+    }
+  }
+  
+  return dp[target];
+}
 
-			const store = createStore()
-					.extends({ data })
-					.extends(node => ({
-						setFoo: async v => {
-							await time();
-							node.go('data').go('foo').set(v);
-//							console.log('store', store.get());
-						}
-					}))
-					.extends(node => ({
-						setFooX: v => {
-							node.setFoo(v)
-								.then(() => v + 'X')
-								.then(node.go('data').go('foo').setter)
-								.then(() => console.log('store', store.get()));
-						}
-					}));
-
-			const dataf = store.go('data');
-			dataf.on(() => true, ({ current, diffs}) => console.log('all', current));
-
-			const foo = store.go('data').go('foo');
-			foo.on(Triggers.strict, ({ current }) => console.log('strict', current));
-			store.setFooX('moo');
-
-			console.log(foo + "");
-
-			const data2 = createStore({ foo: 1 });
-
-			data2.go('foo').set(prev => ++prev);
-			console.log(data2.get());
-
-			const data3 = createStore(111);
-			data3.set(prev => prev + 1);
-			console.log(data3.get());
-
-			const data4 = createStore({ z: 111 });
-			data4.go('z').set(prev => prev + 1);
-			console.log(data4.get());
+			console.log(combinationSum2([3, 1, 2, 4, 5], 5));
+			
+			const pr = new Promise((r, j) => {
+				j(1);
+				r(2);
+			});
+			
+			pr.then(q => console.log('then', q)).catch(console.log);
 		</script>
 	</body>
 </html>

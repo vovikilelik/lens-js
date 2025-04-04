@@ -65,12 +65,12 @@ export class Lens<T, P = unknown> {
 	public chain<B extends Lens<any>>(factory: ChainFactory<Lens<T>, B> | Instance<B, T>): B;
 	public chain<B extends Lens<any>>(): B;
 
-	public children<L extends Lens<ArrayType<T>>>(): Generator<{ key: string, value: L }>;
+	public children<L extends Lens<ArrayType<T, any>>>(): Generator<{ key: string, value: L }>;
 
 	public getter: Getter<T>;
 	public setter: Setter<T>;
 	
-	[Symbol.iterator]<L extends Lens<ArrayType<T>>>(): IterableIterator<L>;
+	[Symbol.iterator]<L extends Lens<ArrayType<T, any>>>(): IterableIterator<L>;
 }
 
 type ArrayType<T, R = unknown> = T extends (infer E)[] ? E : R;
@@ -86,9 +86,9 @@ type StoreGoEntity<T, P = unknown> = {
 export class Store<T, P = unknown> extends Lens<T, P> {
 
 	/* Overloads */
-	public go<K extends keyof T>(key: K): T[K] extends Array<any> ? ArrayStore<T[K], P> : Store<T[K], P>;
+	public go<K extends keyof T>(key: K): T[K] extends Array<any> ? ArrayStore<T[K]> : Store<T[K], P>;
 	public go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>): R;
-	public go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>, props: P): R;
+	public go<X extends Store<T[K]>, K extends keyof T, R = X, A = unknown>(key: K, instance: Instance<R, T[K], A>, props: A): R;
 	public list<L extends Lens<ArrayType<T>> = Store<ArrayType<T>>>(): L[];
 
 	public transform<B, X extends Lens<B>, P = unknown, R = X>(

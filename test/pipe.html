@@ -29,15 +29,16 @@ and open the template in the editor.
 						Callbacks.pipe(
 							async () => await test('2', 1000 * Math.random()),
 							() => test('3', 1000 * Math.random()),
-							() => console.log(4)
+							() => console.log()
 						),
-						() => console.log(5)
+						() => console.log()
 					),
-					() => console.log(6)
+					() => console.log()
 				)
 			);
 
 			lens.set({ moo: 'moo' });
+			lens.set({ moo: 'moo2' });
 		</script>
 	</body>
 </html>

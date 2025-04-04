@@ -30,7 +30,12 @@ and open the template in the editor.
 				}
 				
 				afterCreate(props) {
+					this.props = props;
 					console.log('afterCreate', props);
+				}
+				
+				foo() {
+					console.log('foo()', this.props);
 				}
 			};
 			
@@ -46,7 +51,10 @@ and open the template in the editor.
 			
 			const foo = lens.go('foo');
 			const fooChain = foo.chain(t1, { afterCreate: 'test' });
-			fooChain.chain(XLens, { afterCreate: 'test' })
+			const g = fooChain.go('go', XLens, { afterCreate: 'test' });
+			const c = fooChain.chain(XLens, { afterCreate: 'test' });
+			g.foo();
+			c.foo();
 			console.log(foo.get(), fooChain.get());
 			
 			foo.subscribe(console.log);

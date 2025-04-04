@@ -28,8 +28,15 @@ const _isStrict = diffs => diffs.some(({ path }) => !path || !path.length);
 const object = ({ current, diffs }) => {
 	const strictAndAssign = diffs.find(({ path }) => !path || path.length < 2);
 
+//	const change = (typeof current.value === 'object')
+//		? current.prev === undefined && current.value !== undefined
+//		: current.prev !== current.value;
+//		
 	const change = (typeof current.value === 'object')
-		? current.prev === undefined && current.value !== undefined
+		? (Array.isArray(current.prev) && Array.isArray(current.value)
+			? current.prev.length !== current.value.length
+			: current.prev === undefined && current.value !== undefined
+		)
 		: current.prev !== current.value;
 
 	return _passIfFalse(strictAndAssign || change);
