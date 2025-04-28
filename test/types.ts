@@ -172,3 +172,7 @@ function test7() {
 	const store3 = createStore({ foo: 'foo' } as Foo);
 	store3.transform(a => a, b => b, FooChainPrototype, { loo: '' });
 }
+
+function test8() {
+	const store = createLens({ foo: ''} as { foo: string | undefined });
+}
