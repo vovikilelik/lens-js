@@ -47,7 +47,7 @@ export class Lens<T, P = unknown> {
 	public set(value: T): void;
 //	public go<K extends keyof T>(key: K): Lens<T[K], P>;
 //	public go<K extends keyof Exclude<T, null | undefined>>(key: K): Lens<T[keyof T] extends never ? Exclude<T, null | undefined>[K] : T[keyof T], P>;
-	public go<K extends keyof Exclude<T, null | undefined>>(key: K): Lens<T[keyof T], P>;
+	public go<K extends keyof Exclude<T, undefined>>(key: K): Lens<Exclude<T, undefined>[K], P>;
 	
 	/* Hooks */
 	public afterCreate(props?: P): void;

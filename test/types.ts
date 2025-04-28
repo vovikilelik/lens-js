@@ -15,8 +15,8 @@ export class XLens<T> extends Lens<T> {
 		super(getter, setter, parent);
 	}
 
-	public go(key: keyof T) {
-		return super.go(key, XLens<T[keyof T]>);
+	public go(key) {
+		return super.go(key);
 	}
 
 	public testXLens() {}
@@ -85,7 +85,7 @@ function test2() {
 
 	const ch = store.chain(current => createStore({ loo: 'loo' }));
 
-	ch.go('loo');
+	ch.go('loo').set('');
 }
 
 function test3() {
@@ -174,5 +174,8 @@ function test7() {
 }
 
 function test8() {
-	const store = createLens({ foo: ''} as { foo: string | undefined });
+	const store = createLens({ foo: {} } as { foo?: { loo: string } });
+	
+	store.go('foo').set({ loo: '' });
+	store.go('foo').go('loo').set('');
 }
