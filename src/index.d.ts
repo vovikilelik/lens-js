@@ -88,7 +88,7 @@ type StoreGoEntity<T, P = unknown> = {
 export class Store<T, P = unknown> extends Lens<T, P> {
 
 	/* Overloads */
-	public go<K extends keyof T>(key: K): T[K] extends Array<any> ? ArrayStore<T[K]> : Store<T[K], P>;
+	public go<K extends keyof Exclude<T, undefined>>(key: K): Exclude<T, undefined>[K] extends Array<any> ? ArrayStore<Exclude<T, undefined>[K]> : Store<Exclude<T, undefined>[K], P>;
 	public go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>): R;
 	public go<X extends Store<T[K]>, K extends keyof T, R = X, A = unknown>(key: K, instance: Instance<R, T[K], A>, props: A): R;
 	public list<L extends Lens<ArrayType<T>> = Store<ArrayType<T>>>(): L[];

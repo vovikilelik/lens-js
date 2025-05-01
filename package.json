@@ -1,42 +1,41 @@
 {
-    "name": "@vovikilelik/lens-js",
-    "version": "4.1.3",
-    "keywords": [
-        "util",
-        "functional",
+	"name": "@vovikilelik/lens-js",
+	"version": "4.1.4",
+	"keywords": [
+		"util",
+		"functional",
 		"oop",
 		"web components",
-        "server",
-        "client",
-        "store",
-        "state",
-        "lens",
+		"server",
+		"client",
+		"store",
+		"state",
+		"lens",
 		"state manager"
-    ],
-    "author": "svinokot",
-    "contributors": [
-    ],
-    "dependencies": {},
-    "description": "Shared multi-paradigm application state and action manager",
-    "directories": {},
-    "main": "index.js",
+	],
+	"author": "svinokot",
+	"contributors": [],
+	"dependencies": {},
+	"description": "Shared multi-paradigm application state and action manager",
+	"directories": {},
+	"main": "index.js",
 	"typings": "index.d.ts",
 	"types": "index.d.ts",
-    "files": [
+	"files": [
 		"src/index.d.ts",
 		"src/index.js",
 		"src/utils.js",
-        "src/lens.js",
+		"src/lens.js",
 		"src/store.js",
 		"src/lib/debounce.js",
-        "index.js",
+		"index.js",
 		"index.d.ts"
-    ],
-    "scripts": {},
-    "homepage": "https://wiki.dev-store.xyz/lens-js/",
-    "repository": {
-        "type": "git",
-        "url": "https://git.dev-store.xyz/Clu/lens-js.git"
-    },
-    "license": "LGPL-2.1-or-later"
+	],
+	"scripts": {},
+	"homepage": "https://wiki.dev-store.xyz/lens-js/",
+	"repository": {
+		"type": "git",
+		"url": "https://git.dev-store.xyz/Clu/lens-js.git"
+	},
+	"license": "LGPL-2.1-or-later"
 }

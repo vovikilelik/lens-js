@@ -179,3 +179,10 @@ function test8() {
 	store.go('foo').set({ loo: '' });
 	store.go('foo').go('loo').set('');
 }
+
+function test9() {
+	const store = createStore({ foo: {} } as { foo?: { loo: string } });
+	
+	store.go('foo').set({ loo: '' });
+	store.go('foo').go('loo').set('');
+}
