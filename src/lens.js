@@ -196,7 +196,8 @@ export class Lens {
 	* children() {
 		const keys = Object.keys(this._children);
 
-		for (let key in keys) {
+		for (let i = 0; i < keys.length; i++) {
+			const key = keys[i];
 			yield { key, value: this._children[key] };
 		}
 	}
@@ -230,9 +231,7 @@ export class Lens {
 
 	_fire(diffs, currentDiff) {
 		const event = new AttachEvent(diffs, currentDiff);
-
 		this._subscribes.forEach(callback => callback(event, this));
-//		this._chain && this._chain._fire && this._chain._fire(diffs, currentDiff);
 	}
 
 	_cascade(diffs, value, prev) {
