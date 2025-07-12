@@ -7,7 +7,7 @@ It will help you organize the global state of your application, the local state 
 
 ## Links
 * [Wiki](https://wiki.dev-store.xyz/lens-js/) - documentation
-* [react-lens](https://www.npmjs.com/package/@vovikilelik/react-lens) - ReactJS implementation
+* [react-lens](https://www.npmjs.com/package/@devstore/react-lens) - ReactJS implementation
 * [Git](https://github.com/vovikilelik/lens-js/tree/master) (Github) push mirror
 
 ## Instalation
