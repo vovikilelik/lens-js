@@ -13,7 +13,21 @@ It will help you organize the global state of your application, the local state 
 ## Instalation
 
 - **Git:** `git clone https://git.dev-store.xyz/Clu/lens-js.git`
-- **Npm:** `npm i @vovikilelik/lens-js`
+- **Npm:** `npm i @devstore/lens-js`
+
+# Main Idea
+
+One of the main ideas of lens-js is to create a basic mechanism that could form the basis of shells for other frameworks: ReactJS, Angular, Vue, etc. This would allow many developers to better understand processes on different frameworks and depend less on a particular stack. And also, it would allow achieving good code portability between projects on different frameworks.
+
+## Focus
+
+- **Ease of deploying** project state management. React-lens allows you to quickly deploy state management without using a ballerplate.
+- **Independence** of components from the global state. This allows you to create common component models and distribute them between projects.
+- **Improved performance.** React-lens does not trigger a cascade update of all components, but changes only the related component, which has a positive effect on performance.
+- **Ability to work with asynchronous code.** There is no need to use special middleware to organize asynchronous interaction.
+- **Separation of state management logic** from user interface logic. This makes the code cleaner and more maintainable.
+- **Possibility of application** where conventional approaches are not suitable. For example, when creating dynamic scenes on BabylonJS or the internal state of Web components.
+- **Atoms:** the state can be divided into separate independent small pieces, which is useful for performance and scaling.
 
 ## Philosofy
 
@@ -42,24 +56,10 @@ We believe that `LensJs` can be used in conjunction with other state managers.
 * Encapsulation
 * Typings with TypeScript
 
-## Main Idea
-One of the main ideas of lens-js is to create a basic mechanism that could form the basis of shells for other frameworks: ReactJS, Angular, Vue, etc. This would allow many developers to better understand processes on different frameworks and depend less on a particular stack. And also, it would allow achieving good code portability between projects on different frameworks.
+## Implementations
 
-```ts
-|-----------| |-----------| |--------------|
-|  ReactJS  | |  Angular  | |  Vue е.т.с.  |
-|-----------| |-----------| |--------------|
-[react-lens ] [angular-lens] ...
-      |             |              |
-|------------------------------------------|
-|                 lens-js                  |
-|------------------------------------------|
-```
-
-# Implementations
-
-## React JS
-See [react-lens](https://www.npmjs.com/package/@vovikilelik/react-lens) for ReactJS implementation.
+### React JS
+See [react-lens](https://www.npmjs.com/package/@devstore/react-lens) for ReactJS implementation.
 
 ```ts
 const store = createStore(0);
@@ -74,26 +74,16 @@ const Counter: react.FC = () => {
 
 `lens-js` can be used as a standalone status manager, or as part of a library. It is suitable for use in **Web Components** or **Node Modules**.
 
-### Web Components
-```html
-<script type="module">
-  import { createStore } from './path_to_module/index.js';
-
-  const store = createStore({ /* App data */ });
-  ...
-</script>
-```
-
-### Node Modules
-```js
-import { createStore } from '@vovikilelik/lens-js';
-
-export const store = createStore({ /* App data */ });
-...
-```
-
 ## Creation and extends
 There are two main approaches to extending the state model: functional, provided by the `Store` class, and Object-oriented.
+
+### Just for example
+Creating a state instance happens like this. Nothing more...
+```js
+const store = createStore({ /* App data */ });
+```
+
+Optionally, you can extend the state with different methods and properties. This is a bit more complicated, but it is not necessary.
 
 ### Simple Store
 The `Store` class provides a functional approach to creating state. You can add new properties to the model using the `extends()` method. For convenience, we recommend using the `createStore()` utility.
@@ -350,13 +340,13 @@ Method chain provides an props for instance constructor.
 
 ```js
 class Foo {
-    foo() {}
+  foo() {}
 }
 
 class Moo {
-    afterCreate(props) {
-        // props will be there
-    }
+  afterCreate(props) {
+    // props_for_moo will be there
+  }
 }
 
 const store = createStore({}, Foo);

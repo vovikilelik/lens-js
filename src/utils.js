@@ -42,6 +42,8 @@ const object = ({ current, diffs }) => {
 	return _passIfFalse(strictAndAssign || change);
 };
 
+const objectDefined = args => _passIfFalse(object(args) && args.current.value !== undefined);
+
 /**
  * Creating callback, which will be called only if current node would be replaced of new structure
  */
@@ -83,7 +85,7 @@ const not = trigger => (...args) => {
 	// ?
 };
 
-export const Triggers = { deep: _deepTrigger, object, strict, subtree, path, combine: _combineTriggers, pass: _passTrigger, interrupt: _interruptTrigger };
+export const Triggers = { deep: _deepTrigger, object, objectDefined, strict, subtree, path, combine: _combineTriggers, pass: _passTrigger, interrupt: _interruptTrigger };
 
 const _getField = (source, path) => {
 	if (path.length === 1)
@@ -231,7 +233,7 @@ export const createLens = (data, instance = Lens, props, { onGet, onSet } = {}) 
 	}
 };
 
-export const asArray = lens => Array.from(lens);
+export const asArray = (lens) => Array.from(lens);
 
 export const createLocalStorageAdapter = (key) => {
 

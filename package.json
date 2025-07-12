@@ -1,6 +1,6 @@
 {
-	"name": "@vovikilelik/lens-js",
-	"version": "4.1.5",
+	"name": "@devstore/lens-js",
+	"version": "5.0.1",
 	"keywords": [
 		"util",
 		"functional",
@@ -11,12 +11,14 @@
 		"store",
 		"state",
 		"lens",
-		"state manager"
+		"state manager",
+		"databus",
+		"controller"
 	],
 	"author": "svinokot",
 	"contributors": [],
 	"dependencies": {},
-	"description": "Shared multi-paradigm application state and action manager",
+	"description": "Multi-paradigm data controller with state and action manager",
 	"directories": {},
 	"main": "index.js",
 	"typings": "index.d.ts",

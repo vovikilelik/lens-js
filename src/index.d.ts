@@ -63,9 +63,9 @@ export class Lens<T, P = unknown> {
 	public hasSubscribed(callback: Callback<T>): boolean;
 	public subscribes(): Generator<Callback<T>>;
 
-	public chain<B extends Lens<any>, A>(factory: ChainFactory<Lens<T, A>, B, A> | Instance<B, T, A>, props: A): B;
-	public chain<B extends Lens<any>>(factory: ChainFactory<Lens<T>, B> | Instance<B, T>): B;
-	public chain<B extends Lens<any>>(): B;
+	public chain<B extends Lens<any>, A>(factory: ChainFactory<Lens<T, A>, B, A> | Instance<B, T, A>, props: A): B | undefined;
+	public chain<B extends Lens<any>>(factory: ChainFactory<Lens<T>, B> | Instance<B, T>): B | undefined;
+	public chain<B extends Lens<any>>(): B | undefined;
 
 	public children<L extends Lens<ArrayType<T, any>>>(): Generator<{ key: string, value: L }>;
 
@@ -73,6 +73,9 @@ export class Lens<T, P = unknown> {
 	public setter: Setter<T>;
 	
 	[Symbol.iterator]<L extends Lens<ArrayType<T, any>>>(): IterableIterator<L>;
+
+	public onUnmount(): void;
+	public onMount(): void;
 }
 
 type ArrayType<T, R = unknown> = T extends (infer E)[] ? E : R;
@@ -88,7 +91,7 @@ type StoreGoEntity<T, P = unknown> = {
 export class Store<T, P = unknown> extends Lens<T, P> {
 
 	/* Overloads */
-	public go<K extends keyof Exclude<T, undefined>>(key: K): Exclude<T, undefined>[K] extends Array<any> ? ArrayStore<Exclude<T, undefined>[K]> : Store<Exclude<T, undefined>[K], P>;
+	public go<K extends keyof Exclude<T, undefined>>(key: K): Store<Exclude<T, undefined>[K], P>;
 	public go<X extends Store<T[K]>, K extends keyof T, R = X>(key: K, instance: Instance<R, T[K]>): R;
 	public go<X extends Store<T[K]>, K extends keyof T, R = X, A = unknown>(key: K, instance: Instance<R, T[K], A>, props: A): R;
 	public list<L extends Lens<ArrayType<T>> = Store<ArrayType<T>>>(): L[];
@@ -152,6 +155,7 @@ export namespace Differ {
 export namespace Triggers {
 	export const deep: Trigger<any>;
 	export const object: Trigger<any>;
+	export const objectDefined: Trigger<any>;
 	export const strict: Trigger<any>;
 	export const subtree: Trigger<any>;
 	export const path: Trigger<any>;
@@ -160,7 +164,7 @@ export namespace Triggers {
 	export const interrupt: <T>(trigger: Trigger<T>) => Trigger<T>;
 }
 
-export function createCallback<T>(trigger: Trigger<T>, ...callbacks: Array<Callback<T> | Trigger<T>>): Callback<T>;
+export function createCallback<T>(trigger: Trigger<T> | false | null | undefined | 0 | '', ...callbacks: Array<Callback<T> | Trigger<T>>): Callback<T>;
 
 export namespace Callbacks {
 

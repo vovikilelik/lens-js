@@ -193,6 +193,9 @@ export class Lens {
 	 */
 	afterCreate(props) {}
 
+	onUnmount() {}
+	onMount() {}
+
 	* children() {
 		const keys = Object.keys(this._children);
 
@@ -222,6 +225,7 @@ export class Lens {
 
 	_unplug() {
 		this._push = undefined;
+		this.onUnmount();
 	}
 
 	_clear() {
@@ -283,6 +287,8 @@ export class Lens {
 	_assign(key, node) {
 		node._push = transaction => this._transaction(transaction, key);
 		this._children[key] = node;
+
+		node.onMount?.();
 	}
 
 	define(key, node) {
@@ -324,7 +330,7 @@ export class Lens {
 	 */
 	chain(factory, props) {
 		if (!factory || this._chainFactory === factory) {
-			return this._chain || this;
+			return this._chain;
 		}
 
 		this._chain = (factory.prototype && factory.prototype.constructor)
@@ -332,6 +338,7 @@ export class Lens {
 			: factory(this, props);
 
 		this._chain._push = this._push;
+		this._chain.onMount?.();
 
 		this._chainFactory = factory;
 
