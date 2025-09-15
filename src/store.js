@@ -144,6 +144,11 @@ export class ArrayStore extends Store {
 	isEmpty() {
 		return this.length === 0;
 	}
+	
+	/** @deprecated use list() */
+	filter(filter) {
+		return this.list().filter(filter);
+	}
 }
 
 export const createStore = (dataOrRouter, instance = Store, props, adapter) => createLens(dataOrRouter, instance, props, adapter);
